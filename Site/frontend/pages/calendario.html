@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendário — AgriFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components/sidebar.css">
+  <link rel="stylesheet" href="../css/components/painel-lateral.css">
+  <link rel="stylesheet" href="../css/components/modals.css">
+  <link rel="stylesheet" href="../css/calendario.css">
+</head>
+<body>
+
+<!-- ── Toggle mobile ──────────────────────────────────────── -->
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  SIDEBAR                                               -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🌿</div>
+    <div>
+      <div class="sidebar-logo-text">AgriFlow</div>
+      <div class="sidebar-logo-sub">Crédito Rural</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Principal</div>
+    <a href="/pages/calendario.html" class="sidebar-item" data-page="calendario">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/>
+        <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="10" x2="21" y2="10" stroke-width="2"/>
+      </svg>
+      Calendário
+    </a>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name" id="sidebar-user-name">—</div>
+      <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+    </div>
+  </div>
+  <button class="sidebar-logout-btn" id="btn-logout">
+    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path d="M17 16l4-4m0 0l-4-4m4 4H7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3 12V5a2 2 0 012-2h7" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Sair da conta
+  </button>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  CONTEÚDO PRINCIPAL                                    -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<main class="app-main">
+  <div class="app-content">
+
+    <!-- Header da página -->
+    <div class="cal-page-header">
+      <div class="cal-page-title">
+        <h1>Calendário de Obrigações</h1>
+        <p>Gerencie projetos e tarefas da equipe</p>
+      </div>
+      <div class="cal-page-actions">
+        <button class="btn btn-secondary" id="btn-nova-tarefa">+ Nova tarefa</button>
+        <button class="btn btn-primary"   id="btn-novo-projeto">+ Novo projeto</button>
+      </div>
+    </div>
+
+    <!-- Controles de navegação -->
+    <div class="cal-controls">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" id="btn-prev">&#8592;</button>
+        <span class="cal-mes-titulo" id="cal-mes-titulo">—</span>
+        <button class="cal-nav-btn" id="btn-next">&#8594;</button>
+      </div>
+      <button class="cal-toggle-visao" id="btn-toggle-visao">Expandir mês ▼</button>
+      <div class="cal-filtros">
+        <div id="filtro-usuario-wrap">
+          <select class="form-select" id="filtro-usuario">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <select class="form-select" id="filtro-projeto">
+          <option value="">Todos os projetos</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── VISÃO SEMANA ───────────────────────────────────── -->
+    <div class="cal-semana card" id="cal-semana">
+      <div class="cal-semana-header" id="cal-semana-header"></div>
+      <div class="cal-semana-body"   id="cal-semana-body"></div>
+    </div>
+
+    <!-- ── VISÃO MÊS ─────────────────────────────────────── -->
+    <div class="cal-mes card" id="cal-mes">
+      <div class="cal-mes-header">
+        <div class="cal-mes-dia-header">Seg</div>
+        <div class="cal-mes-dia-header">Ter</div>
+        <div class="cal-mes-dia-header">Qua</div>
+        <div class="cal-mes-dia-header">Qui</div>
+        <div class="cal-mes-dia-header">Sex</div>
+        <div class="cal-mes-dia-header">Sáb</div>
+        <div class="cal-mes-dia-header">Dom</div>
+      </div>
+      <div class="cal-mes-grid" id="cal-mes-grid"></div>
+    </div>
+
+    <!-- ── PROJETOS ATIVOS ───────────────────────────────── -->
+    <div class="projetos-ativos card">
+      <div class="projetos-ativos-header">
+        <h3>Projetos ativos (<span id="projetos-ativos-count">0</span>)</h3>
+        <button class="btn btn-ghost btn-sm" onclick="window.location.href='/pages/calendario.html'">Ver todos</button>
+      </div>
+      <div class="projetos-ativos-lista" id="projetos-ativos-lista">
+        <div class="loading-state"><span class="spinner"></span> Carregando...</div>
+      </div>
+    </div>
+
+  </div><!-- /app-content -->
+</main>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  PAINEL LATERAL                                        -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="painel-overlay" id="painel-overlay">
+  <div class="painel">
+    <div class="painel-header">
+      <div style="display:flex;align-items:center;flex:1;gap:8px;min-width:0">
+        <span class="painel-cor-dot" id="painel-cor"></span>
+        <h2 class="painel-titulo" id="painel-titulo"></h2>
+      </div>
+      <button class="btn-close" id="btn-fechar-painel">✕</button>
+    </div>
+
+    <div class="painel-body">
+
+      <!-- Projeto -->
+      <div class="painel-section">
+        <div class="painel-section-label">Projeto</div>
+        <div class="painel-projeto-chip" id="painel-projeto"></div>
+      </div>
+
+      <!-- Status -->
+      <div>
+        <div class="painel-section-label">Status</div>
+        <div class="status-btns">
+          <button class="status-btn" data-status="aguardando">Aguardando</button>
+          <button class="status-btn" data-status="ativa">Ativa</button>
+          <button class="status-btn" data-status="em_andamento">Em andamento</button>
+          <button class="status-btn" data-status="concluida">Concluída</button>
+          <button class="status-btn" data-status="cancelada">Cancelada</button>
+        </div>
+      </div>
+
+      <!-- Atribuição -->
+      <div>
+        <div class="painel-section-label">Atribuída a</div>
+        <div class="painel-atribuido">
+          <span class="avatar-sm" id="painel-atribuido-avatar">?</span>
+          <span id="painel-atribuido-nome">—</span>
+        </div>
+      </div>
+
+      <!-- Data -->
+      <div class="flex gap-md">
+        <div>
+          <div class="painel-section-label">Data</div>
+          <div>📅 <span id="painel-data">—</span></div>
+        </div>
+        <div>
+          <div class="painel-section-label">Hora</div>
+          <div>⏰ <span id="painel-hora">—</span></div>
+        </div>
+      </div>
+
+      <!-- Prioridade -->
+      <div>
+        <div class="painel-section-label">Prioridade</div>
+        <div class="prioridade-radios">
+          <label class="prioridade-label" data-val="baixa">Baixa</label>
+          <label class="prioridade-label" data-val="normal">Normal</label>
+          <label class="prioridade-label" data-val="alta">Alta</label>
+          <label class="prioridade-label" data-val="urgente">Urgente</label>
+        </div>
+      </div>
+
+      <!-- Descrição -->
+      <div>
+        <div class="painel-section-label">Descrição</div>
+        <div class="painel-descricao" id="painel-descricao"></div>
+      </div>
+
+      <!-- Ações -->
+      <div class="painel-actions">
+        <div style="height:1px;background:var(--border);margin:4px 0"></div>
+        <button class="btn-concluir" id="btn-concluir">✓ Concluir e delegar próxima →</button>
+        <div class="painel-actions-row">
+          <button class="btn btn-secondary" id="btn-editar-tarefa" style="flex:1">✏️ Editar</button>
+          <button class="btn btn-danger"    id="btn-excluir-tarefa">🗑️</button>
+        </div>
+      </div>
+
+      <!-- Histórico -->
+      <div>
+        <div style="height:1px;background:var(--border);margin:4px 0"></div>
+        <div class="painel-section-label" style="margin-bottom:12px">Histórico</div>
+        <div class="historico-lista" id="painel-historico"></div>
+      </div>
+
+    </div><!-- /painel-body -->
+  </div><!-- /painel -->
+</div><!-- /painel-overlay -->
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  MODAL — NOVO PROJETO                                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-projeto-overlay">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <h2 id="modal-projeto-titulo">Novo projeto</h2>
+      <button class="btn-close" id="btn-fechar-projeto">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label class="form-label">Nome do projeto *</label>
+        <input type="text" id="projeto-nome" class="form-input" placeholder="Ex: Crédito Rural — João Batista da Silva">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea id="projeto-descricao" class="form-textarea" placeholder="Detalhes do projeto..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Cor do projeto *</label>
+        <div class="color-picker" id="color-picker"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data de início *</label>
+          <input type="date" id="projeto-inicio" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data de término</label>
+          <input type="date" id="projeto-fim" class="form-input">
+        </div>
+      </div>
+
+      <!-- Participantes -->
+      <div>
+        <label class="form-label">Participantes</label>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <select class="form-select" id="select-participante" style="flex:1">
+            <option value="">Adicionar participante...</option>
+          </select>
+          <button class="btn btn-secondary" id="btn-add-participante">Adicionar</button>
+        </div>
+        <div class="participantes-lista mt-sm" id="participantes-lista"></div>
+      </div>
+
+      <!-- Tarefas iniciais -->
+      <div id="tarefas-iniciais-section">
+        <div style="height:1px;background:var(--border);margin:4px 0"></div>
+        <label class="form-label">Tarefas iniciais</label>
+        <p class="text-sm text-muted mt-sm">Adicione as primeiras tarefas. Mais podem ser adicionadas depois.</p>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px" id="tarefas-container"></div>
+        <button class="btn-add-tarefa mt-sm" id="btn-add-tarefa">+ Adicionar outra tarefa</button>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-projeto">Cancelar</button>
+      <button class="btn btn-primary"   id="btn-confirmar-projeto">Criar projeto →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  MODAL — NOVA TAREFA                                   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-tarefa-overlay">
+  <div class="modal" id="modal-tarefa">
+    <div class="modal-header">
+      <h2 id="modal-tarefa-titulo">Nova tarefa</h2>
+      <button class="btn-close" id="btn-fechar-tarefa">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <div class="tipo-toggle">
+          <button class="tipo-btn" data-tipo="pessoal">👤 Pessoal</button>
+          <button class="tipo-btn active" data-tipo="equipe">👥 De equipe</button>
+        </div>
+      </div>
+
+      <div class="form-group" id="tarefa-projeto-section">
+        <label class="form-label">Projeto</label>
+        <select class="form-select" id="tarefa-projeto">
+          <option value="">Selecione o projeto...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Título *</label>
+        <input type="text" id="tarefa-titulo" class="form-input" placeholder="O que precisa ser feito?">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea id="tarefa-descricao" class="form-textarea" placeholder="Detalhes da tarefa..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data *</label>
+          <input type="date" id="tarefa-data" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hora</label>
+          <input type="time" id="tarefa-hora" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data de término</label>
+          <input type="date" id="tarefa-data-fim" class="form-input">
+        </div>
+        <div class="form-group" style="justify-content:flex-end">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding-top:24px">
+            <input type="checkbox" id="tarefa-dia-inteiro" checked> Dia inteiro
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Prioridade</label>
+        <div class="prioridade-group">
+          <label class="prioridade-opt" data-val="baixa"><input type="radio" name="t-prioridade" value="baixa"> Baixa</label>
+          <label class="prioridade-opt checked" data-val="normal"><input type="radio" name="t-prioridade" value="normal" checked> Normal</label>
+          <label class="prioridade-opt" data-val="alta"><input type="radio" name="t-prioridade" value="alta"> Alta</label>
+          <label class="prioridade-opt" data-val="urgente"><input type="radio" name="t-prioridade" value="urgente"> Urgente</label>
+        </div>
+      </div>
+
+      <div class="form-group" id="tarefa-atribuido-section">
+        <label class="form-label">Atribuir a *</label>
+        <select class="form-select" id="tarefa-atribuido">
+          <option value="">Selecione...</option>
+        </select>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-tarefa">Cancelar</button>
+      <button class="btn btn-primary"   id="btn-confirmar-tarefa">Criar tarefa</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  MODAL — CONCLUIR E DELEGAR                            -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-concluir-overlay">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <h2>Concluir tarefa</h2>
+      <button class="btn-close" id="btn-fechar-concluir">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div style="background:var(--verde-cl);border-radius:var(--radius-sm);padding:12px 16px;font-weight:600;color:var(--verde-esc)">
+        ✓ <span id="concluir-titulo"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Observações da conclusão</label>
+        <textarea id="concluir-obs" class="form-textarea" placeholder="Ex: Liguei para o João. Visita marcada para quinta-feira 17/04 às 14h."></textarea>
+      </div>
+
+      <div>
+        <div class="form-label" style="margin-bottom:10px">O que acontece agora?</div>
+        <div class="acao-radios">
+          <div class="acao-opt selected" data-acao="delegar">
+            <input type="radio" name="acao" checked>
+            <div>
+              <div class="acao-opt-label">Delegar próxima tarefa</div>
+              <div class="acao-opt-sub">Criar nova tarefa para um colega</div>
+            </div>
+          </div>
+          <div class="acao-opt" data-acao="apenas_concluir">
+            <input type="radio" name="acao">
+            <div>
+              <div class="acao-opt-label">Apenas concluir</div>
+              <div class="acao-opt-sub">Não há próximo passo por agora</div>
+            </div>
+          </div>
+          <div class="acao-opt" data-acao="finalizar_projeto">
+            <input type="radio" name="acao">
+            <div>
+              <div class="acao-opt-label">Finalizar projeto</div>
+              <div class="acao-opt-sub">Esta era a última tarefa do projeto</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulário de delegação -->
+      <div class="delegacao-form" id="delegacao-form">
+        <div class="form-group">
+          <label class="form-label">Título da próxima tarefa *</label>
+          <input type="text" id="prox-titulo" class="form-input" placeholder="O que precisa ser feito?">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <textarea id="prox-descricao" class="form-textarea" placeholder="Detalhes..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Atribuir a *</label>
+          <select class="form-select" id="prox-atribuido">
+            <option value="">Selecione o responsável...</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Data *</label>
+            <input type="date" id="prox-data" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hora</label>
+            <input type="time" id="prox-hora" class="form-input">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prioridade</label>
+          <div class="prioridade-group">
+            <label class="prioridade-opt" data-val="baixa"><input type="radio" name="prox-prioridade" value="baixa"> Baixa</label>
+            <label class="prioridade-opt checked" data-val="normal"><input type="radio" name="prox-prioridade" value="normal" checked> Normal</label>
+            <label class="prioridade-opt" data-val="alta"><input type="radio" name="prox-prioridade" value="alta"> Alta</label>
+            <label class="prioridade-opt" data-val="urgente"><input type="radio" name="prox-prioridade" value="urgente"> Urgente</label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-concluir">Cancelar</button>
+      <button class="btn btn-primary"   id="btn-confirmar-concluir">Concluir →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Scripts -->
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/components/sidebar.js"></script>
+<script src="../js/components/painel-lateral.js"></script>
+<script src="../js/components/modal-projeto.js"></script>
+<script src="../js/components/modal-tarefa.js"></script>
+<script src="../js/components/modal-concluir.js"></script>
+<script src="../js/pages/calendario.js"></script>
+
+</body>
+</html>

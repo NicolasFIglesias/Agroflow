@@ -1,0 +1,21 @@
+# ============================================================
+# AgriFlow — Configuração Netlify
+# ============================================================
+
+[build]
+  publish = "."
+
+# Redirecionar todas as rotas para o index (SPA)
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# Headers de segurança
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options        = "DENY"
+    X-XSS-Protection       = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy        = "strict-origin-when-cross-origin"

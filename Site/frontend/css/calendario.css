@@ -1,0 +1,380 @@
+/* ============================================================
+   AgriFlow — Calendário de Obrigações
+   ============================================================ */
+
+/* ── Header da página ─────────────────────────────────────── */
+.cal-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+  gap: var(--space-md);
+}
+
+.cal-page-title h1 { margin-bottom: 2px; }
+.cal-page-title p { color: var(--text-muted); font-size: .875rem; }
+
+.cal-page-actions { display: flex; gap: var(--space-sm); flex-shrink: 0; }
+
+/* ── Controles ────────────────────────────────────────────── */
+.cal-controls {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.cal-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .875rem;
+  transition: background .15s;
+  cursor: pointer;
+}
+.cal-nav-btn:hover { background: var(--bg); }
+
+.cal-mes-titulo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  min-width: 140px;
+  text-align: center;
+}
+
+.cal-toggle-visao {
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: .875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cal-toggle-visao:hover { background: var(--bg); }
+.cal-toggle-visao.active { background: var(--verde-cl); border-color: var(--verde); color: var(--verde-esc); }
+
+.cal-filtros {
+  display: flex;
+  gap: var(--space-sm);
+  margin-left: auto;
+}
+
+.cal-filtros .form-select {
+  width: auto;
+  padding: 6px 10px;
+  font-size: .875rem;
+}
+
+/* ── Grid da semana ───────────────────────────────────────── */
+.cal-semana {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: var(--space-lg);
+}
+
+.cal-semana-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.cal-semana-dia-header {
+  padding: 10px 8px;
+  text-align: center;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+}
+.cal-semana-dia-header:last-child { border-right: none; }
+
+.cal-semana-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  min-height: 160px;
+}
+
+.cal-dia-col {
+  border-right: 1px solid var(--border);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: background .1s;
+  min-height: 140px;
+}
+.cal-dia-col:last-child { border-right: none; }
+.cal-dia-col:hover { background: rgba(99,153,34,.03); }
+
+.cal-dia-num {
+  font-size: .8125rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  align-self: flex-start;
+}
+
+.cal-dia-col.hoje .cal-dia-num {
+  background: var(--verde);
+  color: #fff;
+}
+
+.cal-dia-col.fim-semana { background: rgba(0,0,0,.01); }
+
+/* ── Pílula da tarefa ─────────────────────────────────────── */
+.tarefa-pilula {
+  border-radius: 6px;
+  padding: 4px 7px;
+  font-size: .75rem;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+  border-left: 3px solid transparent;
+  min-height: 32px;
+}
+
+.tarefa-pilula:hover { transform: translateX(1px); opacity: .9; }
+
+.tarefa-pilula-titulo {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tarefa-pilula-sub {
+  color: inherit;
+  opacity: .75;
+  font-size: .7rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Variações de status */
+.tarefa-pilula[data-status="aguardando"] { opacity: .5; font-style: italic; }
+.tarefa-pilula[data-status="concluida"]  { opacity: .6; text-decoration: line-through; }
+.tarefa-pilula[data-status="em_andamento"] .tarefa-pilula-titulo::before { content: '⏳ '; font-style: normal; }
+.tarefa-pilula[data-status="concluida"] .tarefa-pilula-titulo::before    { content: '✓ '; font-style: normal; }
+.tarefa-pilula[data-status="atrasada"]  { box-shadow: 0 0 0 1.5px var(--vermelho); }
+
+.mais-tarefas {
+  font-size: .7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 2px 4px;
+  cursor: pointer;
+  transition: color .15s;
+}
+.mais-tarefas:hover { color: var(--verde); }
+
+/* ── Grid do mês ──────────────────────────────────────────── */
+.cal-mes {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: var(--space-lg);
+}
+
+.cal-mes.visivel { display: block; }
+.cal-semana.escondida { display: none; }
+
+.cal-mes-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.cal-mes-dia-header {
+  padding: 8px 6px;
+  text-align: center;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+}
+.cal-mes-dia-header:last-child { border-right: none; }
+
+.cal-mes-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.cal-mes-cel {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 6px;
+  min-height: 90px;
+  cursor: pointer;
+  transition: background .1s;
+}
+.cal-mes-cel:nth-child(7n) { border-right: none; }
+.cal-mes-cel:hover { background: rgba(99,153,34,.04); }
+.cal-mes-cel.outro-mes { opacity: .3; }
+.cal-mes-cel.hoje-mes .cal-mes-num { background: var(--verde); color: #fff; border-radius: 50%; }
+
+.cal-mes-num {
+  font-size: .8125rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.cal-mes-pilulas {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cal-mes-pilula {
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-size: .68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+}
+
+/* ── Lista de projetos ativos ─────────────────────────────── */
+.projetos-ativos {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.projetos-ativos-header {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.projetos-ativos-header h3 { font-size: 1rem; }
+
+.projetos-ativos-lista {
+  divide: 1px solid var(--border);
+}
+
+.projeto-row {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .15s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.projeto-row:last-child { border-bottom: none; }
+.projeto-row:hover { background: var(--bg); }
+
+.projeto-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.projeto-row-nome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: .9375rem;
+}
+
+.projeto-cor-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.projeto-row-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: .8125rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.projeto-progress-bar {
+  width: 100%;
+  height: 5px;
+  background: var(--bg);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.projeto-progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width .3s ease;
+}
+
+.projetos-vazios {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: .875rem;
+}
+
+/* ── Responsividade ───────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .cal-page-header { flex-direction: column; }
+  .cal-page-actions { width: 100%; }
+  .cal-filtros { margin-left: 0; }
+}
+
+@media (max-width: 767px) {
+  .cal-controls { padding: var(--space-sm) var(--space-md); }
+  .cal-semana-body { min-height: auto; }
+  .cal-dia-col { min-height: 80px; padding: 4px; }
+  .tarefa-pilula { font-size: .68rem; padding: 3px 5px; min-height: 24px; }
+  .cal-filtros { flex-direction: column; }
+  .cal-filtros .form-select { width: 100%; }
+}

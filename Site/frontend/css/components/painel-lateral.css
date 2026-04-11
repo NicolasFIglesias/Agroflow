@@ -1,0 +1,255 @@
+/* ============================================================
+   AgriFlow — Painel Lateral (Slide-over)
+   ============================================================ */
+
+.painel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  z-index: 400;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+
+.painel-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.painel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 420px;
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  z-index: 401;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+
+.painel-overlay.open .painel {
+  transform: translateX(0);
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.painel-header {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.painel-cor-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.painel-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  flex: 1;
+  line-height: 1.3;
+}
+
+/* ── Corpo ────────────────────────────────────────────────── */
+.painel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* ── Seções do painel ─────────────────────────────────────── */
+.painel-section-label {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.painel-projeto-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s;
+  text-decoration: none;
+  color: var(--text);
+  width: 100%;
+}
+.painel-projeto-chip:hover { background: var(--verde-cl); }
+
+/* ── Botões de status ─────────────────────────────────────── */
+.status-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.status-btn {
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-size: .8125rem;
+  font-weight: 500;
+  border: 1.5px solid transparent;
+  transition: all .15s;
+  cursor: pointer;
+}
+
+.status-btn[data-status="aguardando"]  { border-color: #D1D5DB; color: #6B7280; }
+.status-btn[data-status="ativa"]       { border-color: var(--verde); color: var(--verde); }
+.status-btn[data-status="em_andamento"]{ border-color: var(--ambar); color: var(--ambar); }
+.status-btn[data-status="concluida"]   { border-color: var(--teal); color: var(--teal); }
+.status-btn[data-status="cancelada"]   { border-color: var(--vermelho); color: var(--vermelho); }
+
+.status-btn.active {
+  color: #fff;
+}
+.status-btn.active[data-status="aguardando"]  { background: #6B7280; border-color: #6B7280; }
+.status-btn.active[data-status="ativa"]       { background: var(--verde); }
+.status-btn.active[data-status="em_andamento"]{ background: var(--ambar); }
+.status-btn.active[data-status="concluida"]   { background: var(--teal); }
+.status-btn.active[data-status="cancelada"]   { background: var(--vermelho); }
+
+/* ── Prioridade ───────────────────────────────────────────── */
+.prioridade-radios {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.prioridade-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: .875rem;
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  transition: all .15s;
+}
+.prioridade-label input { display: none; }
+.prioridade-label.checked { border-color: var(--verde); background: var(--verde-cl); color: var(--verde-esc); font-weight: 600; }
+
+/* ── Atribuição ───────────────────────────────────────────── */
+.painel-atribuido {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .9375rem;
+}
+
+.avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--verde);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Descrição ────────────────────────────────────────────── */
+.painel-descricao {
+  font-size: .9375rem;
+  color: var(--text);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* ── Ações ────────────────────────────────────────────────── */
+.painel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding-top: var(--space-sm);
+}
+
+.painel-actions-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.btn-concluir {
+  background: var(--verde);
+  color: #fff;
+  padding: 11px 16px;
+  border-radius: var(--radius-sm);
+  font-size: .9375rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+  transition: background .15s;
+}
+.btn-concluir:hover { background: var(--verde-esc); }
+
+/* ── Histórico ────────────────────────────────────────────── */
+.historico-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.historico-item {
+  display: flex;
+  gap: 10px;
+  font-size: .8125rem;
+}
+
+.historico-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.historico-data {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.historico-desc { color: var(--text); }
+
+/* ── Responsividade ───────────────────────────────────────── */
+@media (max-width: 767px) {
+  .painel {
+    width: 100%;
+    height: 90vh;
+    top: auto;
+    bottom: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transform: translateY(100%);
+  }
+  .painel-overlay.open .painel { transform: translateY(0); }
+}

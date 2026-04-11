@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projeto — AgriFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components/sidebar.css">
+  <link rel="stylesheet" href="../css/components/painel-lateral.css">
+  <link rel="stylesheet" href="../css/components/modals.css">
+  <link rel="stylesheet" href="../css/projeto.css">
+</head>
+<body>
+
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  SIDEBAR                                               -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🌿</div>
+    <div>
+      <div class="sidebar-logo-text">AgriFlow</div>
+      <div class="sidebar-logo-sub">Crédito Rural</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Principal</div>
+    <a href="/pages/calendario.html" class="sidebar-item" data-page="calendario">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/>
+        <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="10" x2="21" y2="10" stroke-width="2"/>
+      </svg>
+      Calendário
+    </a>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name" id="sidebar-user-name">—</div>
+      <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+    </div>
+  </div>
+  <button class="sidebar-logout-btn" id="btn-logout">
+    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path d="M17 16l4-4m0 0l-4-4m4 4H7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3 12V5a2 2 0 012-2h7" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Sair da conta
+  </button>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  CONTEÚDO PRINCIPAL                                    -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<main class="app-main">
+  <div class="app-content">
+
+    <!-- Header -->
+    <div class="projeto-page-header">
+      <button class="projeto-back-btn" id="btn-voltar">← Voltar ao calendário</button>
+
+      <div class="projeto-titulo-row">
+        <div>
+          <div class="projeto-titulo-info">
+            <span class="projeto-cor-dot" id="projeto-cor-dot" style="width:14px;height:14px;border-radius:50%;display:inline-block"></span>
+            <h1 id="projeto-nome-titulo">Carregando...</h1>
+          </div>
+          <div class="projeto-meta-badges">
+            <span class="badge" id="projeto-status-badge">—</span>
+            <span class="text-muted text-sm" id="projeto-periodo"></span>
+          </div>
+          <p class="text-muted text-sm" id="projeto-descricao" style="margin-top:6px"></p>
+        </div>
+        <div class="projeto-actions-row">
+          <button class="btn btn-secondary btn-sm" id="btn-nova-tarefa-projeto">+ Nova tarefa</button>
+          <button class="btn btn-secondary btn-sm" id="btn-editar-projeto">✏️ Editar</button>
+          <button class="btn btn-secondary btn-sm" id="btn-status-projeto">⏸ Pausar</button>
+          <button class="btn btn-danger btn-sm"    id="btn-finalizar-projeto">✓ Finalizar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progresso -->
+    <div class="projeto-progresso-card">
+      <div class="projeto-progresso-header">
+        <div>
+          <div class="projeto-progresso-pct" id="projeto-pct">0%</div>
+          <div class="projeto-progresso-tarefas" id="projeto-tarefas-info">0 de 0 tarefas concluídas</div>
+        </div>
+      </div>
+      <div class="projeto-progresso-bar">
+        <div class="projeto-progresso-fill" id="projeto-progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Participantes -->
+    <div class="projeto-participantes-card">
+      <span class="projeto-participantes-label">Participantes</span>
+      <div class="projeto-participantes-avatares" id="participantes-avatares"></div>
+    </div>
+
+    <!-- Timeline de tarefas -->
+    <div class="projeto-tarefas-card card">
+      <div class="projeto-tarefas-header">
+        <h3>Tarefas do projeto</h3>
+        <button class="btn btn-secondary btn-sm" id="btn-nova-tarefa-projeto-2">+ Nova tarefa</button>
+      </div>
+      <div class="projeto-timeline" id="projeto-timeline">
+        <div class="loading-state"><span class="spinner"></span> Carregando...</div>
+      </div>
+
+      <!-- Tarefas sem data -->
+      <div class="secao-sem-data hidden" id="secao-sem-data" style="padding:0 var(--space-lg) var(--space-lg)">
+        <div class="secao-sem-data-label">Tarefas futuras (sem data)</div>
+        <div id="secao-sem-data-lista"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  PAINEL LATERAL                                        -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="painel-overlay" id="painel-overlay">
+  <div class="painel">
+    <div class="painel-header">
+      <div style="display:flex;align-items:center;flex:1;gap:8px;min-width:0">
+        <span class="painel-cor-dot" id="painel-cor"></span>
+        <h2 class="painel-titulo" id="painel-titulo"></h2>
+      </div>
+      <button class="btn-close" id="btn-fechar-painel">✕</button>
+    </div>
+    <div class="painel-body">
+
+      <div class="painel-section">
+        <div class="painel-section-label">Projeto</div>
+        <div class="painel-projeto-chip" id="painel-projeto"></div>
+      </div>
+
+      <div>
+        <div class="painel-section-label">Status</div>
+        <div class="status-btns">
+          <button class="status-btn" data-status="aguardando">Aguardando</button>
+          <button class="status-btn" data-status="ativa">Ativa</button>
+          <button class="status-btn" data-status="em_andamento">Em andamento</button>
+          <button class="status-btn" data-status="concluida">Concluída</button>
+          <button class="status-btn" data-status="cancelada">Cancelada</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="painel-section-label">Atribuída a</div>
+        <div class="painel-atribuido">
+          <span class="avatar-sm" id="painel-atribuido-avatar">?</span>
+          <span id="painel-atribuido-nome">—</span>
+        </div>
+      </div>
+
+      <div class="flex gap-md">
+        <div>
+          <div class="painel-section-label">Data</div>
+          <div>📅 <span id="painel-data">—</span></div>
+        </div>
+        <div>
+          <div class="painel-section-label">Hora</div>
+          <div>⏰ <span id="painel-hora">—</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="painel-section-label">Prioridade</div>
+        <div class="prioridade-radios">
+          <label class="prioridade-label" data-val="baixa">Baixa</label>
+          <label class="prioridade-label" data-val="normal">Normal</label>
+          <label class="prioridade-label" data-val="alta">Alta</label>
+          <label class="prioridade-label" data-val="urgente">Urgente</label>
+        </div>
+      </div>
+
+      <div>
+        <div class="painel-section-label">Descrição</div>
+        <div class="painel-descricao" id="painel-descricao"></div>
+      </div>
+
+      <div class="painel-actions">
+        <div style="height:1px;background:var(--border);margin:4px 0"></div>
+        <button class="btn-concluir" id="btn-concluir">✓ Concluir e delegar próxima →</button>
+        <div class="painel-actions-row">
+          <button class="btn btn-secondary" id="btn-editar-tarefa" style="flex:1">✏️ Editar</button>
+          <button class="btn btn-danger"    id="btn-excluir-tarefa">🗑️</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="height:1px;background:var(--border);margin:4px 0"></div>
+        <div class="painel-section-label" style="margin-bottom:12px">Histórico</div>
+        <div class="historico-lista" id="painel-historico"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nova Tarefa (reutilizado) -->
+<div class="modal-overlay" id="modal-tarefa-overlay">
+  <div class="modal" id="modal-tarefa">
+    <div class="modal-header">
+      <h2 id="modal-tarefa-titulo">Nova tarefa</h2>
+      <button class="btn-close" id="btn-fechar-tarefa">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <div class="tipo-toggle">
+          <button class="tipo-btn" data-tipo="pessoal">👤 Pessoal</button>
+          <button class="tipo-btn active" data-tipo="equipe">👥 De equipe</button>
+        </div>
+      </div>
+      <div class="form-group" id="tarefa-projeto-section">
+        <label class="form-label">Projeto</label>
+        <select class="form-select" id="tarefa-projeto"><option value="">Selecione...</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Título *</label>
+        <input type="text" id="tarefa-titulo" class="form-input" placeholder="O que precisa ser feito?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea id="tarefa-descricao" class="form-textarea"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data *</label>
+          <input type="date" id="tarefa-data" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hora</label>
+          <input type="time" id="tarefa-hora" class="form-input">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data de término</label>
+          <input type="date" id="tarefa-data-fim" class="form-input">
+        </div>
+        <div class="form-group" style="justify-content:flex-end">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding-top:24px">
+            <input type="checkbox" id="tarefa-dia-inteiro" checked> Dia inteiro
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Prioridade</label>
+        <div class="prioridade-group">
+          <label class="prioridade-opt" data-val="baixa"><input type="radio" name="t-prioridade" value="baixa"> Baixa</label>
+          <label class="prioridade-opt checked" data-val="normal"><input type="radio" name="t-prioridade" value="normal" checked> Normal</label>
+          <label class="prioridade-opt" data-val="alta"><input type="radio" name="t-prioridade" value="alta"> Alta</label>
+          <label class="prioridade-opt" data-val="urgente"><input type="radio" name="t-prioridade" value="urgente"> Urgente</label>
+        </div>
+      </div>
+      <div class="form-group" id="tarefa-atribuido-section">
+        <label class="form-label">Atribuir a *</label>
+        <select class="form-select" id="tarefa-atribuido"><option value="">Selecione...</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-tarefa">Cancelar</button>
+      <button class="btn btn-primary"   id="btn-confirmar-tarefa">Criar tarefa</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Projeto -->
+<div class="modal-overlay" id="modal-projeto-overlay">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <h2 id="modal-projeto-titulo">Editar projeto</h2>
+      <button class="btn-close" id="btn-fechar-projeto">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nome *</label>
+        <input type="text" id="projeto-nome" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea id="projeto-descricao" class="form-textarea"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cor *</label>
+        <div class="color-picker" id="color-picker"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Início *</label>
+          <input type="date" id="projeto-inicio" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Término</label>
+          <input type="date" id="projeto-fim" class="form-input">
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Participantes</label>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <select class="form-select" id="select-participante" style="flex:1">
+            <option value="">Adicionar...</option>
+          </select>
+          <button class="btn btn-secondary" id="btn-add-participante">Adicionar</button>
+        </div>
+        <div class="participantes-lista mt-sm" id="participantes-lista"></div>
+      </div>
+      <div id="tarefas-iniciais-section" style="display:none">
+        <div style="height:1px;background:var(--border)"></div>
+        <div id="tarefas-container"></div>
+        <button class="btn-add-tarefa" id="btn-add-tarefa">+ Adicionar tarefa</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-projeto">Cancelar</button>
+      <button class="btn btn-primary"   id="btn-confirmar-projeto">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Concluir -->
+<div class="modal-overlay" id="modal-concluir-overlay">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <h2>Concluir tarefa</h2>
+      <button class="btn-close" id="btn-fechar-concluir">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--verde-cl);border-radius:var(--radius-sm);padding:12px 16px;font-weight:600;color:var(--verde-esc)">
+        ✓ <span id="concluir-titulo"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Observações</label>
+        <textarea id="concluir-obs" class="form-textarea" placeholder="Resultado desta etapa..."></textarea>
+      </div>
+      <div>
+        <div class="form-label" style="margin-bottom:10px">O que acontece agora?</div>
+        <div class="acao-radios">
+          <div class="acao-opt selected" data-acao="delegar">
+            <input type="radio" name="acao" checked>
+            <div>
+              <div class="acao-opt-label">Delegar próxima tarefa</div>
+              <div class="acao-opt-sub">Criar nova tarefa para um colega</div>
+            </div>
+          </div>
+          <div class="acao-opt" data-acao="apenas_concluir">
+            <input type="radio" name="acao">
+            <div>
+              <div class="acao-opt-label">Apenas concluir</div>
+              <div class="acao-opt-sub">Sem próximo passo por agora</div>
+            </div>
+          </div>
+          <div class="acao-opt" data-acao="finalizar_projeto">
+            <input type="radio" name="acao">
+            <div>
+              <div class="acao-opt-label">Finalizar projeto</div>
+              <div class="acao-opt-sub">Esta era a última tarefa</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="delegacao-form" id="delegacao-form">
+        <div class="form-group">
+          <label class="form-label">Título da próxima tarefa *</label>
+          <input type="text" id="prox-titulo" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <textarea id="prox-descricao" class="form-textarea"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Atribuir a *</label>
+          <select class="form-select" id="prox-atribuido"><option value="">Selecione...</option></select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Data *</label>
+            <input type="date" id="prox-data" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hora</label>
+            <input type="time" id="prox-hora" class="form-input">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prioridade</label>
+          <div class="prioridade-group">
+            <label class="prioridade-opt" data-val="baixa"><input type="radio" name="prox-prioridade" value="baixa"> Baixa</label>
+            <label class="prioridade-opt checked" data-val="normal"><input type="radio" name="prox-prioridade" value="normal" checked> Normal</label>
+            <label class="prioridade-opt" data-val="alta"><input type="radio" name="prox-prioridade" value="alta"> Alta</label>
+            <label class="prioridade-opt" data-val="urgente"><input type="radio" name="prox-prioridade" value="urgente"> Urgente</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-concluir">Cancelar</button>
+      <button class="btn btn-primary"   id="btn-confirmar-concluir">Concluir →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/components/sidebar.js"></script>
+<script src="../js/components/painel-lateral.js"></script>
+<script src="../js/components/modal-projeto.js"></script>
+<script src="../js/components/modal-tarefa.js"></script>
+<script src="../js/components/modal-concluir.js"></script>
+<script src="../js/pages/projeto-detalhes.js"></script>
+</body>
+</html>

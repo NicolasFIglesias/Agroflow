@@ -1,0 +1,299 @@
+/* ============================================================
+   AgriFlow — Detalhes do Projeto
+   ============================================================ */
+
+/* ── Header da página ─────────────────────────────────────── */
+.projeto-page-header {
+  margin-bottom: var(--space-lg);
+}
+
+.projeto-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: .875rem;
+  font-weight: 500;
+  margin-bottom: var(--space-md);
+  transition: color .15s;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.projeto-back-btn:hover { color: var(--verde); }
+
+.projeto-titulo-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.projeto-titulo-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.projeto-titulo-info h1 { font-size: 1.4rem; }
+
+.projeto-meta-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.projeto-actions-row {
+  display: flex;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+/* ── Progresso ────────────────────────────────────────────── */
+.projeto-progresso-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.projeto-progresso-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.projeto-progresso-pct {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--verde);
+}
+
+.projeto-progresso-tarefas {
+  font-size: .875rem;
+  color: var(--text-muted);
+}
+
+.projeto-progresso-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.projeto-progresso-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: var(--verde);
+  transition: width .4s ease;
+}
+
+/* ── Participantes ────────────────────────────────────────── */
+.projeto-participantes-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.projeto-participantes-label {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+}
+
+.projeto-participantes-avatares {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.avatar-participante {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+}
+
+.avatar-participante .avatar-sm {
+  width: 34px;
+  height: 34px;
+  font-size: .8125rem;
+}
+
+.avatar-participante-nome {
+  font-size: .7rem;
+  color: var(--text-muted);
+  max-width: 60px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Timeline de tarefas ──────────────────────────────────── */
+.projeto-tarefas-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.projeto-tarefas-header {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.projeto-timeline {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-item {
+  display: flex;
+  gap: var(--space-md);
+  position: relative;
+}
+
+/* Linha vertical conectora */
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 28px;
+  bottom: -8px;
+  width: 2px;
+  background: var(--border);
+}
+.timeline-item:last-child::before { display: none; }
+
+.timeline-icone {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .875rem;
+  flex-shrink: 0;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  z-index: 1;
+}
+
+.timeline-item[data-status="concluida"] .timeline-icone   { border-color: var(--teal); background: #D1FAE5; }
+.timeline-item[data-status="em_andamento"] .timeline-icone{ border-color: var(--ambar); background: #FEF3C7; }
+.timeline-item[data-status="ativa"] .timeline-icone       { border-color: var(--verde); background: var(--verde-cl); }
+.timeline-item[data-status="aguardando"] .timeline-icone  { border-color: var(--border); background: var(--bg); opacity: .5; }
+
+.timeline-conteudo {
+  flex: 1;
+  padding-bottom: 20px;
+}
+
+.timeline-tarefa-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.timeline-tarefa-card:hover { border-color: var(--verde); box-shadow: var(--shadow-sm); }
+
+.timeline-tarefa-card[data-status="concluida"] {
+  background: #F9FAFB;
+  opacity: .85;
+}
+.timeline-tarefa-card[data-status="em_andamento"] {
+  background: #FFFBEB;
+  border-color: #FDE68A;
+}
+.timeline-tarefa-card[data-status="aguardando"] {
+  opacity: .6;
+}
+
+.timeline-tarefa-titulo {
+  font-weight: 600;
+  font-size: .9375rem;
+  margin-bottom: 4px;
+}
+.timeline-tarefa-card[data-status="concluida"] .timeline-tarefa-titulo {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.timeline-tarefa-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: .8rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.timeline-obs {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--bg);
+  border-radius: 5px;
+  font-size: .8125rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.timeline-delegacao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: .8rem;
+  color: var(--text-muted);
+}
+
+.timeline-delegacao-linha {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Seção sem data ───────────────────────────────────────── */
+.secao-sem-data {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px dashed var(--border);
+}
+
+.secao-sem-data-label {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+/* ── Responsividade ───────────────────────────────────────── */
+@media (max-width: 767px) {
+  .projeto-titulo-row { flex-direction: column; }
+  .projeto-actions-row { width: 100%; }
+  .projeto-actions-row .btn { flex: 1; justify-content: center; }
+}

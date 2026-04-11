@@ -1,0 +1,218 @@
+/* ============================================================
+   AgriFlow — Modais específicos
+   ============================================================ */
+
+/* ── Seletor de cores do projeto ──────────────────────────── */
+.color-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform .15s, box-shadow .15s;
+  position: relative;
+  outline: none;
+}
+
+.color-option:hover { transform: scale(1.15); }
+
+.color-option.selected {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px currentColor;
+  transform: scale(1.1);
+}
+
+.color-option.selected::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+/* ── Lista de participantes ───────────────────────────────── */
+.participantes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 40px;
+}
+
+.participante-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  font-size: .875rem;
+}
+
+.participante-item .avatar-sm { flex-shrink: 0; }
+
+.participante-nome { flex: 1; font-weight: 500; }
+.participante-cargo { color: var(--text-muted); font-size: .8rem; }
+
+.btn-remove-part {
+  color: var(--text-muted);
+  padding: 3px;
+  border-radius: 4px;
+  line-height: 1;
+  font-size: 1rem;
+  transition: color .15s, background .15s;
+}
+.btn-remove-part:hover { color: var(--vermelho); background: #FEE2E2; }
+
+/* ── Bloco de tarefa no modal de projeto ─────────────────── */
+.tarefa-bloco {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  position: relative;
+}
+
+.tarefa-bloco-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tarefa-bloco-num {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: .05em;
+}
+
+.btn-remove-tarefa {
+  color: var(--text-muted);
+  font-size: .875rem;
+  padding: 3px 7px;
+  border-radius: 4px;
+  transition: color .15s, background .15s;
+}
+.btn-remove-tarefa:hover { color: var(--vermelho); background: #FEE2E2; }
+
+.btn-add-tarefa {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--verde);
+  font-size: .875rem;
+  font-weight: 600;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-add-tarefa:hover { opacity: .7; }
+
+/* ── Toggle pessoal/equipe ────────────────────────────────── */
+.tipo-toggle {
+  display: flex;
+  gap: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+
+.tipo-btn {
+  flex: 1;
+  padding: 7px;
+  border-radius: 5px;
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all .15s;
+  text-align: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.tipo-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+
+/* ── Prioridade radio group ───────────────────────────────── */
+.prioridade-group {
+  display: flex;
+  gap: 6px;
+}
+
+.prioridade-opt {
+  flex: 1;
+  text-align: center;
+  padding: 6px 4px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .8125rem;
+  cursor: pointer;
+  transition: all .15s;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.prioridade-opt input { display: none; }
+
+.prioridade-opt.checked[data-val="baixa"]   { border-color: #10B981; color: #065F46; background: #D1FAE5; }
+.prioridade-opt.checked[data-val="normal"]  { border-color: var(--azul); color: #1E40AF; background: #EFF6FF; }
+.prioridade-opt.checked[data-val="alta"]    { border-color: var(--ambar); color: #92400E; background: #FEF3C7; }
+.prioridade-opt.checked[data-val="urgente"] { border-color: var(--vermelho); color: #991B1B; background: #FEF2F2; }
+
+/* ── Modal de conclusão ───────────────────────────────────── */
+.acao-radios {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.acao-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.acao-opt:hover { border-color: var(--verde); background: var(--verde-cl); }
+.acao-opt.selected { border-color: var(--verde); background: var(--verde-cl); }
+
+.acao-opt input[type="radio"] { margin-top: 2px; accent-color: var(--verde); }
+
+.acao-opt-label { font-weight: 600; font-size: .9375rem; }
+.acao-opt-sub { font-size: .8125rem; color: var(--text-muted); }
+
+.delegacao-form {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.delegacao-form.hidden { display: none; }

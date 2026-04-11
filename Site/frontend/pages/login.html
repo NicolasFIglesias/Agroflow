@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriFlow — Acesso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/login.css">
+</head>
+<body class="page-login">
+
+  <div class="login-wrap">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="login-logo-icon">🌿</div>
+      <div class="login-logo-name">AgriFlow</div>
+      <div class="login-logo-sub">Gestão de crédito rural</div>
+    </div>
+
+    <!-- Card com abas -->
+    <div class="login-card">
+
+      <!-- Abas -->
+      <div class="login-tabs" id="login-tabs">
+        <button class="login-tab active" data-tab="entrar">Entrar</button>
+        <button class="login-tab"        data-tab="criar">Criar conta</button>
+      </div>
+
+      <div class="login-panels">
+
+        <!-- ══ PAINEL: JÁ LOGADO ═══════════════════════════ -->
+        <div class="login-panel" id="panel-logado">
+          <p class="panel-title">Você já está conectado</p>
+          <p class="panel-subtitle">Deseja continuar com esta conta?</p>
+
+          <div class="conta-atual">
+            <div class="conta-avatar" id="logado-avatar">?</div>
+            <div>
+              <div class="conta-nome"    id="logado-nome">—</div>
+              <div class="conta-empresa" id="logado-empresa">—</div>
+              <div class="conta-cargo"   id="logado-cargo">—</div>
+            </div>
+          </div>
+
+          <button class="btn-primary-login" id="btn-continuar">
+            Continuar como esta conta
+          </button>
+          <button class="btn-secundario" id="btn-trocar-conta">
+            Trocar de conta
+          </button>
+        </div>
+
+        <!-- ══ PAINEL: ENTRAR ════════════════════════════════ -->
+        <div class="login-panel active" id="panel-entrar">
+          <p class="panel-title">Bem-vindo de volta</p>
+          <p class="panel-subtitle">Entre com suas credenciais</p>
+
+          <div class="login-error" id="login-error">
+            <span>⚠️</span><span id="login-error-msg"></span>
+          </div>
+
+          <form id="form-login" autocomplete="off">
+            <div class="login-field">
+              <label class="login-label" for="email">Email</label>
+              <input type="email" id="email" class="login-input"
+                placeholder="seu@email.com" required autocomplete="username">
+            </div>
+            <div class="login-field">
+              <label class="login-label" for="senha">Senha</label>
+              <input type="password" id="senha" class="login-input"
+                placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn-primary-login" id="btn-login">
+              <span class="spin" id="login-spin"></span>
+              <span id="login-btn-text">Entrar na conta</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- ══ PAINEL: CRIAR CONTA ═══════════════════════════ -->
+        <div class="login-panel" id="panel-criar">
+          <p class="panel-title">Crie sua conta</p>
+          <p class="panel-subtitle">Preencha os dados abaixo para começar</p>
+
+          <div class="login-error" id="cad-error">
+            <span>⚠️</span><span id="cad-error-msg"></span>
+          </div>
+
+          <form id="form-cadastro" autocomplete="off">
+            <div class="section-sep">Escritório / Empresa</div>
+
+            <div class="login-field">
+              <label class="login-label" for="cad-empresa">Nome do escritório *</label>
+              <input type="text" id="cad-empresa" class="login-input"
+                placeholder="Ex: Escritório Rural Ltda" required>
+            </div>
+
+            <div class="section-sep">Seus dados</div>
+
+            <div class="login-field">
+              <label class="login-label" for="cad-nome">Nome completo *</label>
+              <input type="text" id="cad-nome" class="login-input"
+                placeholder="Ex: Rafael Souza" required>
+            </div>
+            <div class="login-field">
+              <label class="login-label" for="cad-cargo">Cargo</label>
+              <input type="text" id="cad-cargo" class="login-input"
+                placeholder="Ex: Engenheiro Agrônomo">
+            </div>
+            <div class="login-field">
+              <label class="login-label" for="cad-email">Email *</label>
+              <input type="email" id="cad-email" class="login-input"
+                placeholder="seu@email.com" required>
+            </div>
+            <div class="login-field">
+              <label class="login-label" for="cad-senha">Senha *</label>
+              <input type="password" id="cad-senha" class="login-input"
+                placeholder="Mínimo 6 caracteres" required minlength="6">
+            </div>
+            <div class="login-field">
+              <label class="login-label" for="cad-confirmar">Confirmar senha *</label>
+              <input type="password" id="cad-confirmar" class="login-input"
+                placeholder="Repita a senha" required>
+            </div>
+
+            <button type="submit" class="btn-primary-login" id="btn-cadastro">
+              <span class="spin" id="cad-spin"></span>
+              <span id="cad-btn-text">Criar conta</span>
+            </button>
+          </form>
+        </div>
+
+      </div><!-- /login-panels -->
+    </div><!-- /login-card -->
+
+    <!-- Hint de teste — remover em produção -->
+    <div class="login-hint">
+      <strong>🧪 Usuários de teste — senha: <code>admin123</code></strong>
+      <code>admin@agriflow.com</code> · Administrador<br>
+      <code>ana@agriflow.com</code> · Aux. Administrativa<br>
+      <code>joao@agriflow.com</code> · Topógrafo
+    </div>
+
+    <div class="login-footer">© 2026 AgriFlow · Todos os direitos reservados</div>
+
+  </div><!-- /login-wrap -->
+
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/pages/login.js"></script>
+</body>
+</html>
