@@ -7,7 +7,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_bTYDOmZQ9f3y@ep-small-union-ac9en4xv.sa-east-1.aws.neon.tech/neondb?sslmode=require
       - key: JWT_SECRET
-        generateValue: true
+        value: agriflow_jwt_secret_2024
       - key: FRONTEND_URL
         value: https://agriflow.netlify.app
