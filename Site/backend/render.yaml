@@ -2,21 +2,13 @@ services:
   - type: web
     name: agriflow-api
     env: node
+    rootDir: Site/backend
     buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: agriflow-db
-          property: connectionString
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
         value: https://agriflow.netlify.app
-
-databases:
-  - name: agriflow-db
-    databaseName: agriflow
-    user: agriflow
