@@ -1,14 +1,11 @@
-# ============================================================
-# AgriFlow — Configuração Netlify
-# ============================================================
-
 [build]
   publish = "."
+  functions = "netlify/functions"
 
-# Redirecionar todas as rotas para o index (SPA)
+# Redirecionar chamadas de API para a função serverless
 [[redirects]]
-  from   = "/*"
-  to     = "/index.html"
+  from   = "/api/*"
+  to     = "/.netlify/functions/api"
   status = 200
 
 # Headers de segurança
