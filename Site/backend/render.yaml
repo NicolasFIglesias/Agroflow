@@ -2,7 +2,6 @@ services:
   - type: web
     name: agriflow-api
     env: node
-    rootDir: Site/backend
     buildCommand: npm install
     startCommand: npm start
     envVars:
