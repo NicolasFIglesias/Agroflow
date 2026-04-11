@@ -15,6 +15,13 @@ function initSidebar() {
   if (roleEl)   roleEl.textContent   = usuario.cargo || (usuario.role === 'admin' ? 'Administrador' : 'Colaborador');
   if (avatarEl) avatarEl.textContent = Auth.iniciais(usuario.nome);
 
+  // Mostrar links exclusivos de admin
+  if (usuario.role === 'admin') {
+    document.querySelectorAll('.sidebar-item-admin').forEach(el => {
+      el.style.display = '';
+    });
+  }
+
   // Logout
   document.getElementById('btn-logout')?.addEventListener('click', () => {
     if (confirm('Deseja sair da sua conta?')) Auth.logout();

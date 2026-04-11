@@ -27,6 +27,7 @@
   gap: var(--space-md);
   margin-bottom: var(--space-md);
   flex-wrap: wrap;
+  border-left: 4px solid var(--verde);
 }
 
 .cal-nav {
@@ -46,16 +47,17 @@
   align-items: center;
   justify-content: center;
   font-size: .875rem;
-  transition: background .15s;
+  transition: background .15s, border-color .15s;
   cursor: pointer;
 }
-.cal-nav-btn:hover { background: var(--bg); }
+.cal-nav-btn:hover { background: var(--verde-cl); border-color: var(--verde); color: var(--verde-esc); }
 
 .cal-mes-titulo {
   font-size: 1.1rem;
   font-weight: 700;
   min-width: 140px;
   text-align: center;
+  color: var(--text);
 }
 
 .cal-toggle-visao {
@@ -98,18 +100,19 @@
 .cal-semana-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  background: linear-gradient(135deg, #1B4332 0%, #14532D 100%);
 }
 
 .cal-semana-dia-header {
-  padding: 10px 8px;
+  padding: 11px 8px;
   text-align: center;
-  font-size: .75rem;
+  font-size: .72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .05em;
-  color: var(--text-muted);
-  border-right: 1px solid var(--border);
+  letter-spacing: .07em;
+  color: rgba(255,255,255,.75);
+  border-right: 1px solid rgba(255,255,255,.1);
 }
 .cal-semana-dia-header:last-child { border-right: none; }
 
@@ -130,7 +133,7 @@
   min-height: 140px;
 }
 .cal-dia-col:last-child { border-right: none; }
-.cal-dia-col:hover { background: rgba(99,153,34,.03); }
+.cal-dia-col:hover { background: rgba(27,67,50,.04); }
 
 .cal-dia-num {
   font-size: .8125rem;
@@ -149,9 +152,12 @@
 .cal-dia-col.hoje .cal-dia-num {
   background: var(--verde);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(99,153,34,.4);
 }
 
-.cal-dia-col.fim-semana { background: rgba(0,0,0,.01); }
+.cal-dia-col.fim-semana {
+  background: rgba(27,67,50,.025);
+}
 
 /* ── Pílula da tarefa ─────────────────────────────────────── */
 .tarefa-pilula {
@@ -216,18 +222,19 @@
 .cal-mes-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  background: linear-gradient(135deg, #1B4332 0%, #14532D 100%);
 }
 
 .cal-mes-dia-header {
-  padding: 8px 6px;
+  padding: 9px 6px;
   text-align: center;
   font-size: .7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .05em;
-  color: var(--text-muted);
-  border-right: 1px solid var(--border);
+  letter-spacing: .07em;
+  color: rgba(255,255,255,.75);
+  border-right: 1px solid rgba(255,255,255,.1);
 }
 .cal-mes-dia-header:last-child { border-right: none; }
 
@@ -245,9 +252,14 @@
   transition: background .1s;
 }
 .cal-mes-cel:nth-child(7n) { border-right: none; }
-.cal-mes-cel:hover { background: rgba(99,153,34,.04); }
+.cal-mes-cel:hover { background: rgba(27,67,50,.04); }
 .cal-mes-cel.outro-mes { opacity: .3; }
-.cal-mes-cel.hoje-mes .cal-mes-num { background: var(--verde); color: #fff; border-radius: 50%; }
+.cal-mes-cel.hoje-mes .cal-mes-num {
+  background: var(--verde);
+  color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(99,153,34,.4);
+}
 
 .cal-mes-num {
   font-size: .8125rem;
@@ -291,6 +303,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: linear-gradient(90deg, rgba(27,67,50,.04) 0%, transparent 100%);
 }
 
 .projetos-ativos-header h3 { font-size: 1rem; }
@@ -309,7 +322,7 @@
   gap: 6px;
 }
 .projeto-row:last-child { border-bottom: none; }
-.projeto-row:hover { background: var(--bg); }
+.projeto-row:hover { background: rgba(27,67,50,.03); }
 
 .projeto-row-header {
   display: flex;

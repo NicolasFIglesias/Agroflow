@@ -41,10 +41,11 @@ const Auth = (() => {
     }
   }
 
-  // Redireciona para calendário se já estiver logado
+  // Redireciona para visao-geral (admin) ou calendário (colaborador) se já estiver logado
   function redirecinarSeLogado() {
     if (logado()) {
-      window.location.href = '/pages/calendario.html';
+      const u = usuario();
+      window.location.href = u && u.role === 'admin' ? '/pages/visao-geral.html' : '/pages/calendario.html';
     }
   }
 
