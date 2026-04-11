@@ -1,6 +1,10 @@
 [build]
   publish = "."
   functions = "netlify/functions"
+  command = "cd netlify/functions/api && npm install"
+
+[functions]
+  node_bundler = "zisi"
 
 # Redirecionar chamadas de API para a função serverless
 [[redirects]]
