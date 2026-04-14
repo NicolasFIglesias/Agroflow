@@ -83,8 +83,8 @@
         <p>Gerencie projetos e tarefas da equipe</p>
       </div>
       <div class="cal-page-actions">
-        <button class="btn btn-secondary" id="btn-nova-tarefa">+ Nova tarefa</button>
-        <button class="btn btn-primary"   id="btn-novo-projeto">+ Novo projeto</button>
+        <button class="btn btn-secondary btn-lg" id="btn-nova-tarefa">+ Nova tarefa</button>
+        <button class="btn btn-primary btn-lg"   id="btn-novo-projeto">+ Novo projeto</button>
       </div>
     </div>
 
@@ -362,6 +362,19 @@
       </div>
 
       <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.875rem;font-weight:500">
+          <input type="checkbox" id="tarefa-repetir"> Repetir diariamente
+        </label>
+        <div id="tarefa-repetir-opcoes" style="display:none;margin-top:10px;display:none">
+          <label class="form-label">Repetir por</label>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <input type="number" id="tarefa-repetir-dias" class="form-input" value="7" min="2" max="365" style="width:90px">
+            <span style="font-size:.875rem;color:var(--text-muted)">dias consecutivos</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label class="form-label">Prioridade</label>
         <div class="prioridade-group">
           <label class="prioridade-opt" data-val="baixa"><input type="radio" name="t-prioridade" value="baixa"> Baixa</label>
@@ -479,6 +492,23 @@
   </div>
 </div>
 
+<!-- Modal — Detalhe do Dia -->
+<div class="modal-overlay" id="modal-dia-overlay">
+  <div class="modal modal-dia" style="max-width:520px">
+    <div class="modal-header">
+      <div>
+        <h2 id="modal-dia-titulo">—</h2>
+        <div id="modal-dia-subtitulo" style="font-size:.82rem;color:var(--text-muted);margin-top:2px"></div>
+      </div>
+      <button class="btn-close" id="btn-fechar-dia">✕</button>
+    </div>
+    <div class="modal-body" id="modal-dia-body" style="max-height:60vh;overflow-y:auto"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="btn-dia-nova-tarefa">+ Nova tarefa neste dia</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast container -->
 <div class="toast-container" id="toast-container"></div>
 
@@ -486,6 +516,7 @@
 <script src="../js/config.js"></script>
 <script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>
+<script src="../js/confetti.js"></script>
 <script src="../js/components/sidebar.js"></script>
 <script src="../js/components/painel-lateral.js"></script>
 <script src="../js/components/modal-projeto.js"></script>

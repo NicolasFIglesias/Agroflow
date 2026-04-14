@@ -144,6 +144,13 @@
   margin-top: 3px;
   opacity: .7;
 }
+
+.vg-stat-sub {
+  font-size: .75rem;
+  font-weight: 500;
+  margin-top: 1px;
+  opacity: .55;
+}
 .vg-stat-verde    .vg-stat-label { color: #065F46; }
 .vg-stat-azul     .vg-stat-label { color: #1E3A8A; }
 .vg-stat-roxo     .vg-stat-label { color: #4C1D95; }

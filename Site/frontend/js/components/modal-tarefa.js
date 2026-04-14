@@ -38,6 +38,13 @@ const ModalTarefa = (() => {
     document.getElementById('tarefa-data-fim').value  = tarefa?.data_fim?.slice(0,10) || '';
     document.getElementById('tarefa-dia-inteiro').checked = tarefa?.dia_inteiro !== false;
 
+    // Reset repetir
+    const repetirChk = document.getElementById('tarefa-repetir');
+    if (repetirChk) {
+      repetirChk.checked = false;
+      document.getElementById('tarefa-repetir-opcoes').style.display = 'none';
+    }
+
     // Prioridade
     const prioridade = tarefa?.prioridade || 'normal';
     document.querySelectorAll('#modal-tarefa .prioridade-opt').forEach(opt => {
@@ -136,8 +143,26 @@ const ModalTarefa = (() => {
 
     try {
       if (_modo === 'criar') {
-        await API.post('/api/tarefas', body);
-        Toast.show('Tarefa criada!', 'success');
+        const repetir = document.getElementById('tarefa-repetir')?.checked;
+        const diasRepetir = repetir
+          ? Math.min(365, Math.max(2, parseInt(document.getElementById('tarefa-repetir-dias')?.value) || 7))
+          : 1;
+
+        if (diasRepetir > 1) {
+          const baseData = new Date(body.data_inicio + 'T12:00:00');
+          const promises = Array.from({ length: diasRepetir }, (_, i) => {
+            const d = new Date(baseData);
+            d.setDate(d.getDate() + i);
+            return API.post('/api/tarefas', { ...body, data_inicio: d.toISOString().slice(0,10) });
+          });
+          await Promise.all(promises);
+          Toast.show(`${diasRepetir} tarefas criadas!`, 'success');
+          Confetti?.center(90);
+        } else {
+          await API.post('/api/tarefas', body);
+          Toast.show('Tarefa criada!', 'success');
+          Confetti?.fromEl(document.getElementById('btn-confirmar-tarefa'), 55);
+        }
       } else {
         await API.put(`/api/tarefas/${_tarefaId}`, body);
         Toast.show('Tarefa atualizada!', 'success');
@@ -170,6 +195,12 @@ const ModalTarefa = (() => {
         document.querySelectorAll('#modal-tarefa .prioridade-opt').forEach(o => o.classList.remove('checked'));
         opt.classList.add('checked');
       });
+    });
+
+    // Repetir toggle
+    document.getElementById('tarefa-repetir')?.addEventListener('change', function() {
+      const opcoes = document.getElementById('tarefa-repetir-opcoes');
+      if (opcoes) opcoes.style.display = this.checked ? 'block' : 'none';
     });
   }
 

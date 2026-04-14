@@ -1,16 +1,16 @@
 const db     = require('../db');
 const bcrypt = require('bcryptjs');
 
-// GET /api/usuarios — lista usuários ativos da empresa
+// GET /api/usuarios — lista usuários da empresa
+// ?todos=true → inclui inativos (admin only)
 exports.listar = async (req, res) => {
   try {
-    const { rows } = await db.query(
-      `SELECT id, nome, email, cargo, role, ativo, created_at
+    const incluirInativos = req.query.todos === 'true' && req.usuario.role === 'admin';
+    const q = `SELECT id, nome, email, cargo, role, ativo, created_at
        FROM usuarios
-       WHERE empresa_id = $1 AND ativo = true
-       ORDER BY nome`,
-      [req.usuario.empresa_id]
-    );
+       WHERE empresa_id = $1 ${incluirInativos ? '' : 'AND ativo = true'}
+       ORDER BY role DESC, nome`;
+    const { rows } = await db.query(q, [req.usuario.empresa_id]);
     res.json(rows);
   } catch (err) {
     console.error('Erro ao listar usuários:', err);
@@ -46,6 +46,26 @@ exports.criar = async (req, res) => {
       return res.status(409).json({ error: 'Email já cadastrado' });
     }
     console.error('Erro ao criar usuário:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+// PATCH /api/usuarios/:id/ativo — admin toggle active/inactive
+exports.toggleAtivo = async (req, res) => {
+  try {
+    if (req.usuario.role !== 'admin') return res.status(403).json({ error: 'Acesso negado' });
+    if (req.params.id === req.usuario.id) return res.status(400).json({ error: 'Você não pode desativar sua própria conta' });
+
+    const { rows } = await db.query(
+      `UPDATE usuarios SET ativo = NOT ativo, updated_at = NOW()
+       WHERE id = $1 AND empresa_id = $2
+       RETURNING id, nome, ativo`,
+      [req.params.id, req.usuario.empresa_id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Erro ao toggle ativo:', err);
     res.status(500).json({ error: 'Erro interno' });
   }
 };

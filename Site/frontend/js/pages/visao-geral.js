@@ -83,15 +83,16 @@
     hoje.setHours(0, 0, 0, 0);
 
     let tarefasAbertas = 0;
+    let tarefasConcluidas = 0;
     let tarefasAtrasadas = 0;
 
     projetos.forEach(p => {
-      const total     = parseInt(p.tarefas_total) || 0;
+      const total      = parseInt(p.tarefas_total) || 0;
       const concluidas = parseInt(p.tarefas_concluidas) || 0;
-      tarefasAbertas += (total - concluidas);
+      tarefasAbertas    += (total - concluidas);
+      tarefasConcluidas += concluidas;
     });
 
-    // Atrasadas: projetos com data_fim passada e não concluídos
     projetos.forEach(p => {
       if (p.data_fim) {
         const fim = new Date(p.data_fim);
@@ -102,7 +103,9 @@
     });
 
     document.getElementById('stat-projetos').textContent      = projetos.length;
-    document.getElementById('stat-tarefas').textContent       = tarefasAbertas;
+    document.getElementById('stat-tarefas').textContent       = tarefasConcluidas;
+    const subEl = document.getElementById('stat-tarefas-sub');
+    if (subEl) subEl.textContent = tarefasAbertas + ' em aberto';
     document.getElementById('stat-colaboradores').textContent = equipe.length;
     document.getElementById('stat-atrasadas').textContent     = tarefasAtrasadas;
   }

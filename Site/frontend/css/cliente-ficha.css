@@ -1,0 +1,368 @@
+/* ── Cliente Ficha ─────────────────────────────────────────── */
+
+/* Breadcrumb */
+.cf-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .84rem;
+  color: var(--cinza-medio);
+  margin-bottom: 20px;
+}
+.cf-breadcrumb a {
+  color: var(--verde);
+  text-decoration: none;
+  font-weight: 500;
+}
+.cf-breadcrumb a:hover { text-decoration: underline; }
+.cf-breadcrumb span::before { content: '›'; margin-right: 8px; }
+
+/* Hero */
+.cf-hero {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #fff;
+  border: 1.5px solid var(--borda);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.cf-hero-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--verde) 0%, var(--verde-esc) 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.cf-hero-info { flex: 1; min-width: 200px; }
+.cf-hero-info h1 { font-size: 1.4rem; font-weight: 700; color: var(--cinza-esc); margin: 0 0 6px; }
+.cf-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: .84rem;
+  color: var(--cinza-medio);
+}
+.cf-hero-meta span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.cf-hero-actions { display: flex; gap: 10px; flex-shrink: 0; }
+
+/* Tabs */
+.cf-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--borda);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+.cf-tab {
+  padding: 10px 18px;
+  border: none;
+  background: none;
+  font-size: .88rem;
+  font-weight: 500;
+  color: var(--cinza-medio);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  transition: color .2s;
+}
+.cf-tab:hover  { color: var(--cinza-esc); }
+.cf-tab.active { color: var(--verde-esc); border-bottom-color: var(--verde); font-weight: 600; }
+
+/* Panels */
+.cf-panel { display: none; }
+.cf-panel.active { display: block; }
+
+/* Panel header */
+.cf-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cf-panel-header h3 { font-size: 1rem; font-weight: 600; color: var(--cinza-esc); margin: 0; }
+
+/* Dados grid */
+.cf-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0;
+  background: #fff;
+  border: 1.5px solid var(--borda);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cf-section-title {
+  grid-column: 1 / -1;
+  padding: 12px 20px 10px;
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--cinza-medio);
+  background: var(--fundo);
+  border-top: 1.5px solid var(--borda);
+}
+.cf-section-title:first-child { border-top: none; }
+.cf-field {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--borda);
+  border-right: 1px solid var(--borda);
+}
+.cf-field:last-child { border-right: none; }
+.cf-field-label {
+  font-size: .74rem;
+  font-weight: 600;
+  color: var(--cinza-medio);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 3px;
+}
+.cf-field-value {
+  font-size: .9rem;
+  color: var(--cinza-esc);
+  font-weight: 500;
+}
+.cf-field-value.empty { color: var(--cinza-medio); font-weight: 400; }
+
+/* Contas bancárias */
+.cf-conta-card {
+  background: #fff;
+  border: 1.5px solid var(--borda);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: start;
+}
+.cf-conta-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px 16px;
+}
+.cf-conta-banco { font-weight: 700; font-size: .95rem; color: var(--cinza-esc); margin-bottom: 8px; }
+.cf-conta-actions { display: flex; gap: 6px; }
+
+/* Cônjuge */
+.cf-conjuge-empty {
+  background: #fff;
+  border: 1.5px dashed var(--borda);
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--cinza-medio);
+}
+.cf-conjuge-empty p { margin: 8px 0 16px; font-size: .9rem; }
+
+/* Imóveis na ficha */
+.cf-imovel-card {
+  background: #fff;
+  border: 1.5px solid var(--borda);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.cf-imovel-card:hover { background: var(--fundo); }
+.cf-imovel-icon {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+  color: var(--verde-esc);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.cf-imovel-info { flex: 1; }
+.cf-imovel-nome { font-weight: 600; color: var(--cinza-esc); font-size: .9rem; }
+.cf-imovel-sub  { font-size: .8rem; color: var(--cinza-medio); margin-top: 2px; }
+.cf-imovel-badge {
+  font-size: .75rem; font-weight: 600;
+  padding: 3px 10px; border-radius: 10px;
+  background: #EFF6FF; color: #2563EB;
+}
+
+/* Timeline */
+.cf-timeline-compose {
+  background: #fff;
+  border: 1.5px solid var(--borda);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.cf-timeline-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: vertical;
+  min-height: 72px;
+  font-size: .9rem;
+  color: var(--cinza-esc);
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+.cf-timeline-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.cf-timeline-tipo {
+  padding: 6px 10px;
+  border: 1.5px solid var(--borda);
+  border-radius: 7px;
+  font-size: .84rem;
+  color: var(--cinza-esc);
+  background: #fff;
+}
+
+.cf-timeline-lista { display: flex; flex-direction: column; gap: 10px; }
+.cf-entry {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.cf-entry-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--verde);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.cf-entry-dot.sistema { background: var(--cinza-medio); }
+.cf-entry-dot.lembrete { background: #F59E0B; }
+.cf-entry-body {
+  background: #fff;
+  border: 1.5px solid var(--borda);
+  border-radius: 10px;
+  padding: 12px 16px;
+  flex: 1;
+}
+.cf-entry-texto { font-size: .88rem; color: var(--cinza-esc); line-height: 1.5; }
+.cf-entry-meta  { font-size: .76rem; color: var(--cinza-medio); margin-top: 6px; }
+.cf-entry-lembrete-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #FEF9C3;
+  color: #854D0E;
+  font-size: .75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+.cf-timeline-mais { text-align: center; padding: 16px 0; }
+
+/* Cofre */
+.cf-cofre-card {
+  background: #fff;
+  border: 1.5px solid var(--borda);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.cf-cofre-sistema { font-weight: 700; color: var(--cinza-esc); }
+.cf-cofre-login   { font-size: .85rem; color: var(--cinza-medio); margin-top: 2px; font-family: monospace; }
+.cf-cofre-url     { font-size: .8rem; color: var(--verde); text-decoration: none; margin-top: 2px; display: block; }
+.cf-cofre-actions { display: flex; gap: 6px; }
+.cf-cofre-senha-reveal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--fundo);
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: .85rem;
+}
+
+/* Vincular imóvel resultados */
+.cf-vincular-resultados { margin-top: 10px; max-height: 240px; overflow-y: auto; }
+.cf-vincular-item {
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s;
+  font-size: .88rem;
+}
+.cf-vincular-item:hover { background: var(--fundo); }
+.cf-vincular-item.selected { background: #D1FAE5; color: var(--verde-esc); font-weight: 600; }
+.cf-vincular-sub { font-size: .78rem; color: var(--cinza-medio); }
+
+/* Reuse modal classes from clientes.css */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 1000;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 24px 16px; overflow-y: auto;
+}
+.modal-box {
+  background: #fff; border-radius: 14px;
+  width: 100%; max-width: 560px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  display: flex; flex-direction: column;
+}
+.modal-box.modal-lg { max-width: 780px; }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1.5px solid var(--borda);
+}
+.modal-header h2 { font-size: 1.1rem; font-weight: 700; color: var(--cinza-esc); margin: 0; }
+.modal-close {
+  width: 30px; height: 30px; border-radius: 6px;
+  border: none; background: none; font-size: 1rem; cursor: pointer;
+  color: var(--cinza-medio);
+}
+.modal-close:hover { background: var(--fundo); }
+.modal-body  { padding: 20px 24px; overflow-y: auto; max-height: calc(90vh - 140px); }
+.modal-footer {
+  display: flex; gap: 10px; justify-content: flex-end;
+  padding: 16px 24px; border-top: 1.5px solid var(--borda);
+}
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+.form-group  { display: flex; flex-direction: column; gap: 5px; }
+.form-group-span2 { grid-column: span 2; }
+.form-label  { font-size: .82rem; font-weight: 600; color: var(--cinza-esc); }
+.form-input, .form-select {
+  padding: 9px 12px; border: 1.5px solid var(--borda); border-radius: 8px;
+  font-size: .88rem; color: var(--cinza-esc); background: #fff;
+  transition: border-color .2s;
+}
+.form-input:focus, .form-select:focus {
+  outline: none; border-color: var(--verde);
+  box-shadow: 0 0 0 3px rgba(99,153,34,.1);
+}
+
+@media (max-width: 600px) {
+  .cf-hero { padding: 16px; }
+  .cf-hero-avatar { width: 48px; height: 48px; font-size: 1rem; }
+  .form-grid-2 { grid-template-columns: 1fr; }
+  .form-group-span2 { grid-column: span 1; }
+}

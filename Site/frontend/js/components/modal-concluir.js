@@ -97,7 +97,8 @@ const ModalConcluir = (() => {
     try {
       await API.post(`/api/tarefas/${_tarefa.id}/concluir`, body);
       fechar();
-      Toast.show('Tarefa concluída com sucesso!', 'success');
+      Confetti?.center(80);
+      Toast.show('Tarefa concluída com sucesso! 🎉', 'success');
       _onSucesso?.();
       document.dispatchEvent(new CustomEvent('tarefa-atualizada'));
     } catch (err) {

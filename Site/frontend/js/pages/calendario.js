@@ -65,15 +65,26 @@
     return lista;
   }
 
-  // ── Renderização ────────────────────────────────────────────
-  function _renderCalendario() {
+  // ── Renderização com animação ────────────────────────────────
+  let _ultimaDirecao = null; // 'esq' | 'dir' | 'fade'
+
+  function _renderCalendario(direcao = 'fade') {
+    _ultimaDirecao = direcao;
     _atualizarTituloMes();
     if (_visao === 'semana') {
-      _renderSemana();
+      _renderSemana(direcao);
     } else {
-      _renderMes();
+      _renderMes(direcao);
     }
     _renderProjetosAtivos();
+  }
+
+  function _animarGrade(el, direcao) {
+    el.classList.remove('cal-anim-esq','cal-anim-dir','cal-anim-fade');
+    void el.offsetWidth; // force reflow
+    if (direcao === 'esq')       el.classList.add('cal-anim-esq');
+    else if (direcao === 'dir')  el.classList.add('cal-anim-dir');
+    else                         el.classList.add('cal-anim-fade');
   }
 
   function _atualizarTituloMes() {
@@ -95,7 +106,7 @@
     });
   }
 
-  function _renderSemana() {
+  function _renderSemana(direcao = 'fade') {
     document.getElementById('cal-semana').classList.remove('escondida');
     document.getElementById('cal-mes').classList.remove('visivel');
 
@@ -116,6 +127,7 @@
 
     // Body
     const bodyEl = document.getElementById('cal-semana-body');
+    _animarGrade(bodyEl, direcao);
     bodyEl.innerHTML = dias.map(d => {
       const iso = d.toISOString().slice(0, 10);
       const isHoje = iso === hoje;
@@ -138,8 +150,13 @@
       col.addEventListener('click', e => {
         if (e.target.closest('.tarefa-pilula')) return;
         if (e.target.classList.contains('mais-tarefas')) return;
-        ModalTarefa.abrir(null, { dataInicio: col.dataset.data,
-          onSucesso: _recarregar });
+        const iso = col.dataset.data;
+        const tarsDia = tarefas.filter(t => t.data_inicio?.slice(0,10) === iso);
+        if (tarsDia.length > 0) {
+          _abrirModalDia(iso, tarsDia);
+        } else {
+          ModalTarefa.abrir(null, { dataInicio: iso, onSucesso: _recarregar });
+        }
       });
     });
 
@@ -153,15 +170,14 @@
     bodyEl.querySelectorAll('.mais-tarefas').forEach(el => {
       el.addEventListener('click', e => {
         e.stopPropagation();
-        // Abre modal de tarefa pré-selecionando a data
         const iso = el.dataset.data;
         const tarsDia = tarefas.filter(t => t.data_inicio?.slice(0,10) === iso);
-        _mostrarListaDia(iso, tarsDia);
+        _abrirModalDia(iso, tarsDia);
       });
     });
   }
 
-  function _renderMes() {
+  function _renderMes(direcao = 'fade') {
     document.getElementById('cal-semana').classList.add('escondida');
     document.getElementById('cal-mes').classList.add('visivel');
 
@@ -186,6 +202,7 @@
     });
 
     const gridEl = document.getElementById('cal-mes-grid');
+    _animarGrade(gridEl, direcao);
     gridEl.innerHTML = dias.map(d => {
       const iso     = d.toISOString().slice(0, 10);
       const isHoje  = iso === hoje;
@@ -298,15 +315,110 @@
     }
   }
 
-  function _mostrarListaDia(iso, tarefas) {
-    // Simples: abre o painel da primeira tarefa
-    // Poderia ser expandido para um bottom sheet
-    if (tarefas.length > 0) _abrirTarefa(tarefas[0].id);
+  // ── Modal de detalhe do dia ──────────────────────────────────
+  let _diaSelecionado = null;
+
+  function _abrirModalDia(iso, tarefasDia) {
+    _diaSelecionado = iso;
+    const d = new Date(iso + 'T12:00:00');
+    const diasNomes = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+    const meses = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    document.getElementById('modal-dia-titulo').textContent =
+      `${diasNomes[d.getDay()]}, ${d.getDate()} de ${meses[d.getMonth()]}`;
+    document.getElementById('modal-dia-subtitulo').textContent =
+      tarefasDia.length === 0 ? 'Nenhuma tarefa' :
+      tarefasDia.length === 1 ? '1 tarefa' : `${tarefasDia.length} tarefas`;
+
+    _renderModalDia(tarefasDia);
+    document.getElementById('modal-dia-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
+
+  function _renderModalDia(tarefasDia) {
+    const body = document.getElementById('modal-dia-body');
+    const STATUS_LABEL = { aguardando:'Aguardando', ativa:'Ativa', em_andamento:'Em andamento', concluida:'Concluída', cancelada:'Cancelada' };
+    const STATUS_COR   = { aguardando:'#9CA3AF', ativa:'#639922', em_andamento:'#378ADD', concluida:'#059669', cancelada:'#EF4444' };
+
+    if (tarefasDia.length === 0) {
+      body.innerHTML = '<p style="color:var(--text-muted);padding:12px 0">Nenhuma tarefa neste dia.</p>';
+      return;
+    }
+
+    body.innerHTML = tarefasDia.map(t => {
+      const cor = t.projeto?.cor || '#5F5E5A';
+      const hora = t.hora ? t.hora.slice(0,5) : '';
+      const status = t.status || 'aguardando';
+      return `
+        <div class="modal-dia-tarefa" data-id="${t.id}" style="border-left:3px solid ${cor}">
+          <div class="modal-dia-tarefa-top">
+            <span class="modal-dia-status" style="color:${STATUS_COR[status] || '#9CA3AF'}">● ${STATUS_LABEL[status] || status}</span>
+            ${hora ? `<span class="modal-dia-hora">${hora}</span>` : ''}
+          </div>
+          <div class="modal-dia-titulo">${_esc(t.titulo)}</div>
+          <div class="modal-dia-meta">
+            ${t.projeto ? `<span style="color:${cor}">■ ${_esc(t.projeto.nome)}</span>` : ''}
+            <span>${_esc(t.atribuido_a?.nome || '')}</span>
+          </div>
+          <div class="modal-dia-acoes">
+            <button class="btn btn-secondary btn-sm modal-dia-btn-editar" data-id="${t.id}">Editar</button>
+            ${status !== 'concluida' ? `<button class="btn btn-sm modal-dia-btn-concluir" data-id="${t.id}" style="background:var(--verde);color:#fff">Concluir</button>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    body.querySelectorAll('.modal-dia-tarefa').forEach(el => {
+      el.addEventListener('click', e => {
+        if (e.target.closest('.modal-dia-btn-editar') || e.target.closest('.modal-dia-btn-concluir')) return;
+        _abrirTarefa(el.dataset.id);
+      });
+    });
+    body.querySelectorAll('.modal-dia-btn-editar').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try {
+          const t = await API.get(`/api/tarefas/${btn.dataset.id}`);
+          document.getElementById('modal-dia-overlay').classList.remove('open');
+          document.body.style.overflow = '';
+          ModalTarefa.abrir(t, { onSucesso: () => { _recarregar(); } });
+        } catch { Toast.show('Erro ao carregar tarefa', 'error'); }
+      });
+    });
+    body.querySelectorAll('.modal-dia-btn-concluir').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try {
+          const t = await API.get(`/api/tarefas/${btn.dataset.id}`);
+          document.getElementById('modal-dia-overlay').classList.remove('open');
+          document.body.style.overflow = '';
+          ModalConcluir.abrir(t, { onSucesso: _recarregar });
+        } catch { Toast.show('Erro ao carregar tarefa', 'error'); }
+      });
+    });
+  }
+
+  // Init modal dia
+  document.getElementById('btn-fechar-dia')?.addEventListener('click', () => {
+    document.getElementById('modal-dia-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  });
+  document.getElementById('modal-dia-overlay')?.addEventListener('click', e => {
+    if (e.target.id === 'modal-dia-overlay') {
+      document.getElementById('modal-dia-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+  document.getElementById('btn-dia-nova-tarefa')?.addEventListener('click', () => {
+    document.getElementById('modal-dia-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    ModalTarefa.abrir(null, { dataInicio: _diaSelecionado, onSucesso: _recarregar });
+  });
 
   async function _recarregar() {
     await _carregarDados();
-    _renderCalendario();
+    _renderCalendario('fade');
+  }
+
+  async function _recarregarComDirecao(direcao) {
+    await _carregarDados();
+    _renderCalendario(direcao);
   }
 
   // ── Eventos ─────────────────────────────────────────────────
@@ -316,7 +428,7 @@
     } else {
       _dataRef.setMonth(_dataRef.getMonth() - 1);
     }
-    _recarregar();
+    _recarregarComDirecao('dir');
   });
 
   document.getElementById('btn-next')?.addEventListener('click', () => {
@@ -325,14 +437,14 @@
     } else {
       _dataRef.setMonth(_dataRef.getMonth() + 1);
     }
-    _recarregar();
+    _recarregarComDirecao('esq');
   });
 
   document.getElementById('btn-toggle-visao')?.addEventListener('click', function() {
     _visao = _visao === 'semana' ? 'mes' : 'semana';
     this.classList.toggle('active', _visao === 'mes');
     this.textContent = _visao === 'mes' ? 'Ver semana ▲' : 'Expandir mês ▼';
-    _renderCalendario();
+    _renderCalendario('fade');
   });
 
   document.getElementById('filtro-usuario')?.addEventListener('change', function() {

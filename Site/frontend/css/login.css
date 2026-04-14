@@ -215,6 +215,118 @@ body.page-login {
 /* ── Rodapé ───────────────────────────────────────────────── */
 .login-footer { font-size: .75rem; color: #C0C4CC; margin-top: 40px; width: 100%; }
 
+/* ── Links abaixo do form ─────────────────────────────────── */
+.login-links {
+  margin-top: 14px;
+  text-align: center;
+}
+.link-btn {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font); font-size: .875rem;
+  color: var(--text-muted);
+  transition: color .15s;
+  padding: 0;
+}
+.link-btn:hover { color: var(--verde); }
+
+/* ── Banner: Continuar como ───────────────────────────────── */
+.continuar-como-bar {
+  margin-bottom: 18px;
+}
+.continuar-como-bar button {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 11px 14px;
+  background: var(--verde-cl);
+  border: 1.5px solid var(--verde);
+  border-radius: var(--radius-sm);
+  color: var(--verde-esc);
+  font-size: .875rem; font-weight: 600; font-family: var(--font);
+  cursor: pointer;
+  transition: background .15s;
+  gap: 6px;
+}
+.continuar-como-bar button:hover { background: #d5eab8; }
+
+/* ── Sucesso (recovery) ───────────────────────────────────── */
+.login-success {
+  display: none; align-items: center; gap: 8px;
+  background: #F0FDF4; border: 1px solid #86EFAC; color: #166534;
+  padding: 11px 14px; border-radius: var(--radius-sm);
+  font-size: .875rem; margin-bottom: 18px;
+}
+
+/* ── Código de verificação ────────────────────────────────── */
+.login-input-code {
+  letter-spacing: .3em;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ── Força da senha ───────────────────────────────────────── */
+.senha-meter {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.senha-meter-bar {
+  flex: 1;
+  height: 5px;
+  background: #E5E7EB;
+  border-radius: 100px;
+  overflow: hidden;
+}
+.senha-meter-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 100px;
+  transition: width .3s ease, background .3s ease;
+}
+.senha-meter-label {
+  font-size: .75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 70px;
+  text-align: right;
+  transition: color .3s;
+}
+
+/* ── Requisitos de senha ──────────────────────────────────── */
+.senha-requisitos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+.req {
+  font-size: .72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: #F3F4F6;
+  color: #9CA3AF;
+  border: 1px solid #E5E7EB;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.req.ok {
+  background: #F0FDF4;
+  color: #15803D;
+  border-color: #86EFAC;
+}
+
+/* ── Link reenviar código ─────────────────────────────────── */
+.btn-link-sm {
+  display: block; width: 100%;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font); font-size: .8125rem;
+  color: var(--text-muted); margin-top: 12px;
+  text-align: center; padding: 6px 0;
+  transition: color .15s;
+}
+.btn-link-sm:hover { color: var(--verde); }
+
 /* ── Mobile ───────────────────────────────────────────────── */
 @media (max-width: 480px) {
   body.page-login { padding: 24px 20px; align-items: flex-start; padding-top: 48px; }

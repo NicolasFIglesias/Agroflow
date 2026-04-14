@@ -64,3 +64,8 @@ const Auth = (() => {
 })();
 
 window.Auth = Auth;
+
+// Convenience globals used by newer pages
+function verificarAutenticacao() { Auth.exigirLogin(); }
+function usuario() { return Auth.usuario(); }
+function logado()  { return Auth.logado(); }

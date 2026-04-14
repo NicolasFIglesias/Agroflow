@@ -38,7 +38,9 @@ const API = (() => {
     get:    (path)        => _req('GET',    path),
     post:   (path, body)  => _req('POST',   path, body),
     put:    (path, body)  => _req('PUT',    path, body),
+    patch:  (path, body)  => _req('PATCH',  path, body),
     delete: (path)        => _req('DELETE', path),
+    _req,
   };
 })();
 

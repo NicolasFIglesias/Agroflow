@@ -137,8 +137,10 @@ const PainelLateral = (() => {
     // Botão concluir e delegar
     document.getElementById('btn-concluir')?.addEventListener('click', () => {
       if (_tarefaAtual && _onConcluir) {
+        const t  = _tarefaAtual;
+        const cb = _onConcluir;
         fechar();
-        _onConcluir(_tarefaAtual);
+        cb(t);
       }
     });
 

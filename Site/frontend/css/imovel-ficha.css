@@ -1,0 +1,78 @@
+/* ── Imovel Ficha extras ───────────────────────────────────── */
+
+.imf-mapa-container {
+  position: relative;
+  background: #fff;
+  border: 1.5px solid var(--borda);
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+#imf-mapa {
+  width: 100%;
+  height: 440px;
+}
+
+.imf-mapa-coords {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--fundo);
+  border-top: 1.5px solid var(--borda);
+  font-size: .85rem;
+  color: var(--cinza-medio);
+  flex-wrap: wrap;
+}
+
+.imf-mapa-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--cinza-medio);
+  font-size: .9rem;
+}
+
+/* Proprietários na ficha */
+.imf-prop-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1.5px solid var(--borda);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.imf-prop-card:hover { background: var(--fundo); }
+.imf-prop-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--verde), var(--verde-esc));
+  color: #fff; font-weight: 700; font-size: .85rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.imf-prop-nome { font-weight: 600; color: var(--cinza-esc); font-size: .9rem; }
+.imf-prop-doc  { font-size: .8rem; color: var(--cinza-medio); font-family: monospace; margin-top: 2px; }
+.imf-prop-badge {
+  margin-left: auto;
+  font-size: .75rem; font-weight: 600;
+  padding: 3px 10px; border-radius: 10px;
+  background: #EFF6FF; color: #2563EB;
+}
+
+/* Docs / registros grid */
+.imf-doc-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0;
+}

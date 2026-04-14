@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes — AgriFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components/sidebar.css">
+  <link rel="stylesheet" href="../css/clientes.css">
+</head>
+<body>
+
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🌿</div>
+    <div>
+      <div class="sidebar-logo-text">AgriFlow</div>
+      <div class="sidebar-logo-sub">Crédito Rural</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Principal</div>
+    <a href="/pages/visao-geral.html" class="sidebar-item sidebar-item-admin" data-page="visao-geral" style="display:none">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/>
+        <rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/>
+        <rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/>
+        <rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/>
+      </svg>
+      Visão Geral
+    </a>
+    <a href="/pages/clientes.html" class="sidebar-item active" data-page="clientes">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="9" cy="7" r="4" stroke-width="2"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Clientes
+    </a>
+    <a href="/pages/imoveis.html" class="sidebar-item" data-page="imoveis">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M3 9.5L12 4l9 5.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9 21V12h6v9" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Imóveis
+    </a>
+    <a href="/pages/calendario.html" class="sidebar-item" data-page="calendario">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/>
+        <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="10" x2="21" y2="10" stroke-width="2"/>
+      </svg>
+      Calendário
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label sidebar-item-admin" style="display:none">Administração</div>
+    <a href="/pages/colaboradores.html" class="sidebar-item sidebar-item-admin" data-page="colaboradores" style="display:none">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="9" cy="7" r="4" stroke-width="2"/>
+        <line x1="19" y1="8" x2="19" y2="14" stroke-width="2" stroke-linecap="round"/>
+        <line x1="22" y1="11" x2="16" y2="11" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Colaboradores
+    </a>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name" id="sidebar-user-name">—</div>
+      <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+    </div>
+  </div>
+  <button class="sidebar-logout-btn" id="btn-logout">
+    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path d="M17 16l4-4m0 0l-4-4m4 4H7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3 12V5a2 2 0 012-2h7" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Sair da conta
+  </button>
+</aside>
+
+<main class="app-main">
+  <div class="app-content">
+
+    <!-- Header -->
+    <div class="cli-header">
+      <div>
+        <h1>Clientes</h1>
+        <p>Produtores rurais e empresas cadastrados</p>
+      </div>
+      <button class="btn btn-primary btn-lg" id="btn-novo-cliente">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <line x1="12" y1="5" x2="12" y2="19" stroke-width="2" stroke-linecap="round"/>
+          <line x1="5" y1="12" x2="19" y2="12" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Novo cliente
+      </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="cli-filtros">
+      <div class="cli-busca">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="cli-busca-icon">
+          <circle cx="11" cy="11" r="8" stroke-width="2"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input type="text" id="cli-busca-input" class="cli-busca-input" placeholder="Buscar por nome, CPF/CNPJ, município...">
+      </div>
+      <select id="cli-filtro-tipo" class="cli-filtro-select">
+        <option value="">Todos os tipos</option>
+        <option value="PF">Pessoa Física</option>
+        <option value="PJ">Pessoa Jurídica</option>
+      </select>
+    </div>
+
+    <!-- Stats rápidas -->
+    <div class="cli-stats">
+      <div class="cli-stat-chip" id="stat-total">— clientes</div>
+      <div class="cli-stat-chip cli-stat-pf" id="stat-pf">— PF</div>
+      <div class="cli-stat-chip cli-stat-pj" id="stat-pj">— PJ</div>
+    </div>
+
+    <!-- Lista -->
+    <div class="cli-lista-wrap">
+      <div class="cli-lista-header">
+        <span>Nome</span>
+        <span>CPF / CNPJ</span>
+        <span>Município / UF</span>
+        <span>Celular</span>
+        <span>Imóveis</span>
+        <span></span>
+      </div>
+      <div id="cli-lista" class="cli-lista">
+        <div class="cli-loading">Carregando...</div>
+      </div>
+    </div>
+
+    <!-- Paginação -->
+    <div class="cli-paginacao" id="cli-paginacao" style="display:none">
+      <button class="btn btn-secondary btn-sm" id="btn-pag-anterior">← Anterior</button>
+      <span id="pag-info" class="cli-pag-info"></span>
+      <button class="btn btn-secondary btn-sm" id="btn-pag-proxima">Próxima →</button>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal novo/editar cliente -->
+<div class="modal-overlay" id="modal-cliente" style="display:none">
+  <div class="modal-box modal-lg">
+    <div class="modal-header">
+      <h2 id="modal-cliente-titulo">Novo Cliente</h2>
+      <button class="modal-close" id="btn-fechar-modal-cliente">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Tipo de pessoa -->
+      <div class="form-group">
+        <label class="form-label">Tipo de pessoa *</label>
+        <div class="cli-tipo-toggle">
+          <button type="button" class="cli-tipo-btn active" data-tipo="PF" id="btn-tipo-pf">Pessoa Física</button>
+          <button type="button" class="cli-tipo-btn" data-tipo="PJ" id="btn-tipo-pj">Pessoa Jurídica</button>
+        </div>
+        <input type="hidden" id="cliente-tipo-pessoa" value="PF">
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group form-group-span2">
+          <label class="form-label">Nome completo / Razão social *</label>
+          <input type="text" id="cliente-nome" class="form-input" placeholder="Nome completo">
+        </div>
+        <div class="form-group" id="grupo-nome-fantasia" style="display:none">
+          <label class="form-label">Nome fantasia</label>
+          <input type="text" id="cliente-nome-fantasia" class="form-input" placeholder="Nome fantasia">
+        </div>
+        <div class="form-group" id="grupo-cpf">
+          <label class="form-label">CPF</label>
+          <input type="text" id="cliente-cpf" class="form-input" placeholder="000.000.000-00" maxlength="14">
+        </div>
+        <div class="form-group" id="grupo-cnpj" style="display:none">
+          <label class="form-label">CNPJ</label>
+          <input type="text" id="cliente-cnpj" class="form-input" placeholder="00.000.000/0000-00" maxlength="18">
+        </div>
+        <div class="form-group" id="grupo-rg">
+          <label class="form-label">RG</label>
+          <input type="text" id="cliente-rg" class="form-input" placeholder="RG">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Inscrição Estadual</label>
+          <input type="text" id="cliente-inscricao-estadual" class="form-input">
+        </div>
+        <div class="form-group" id="grupo-nascimento">
+          <label class="form-label">Data de nascimento</label>
+          <input type="date" id="cliente-data-nascimento" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado civil</label>
+          <select id="cliente-estado-civil" class="form-select">
+            <option value="">—</option>
+            <option value="solteiro">Solteiro(a)</option>
+            <option value="casado">Casado(a)</option>
+            <option value="divorciado">Divorciado(a)</option>
+            <option value="viuvo">Viúvo(a)</option>
+            <option value="uniao_estavel">União estável</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Profissão / Atividade</label>
+          <input type="text" id="cliente-profissao" class="form-input" placeholder="Ex: Produtor rural">
+        </div>
+        <div class="form-group">
+          <label class="form-label">DAP / CAF</label>
+          <input type="text" id="cliente-dap-caf" class="form-input" placeholder="Número DAP ou CAF">
+        </div>
+      </div>
+
+      <div class="form-divider">Endereço</div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">CEP</label>
+          <input type="text" id="cliente-cep" class="form-input" placeholder="00000-000" maxlength="9">
+        </div>
+        <div class="form-group form-group-span2">
+          <label class="form-label">Logradouro</label>
+          <input type="text" id="cliente-logradouro" class="form-input" placeholder="Rua, Avenida...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Número</label>
+          <input type="text" id="cliente-numero" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Complemento</label>
+          <input type="text" id="cliente-complemento" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bairro</label>
+          <input type="text" id="cliente-bairro" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Município</label>
+          <input type="text" id="cliente-municipio" class="form-input" placeholder="Cidade">
+        </div>
+        <div class="form-group">
+          <label class="form-label">UF</label>
+          <select id="cliente-uf" class="form-select">
+            <option value="">—</option>
+            <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+            <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+            <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+            <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+            <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+            <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+            <option>SP</option><option>SE</option><option>TO</option>
+          </select>
+        </div>
+        <div class="form-group form-group-span2">
+          <label class="form-label">Endereço rural / Localidade</label>
+          <input type="text" id="cliente-endereco-rural" class="form-input" placeholder="Ex: Fazenda Boa Vista, Km 12...">
+        </div>
+      </div>
+
+      <div class="form-divider">Contato</div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Celular *</label>
+          <input type="text" id="cliente-celular" class="form-input" placeholder="(00) 00000-0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Celular 2</label>
+          <input type="text" id="cliente-celular2" class="form-input" placeholder="(00) 00000-0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone fixo</label>
+          <input type="text" id="cliente-telefone-fixo" class="form-input" placeholder="(00) 0000-0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="cliente-email" class="form-input" placeholder="email@exemplo.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail 2</label>
+          <input type="email" id="cliente-email2" class="form-input">
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-cliente">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-cliente">Salvar cliente</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/components/sidebar.js"></script>
+<script src="../js/pages/clientes.js"></script>
+</body>
+</html>

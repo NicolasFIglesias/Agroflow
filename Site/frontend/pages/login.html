@@ -54,6 +54,14 @@
 
       <!-- ══ PAINEL: ENTRAR ══════════════════════════════════ -->
       <div class="login-panel active" id="panel-entrar">
+
+        <!-- Banner: continuar como (oculto por padrão) -->
+        <div id="continuar-como-bar" class="continuar-como-bar" style="display:none">
+          <button type="button" id="btn-continuar-como">
+            ← Continuar como <strong id="continuar-como-nome"></strong>
+          </button>
+        </div>
+
         <div class="login-error" id="login-error">
           <span>⚠️</span><span id="login-error-msg"></span>
         </div>
@@ -71,7 +79,70 @@
             <span id="login-btn-text">Entrar na conta</span>
           </button>
         </form>
+        <div class="login-links">
+          <button type="button" id="btn-esqueci" class="link-btn">Esqueci minha senha</button>
+        </div>
       </div>
+
+      <!-- ══ PAINEL: RECUPERAR SENHA ════════════════════════ -->
+      <div class="login-panel" id="panel-recuperar">
+
+        <!-- Step 1: email -->
+        <div id="rec-passo1">
+          <p class="panel-title">Recuperar senha</p>
+          <p class="panel-subtitle">Informe seu e-mail cadastrado. Enviaremos um código de 6 dígitos.</p>
+
+          <div class="login-error" id="rec-error">
+            <span>⚠️</span><span id="rec-error-msg"></span>
+          </div>
+          <div class="login-success" id="rec-success" style="display:none">
+            <span>✅</span><span id="rec-success-msg"></span>
+          </div>
+
+          <div class="login-field">
+            <label class="login-label">Email</label>
+            <input type="email" id="rec-email" class="login-input" placeholder="seu@email.com">
+          </div>
+          <button type="button" class="btn-primary-login" id="btn-enviar-codigo">
+            <span class="spin" id="rec-spin"></span>
+            <span id="rec-btn-text">Enviar código</span>
+          </button>
+          <button type="button" class="btn-secundario" id="btn-voltar-rec">← Voltar para login</button>
+        </div>
+
+        <!-- Step 2: código + nova senha -->
+        <div id="rec-passo2" style="display:none">
+          <p class="panel-title">Nova senha</p>
+          <p class="panel-subtitle">Digite o código que chegou ao seu e-mail e crie uma nova senha.</p>
+
+          <div class="login-error" id="rec2-error">
+            <span>⚠️</span><span id="rec2-error-msg"></span>
+          </div>
+
+          <div class="login-field">
+            <label class="login-label">Código de verificação</label>
+            <input type="text" id="rec-codigo" class="login-input login-input-code" placeholder="000000" maxlength="6" inputmode="numeric">
+          </div>
+          <div class="login-field">
+            <label class="login-label">Nova senha</label>
+            <input type="password" id="rec-nova-senha" class="login-input" placeholder="Mínimo 6 caracteres">
+            <div class="senha-meter" id="rec-senha-meter">
+              <div class="senha-meter-bar"><div class="senha-meter-fill" id="rec-meter-fill"></div></div>
+              <span class="senha-meter-label" id="rec-meter-label">—</span>
+            </div>
+          </div>
+          <div class="login-field">
+            <label class="login-label">Confirmar nova senha</label>
+            <input type="password" id="rec-conf-senha" class="login-input" placeholder="Repita a senha">
+          </div>
+          <button type="button" class="btn-primary-login" id="btn-nova-senha">
+            <span class="spin" id="rec2-spin"></span>
+            <span id="rec2-btn-text">Redefinir senha</span>
+          </button>
+          <button type="button" class="btn-link-sm" id="btn-reenviar">Reenviar código</button>
+        </div>
+
+      </div><!-- /panel-recuperar -->
 
       <!-- ══ PAINEL: CRIAR CONTA ════════════════════════════= -->
       <div class="login-panel" id="panel-criar">
@@ -128,6 +199,20 @@
             <div class="login-field">
               <label class="login-label">Senha *</label>
               <input type="password" id="adm-senha" class="login-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+              <div class="senha-meter" id="adm-senha-meter">
+                <div class="senha-meter-bar"><div class="senha-meter-fill" id="adm-meter-fill"></div></div>
+                <span class="senha-meter-label" id="adm-meter-label">—</span>
+              </div>
+              <div class="senha-requisitos" id="adm-requisitos">
+                <span class="req" id="adm-req-upper">Aa maiúscula</span>
+                <span class="req" id="adm-req-lower">aa minúscula</span>
+                <span class="req" id="adm-req-num">123 número</span>
+                <span class="req" id="adm-req-esp">!@ especial</span>
+              </div>
+            </div>
+            <div class="login-field">
+              <label class="login-label">Repetir senha *</label>
+              <input type="password" id="adm-senha-conf" class="login-input" placeholder="Repita a senha" required>
             </div>
 
             <button type="submit" class="btn-primary-login" id="btn-adm">
@@ -174,6 +259,20 @@
               <div class="login-field">
                 <label class="login-label">Senha *</label>
                 <input type="password" id="col-senha" class="login-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+                <div class="senha-meter" id="col-senha-meter">
+                  <div class="senha-meter-bar"><div class="senha-meter-fill" id="col-meter-fill"></div></div>
+                  <span class="senha-meter-label" id="col-meter-label">—</span>
+                </div>
+                <div class="senha-requisitos" id="col-requisitos">
+                  <span class="req" id="col-req-upper">Aa maiúscula</span>
+                  <span class="req" id="col-req-lower">aa minúscula</span>
+                  <span class="req" id="col-req-num">123 número</span>
+                  <span class="req" id="col-req-esp">!@ especial</span>
+                </div>
+              </div>
+              <div class="login-field">
+                <label class="login-label">Repetir senha *</label>
+                <input type="password" id="col-senha-conf" class="login-input" placeholder="Repita a senha" required>
               </div>
               <div class="login-field">
                 <label class="login-label">Cargo *</label>

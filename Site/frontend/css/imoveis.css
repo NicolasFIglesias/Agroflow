@@ -1,0 +1,97 @@
+/* ── Imóveis ────────────────────────────────────────────────── */
+
+.imo-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.imo-header h1 { font-size: 1.6rem; font-weight: 700; color: var(--cinza-esc); margin: 0 0 4px; }
+.imo-header p  { color: var(--cinza-medio); font-size: .9rem; margin: 0; }
+
+.imo-filtros {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.imo-filtros .cli-busca { flex: 1; min-width: 240px; }
+
+.imo-lista-header {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 100px 90px 90px 100px 60px;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--fundo);
+  border-bottom: 1.5px solid var(--borda);
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--cinza-medio);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.imo-row {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 100px 90px 90px 100px 60px;
+  gap: 12px;
+  padding: 14px 20px;
+  align-items: center;
+  border-bottom: 1px solid var(--borda);
+  transition: background .15s;
+  cursor: pointer;
+}
+.imo-row:last-child { border-bottom: none; }
+.imo-row:hover { background: var(--fundo); }
+
+.imo-row-nome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.imo-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+  color: var(--verde-esc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.imo-denominacao { font-weight: 600; color: var(--cinza-esc); font-size: .9rem; }
+.imo-matricula   { font-size: .77rem; color: var(--cinza-medio); margin-top: 1px; }
+.imo-row-loc     { font-size: .85rem; color: var(--cinza-medio); }
+.imo-row-area    { font-size: .85rem; font-weight: 600; color: var(--cinza-esc); }
+
+.imo-badge {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: .72rem;
+  font-weight: 600;
+}
+.imo-badge-car-ativo          { background: #D1FAE5; color: #065F46; }
+.imo-badge-car-pendente       { background: #FEF9C3; color: #854D0E; }
+.imo-badge-car-cancelado,
+.imo-badge-car-suspenso       { background: #FEE2E2; color: #991B1B; }
+.imo-badge-ccir-em_dia        { background: #D1FAE5; color: #065F46; }
+.imo-badge-ccir-vencido       { background: #FEE2E2; color: #991B1B; }
+.imo-badge-ccir-em_renovacao  { background: #FEF9C3; color: #854D0E; }
+.imo-badge-none               { background: var(--fundo); color: var(--cinza-medio); }
+
+.imo-row-prop { font-size: .82rem; color: var(--cinza-medio); }
+
+@media (max-width: 900px) {
+  .imo-lista-header,
+  .imo-row { grid-template-columns: 2fr 1fr 80px 50px; }
+  .imo-lista-header span:nth-child(4),
+  .imo-lista-header span:nth-child(5),
+  .imo-lista-header span:nth-child(6),
+  .imo-row > *:nth-child(4),
+  .imo-row > *:nth-child(5),
+  .imo-row > *:nth-child(6) { display: none; }
+}

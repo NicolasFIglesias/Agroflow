@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha do Cliente — AgriFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components/sidebar.css">
+  <link rel="stylesheet" href="../css/cliente-ficha.css">
+</head>
+<body>
+
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🌿</div>
+    <div>
+      <div class="sidebar-logo-text">AgriFlow</div>
+      <div class="sidebar-logo-sub">Crédito Rural</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Principal</div>
+    <a href="/pages/visao-geral.html" class="sidebar-item sidebar-item-admin" data-page="visao-geral" style="display:none">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/>
+        <rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/>
+        <rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/>
+        <rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/>
+      </svg>
+      Visão Geral
+    </a>
+    <a href="/pages/clientes.html" class="sidebar-item active" data-page="clientes">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="9" cy="7" r="4" stroke-width="2"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Clientes
+    </a>
+    <a href="/pages/imoveis.html" class="sidebar-item" data-page="imoveis">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M3 9.5L12 4l9 5.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9 21V12h6v9" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Imóveis
+    </a>
+    <a href="/pages/calendario.html" class="sidebar-item" data-page="calendario">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/>
+        <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="3" y1="10" x2="21" y2="10" stroke-width="2"/>
+      </svg>
+      Calendário
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label sidebar-item-admin" style="display:none">Administração</div>
+    <a href="/pages/colaboradores.html" class="sidebar-item sidebar-item-admin" data-page="colaboradores" style="display:none">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="9" cy="7" r="4" stroke-width="2"/>
+        <line x1="19" y1="8" x2="19" y2="14" stroke-width="2" stroke-linecap="round"/>
+        <line x1="22" y1="11" x2="16" y2="11" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Colaboradores
+    </a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name" id="sidebar-user-name">—</div>
+      <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+    </div>
+  </div>
+  <button class="sidebar-logout-btn" id="btn-logout">
+    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path d="M17 16l4-4m0 0l-4-4m4 4H7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3 12V5a2 2 0 012-2h7" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Sair da conta
+  </button>
+</aside>
+
+<main class="app-main">
+  <div class="app-content">
+
+    <!-- Breadcrumb -->
+    <div class="cf-breadcrumb">
+      <a href="/pages/clientes.html">← Clientes</a>
+      <span id="cf-breadcrumb-nome">Carregando...</span>
+    </div>
+
+    <!-- Hero header -->
+    <div class="cf-hero" id="cf-hero">
+      <div class="cf-hero-avatar" id="cf-hero-avatar">?</div>
+      <div class="cf-hero-info">
+        <h1 id="cf-nome">—</h1>
+        <div class="cf-hero-meta" id="cf-hero-meta"></div>
+      </div>
+      <div class="cf-hero-actions">
+        <button class="btn btn-secondary" id="btn-editar-cliente">Editar dados</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="cf-tabs">
+      <button class="cf-tab active" data-tab="dados">Dados Pessoais</button>
+      <button class="cf-tab" data-tab="bancario">Bancário</button>
+      <button class="cf-tab" data-tab="conjuge">Cônjuge</button>
+      <button class="cf-tab" data-tab="imoveis">Imóveis</button>
+      <button class="cf-tab" data-tab="timeline">Timeline</button>
+      <button class="cf-tab cf-tab-admin" data-tab="cofre" style="display:none">Cofre</button>
+    </div>
+
+    <!-- ── TAB: DADOS ────────────────────────────────────────── -->
+    <div class="cf-panel active" id="panel-dados">
+      <div class="cf-section-grid" id="dados-grid">
+        <div class="cli-loading">Carregando...</div>
+      </div>
+    </div>
+
+    <!-- ── TAB: BANCÁRIO ─────────────────────────────────────── -->
+    <div class="cf-panel" id="panel-bancario">
+      <div class="cf-panel-header">
+        <h3>Contas bancárias</h3>
+        <button class="btn btn-secondary btn-sm" id="btn-nova-conta">+ Adicionar conta</button>
+      </div>
+      <div id="contas-lista"></div>
+    </div>
+
+    <!-- ── TAB: CÔNJUGE ──────────────────────────────────────── -->
+    <div class="cf-panel" id="panel-conjuge">
+      <div id="conjuge-conteudo"></div>
+    </div>
+
+    <!-- ── TAB: IMÓVEIS ──────────────────────────────────────── -->
+    <div class="cf-panel" id="panel-imoveis">
+      <div class="cf-panel-header">
+        <h3>Imóveis vinculados</h3>
+        <button class="btn btn-secondary btn-sm" id="btn-vincular-imovel">+ Vincular imóvel</button>
+      </div>
+      <div id="imoveis-lista"></div>
+    </div>
+
+    <!-- ── TAB: TIMELINE ─────────────────────────────────────── -->
+    <div class="cf-panel" id="panel-timeline">
+      <div class="cf-timeline-compose">
+        <textarea id="timeline-texto" class="cf-timeline-input" placeholder="Adicionar nota, lembrete ou observação..."></textarea>
+        <div class="cf-timeline-actions">
+          <select id="timeline-tipo" class="cf-timeline-tipo">
+            <option value="manual">Nota manual</option>
+            <option value="lembrete">Lembrete</option>
+          </select>
+          <div id="timeline-lembrete-data" style="display:none">
+            <input type="datetime-local" id="timeline-data-lembrete" class="form-input" style="font-size:.85rem;padding:8px 10px">
+          </div>
+          <button class="btn btn-primary btn-sm" id="btn-add-timeline">Adicionar</button>
+        </div>
+      </div>
+      <div id="timeline-lista" class="cf-timeline-lista"></div>
+      <div class="cf-timeline-mais" id="timeline-mais" style="display:none">
+        <button class="btn btn-secondary btn-sm" id="btn-mais-timeline">Carregar mais</button>
+      </div>
+    </div>
+
+    <!-- ── TAB: COFRE ─────────────────────────────────────────── -->
+    <div class="cf-panel" id="panel-cofre">
+      <div class="cf-panel-header">
+        <h3>Cofre de senhas</h3>
+        <button class="btn btn-secondary btn-sm" id="btn-nova-credencial">+ Nova credencial</button>
+      </div>
+      <div id="cofre-lista"></div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal conta bancária -->
+<div class="modal-overlay" id="modal-conta" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="modal-conta-titulo">Nova Conta</h2>
+      <button class="modal-close" id="btn-fechar-modal-conta">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group form-group-span2">
+          <label class="form-label">Banco *</label>
+          <input type="text" id="conta-banco" class="form-input" placeholder="Nome do banco">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Agência *</label>
+          <input type="text" id="conta-agencia" class="form-input" placeholder="0000-0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nº da conta *</label>
+          <input type="text" id="conta-numero" class="form-input" placeholder="00000-0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de conta *</label>
+          <select id="conta-tipo" class="form-select">
+            <option value="corrente">Corrente</option>
+            <option value="poupanca">Poupança</option>
+            <option value="salario">Salário</option>
+            <option value="investimento">Investimento</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Titular</label>
+          <input type="text" id="conta-titular" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chave PIX</label>
+          <input type="text" id="conta-pix" class="form-input" placeholder="CPF, e-mail, telefone...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo da chave PIX</label>
+          <select id="conta-pix-tipo" class="form-select">
+            <option value="">—</option>
+            <option value="cpf_cnpj">CPF/CNPJ</option>
+            <option value="telefone">Telefone</option>
+            <option value="email">E-mail</option>
+            <option value="aleatoria">Aleatória</option>
+          </select>
+        </div>
+        <div class="form-group form-group-span2">
+          <label class="form-label">Observação</label>
+          <input type="text" id="conta-obs" class="form-input">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-conta">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-conta">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal cônjuge -->
+<div class="modal-overlay" id="modal-conjuge" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>Dados do Cônjuge</h2>
+      <button class="modal-close" id="btn-fechar-modal-conjuge">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group form-group-span2">
+          <label class="form-label">Nome completo *</label>
+          <input type="text" id="conjuge-nome" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CPF</label>
+          <input type="text" id="conjuge-cpf" class="form-input" placeholder="000.000.000-00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">RG</label>
+          <input type="text" id="conjuge-rg" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data de nascimento</label>
+          <input type="date" id="conjuge-nascimento" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Profissão</label>
+          <input type="text" id="conjuge-profissao" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone</label>
+          <input type="text" id="conjuge-telefone" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="conjuge-email" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Regime de bens</label>
+          <select id="conjuge-regime" class="form-select">
+            <option value="">—</option>
+            <option value="comunhao_parcial">Comunhão parcial</option>
+            <option value="comunhao_universal">Comunhão universal</option>
+            <option value="separacao_total">Separação total</option>
+            <option value="participacao_aquestos">Part. de aquestos</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">DAP / CAF</label>
+          <input type="text" id="conjuge-dap" class="form-input">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-conjuge">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-conjuge">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal credencial cofre -->
+<div class="modal-overlay" id="modal-cofre" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="modal-cofre-titulo">Nova Credencial</h2>
+      <button class="modal-close" id="btn-fechar-modal-cofre">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group form-group-span2">
+          <label class="form-label">Sistema / Plataforma *</label>
+          <input type="text" id="cofre-sistema" class="form-input" placeholder="Ex: Gov.br, Certidão CAR...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Login / Usuário *</label>
+          <input type="text" id="cofre-login" class="form-input" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha *</label>
+          <input type="password" id="cofre-senha" class="form-input" autocomplete="new-password">
+        </div>
+        <div class="form-group form-group-span2">
+          <label class="form-label">URL</label>
+          <input type="url" id="cofre-url" class="form-input" placeholder="https://...">
+        </div>
+        <div class="form-group form-group-span2">
+          <label class="form-label">Observação</label>
+          <input type="text" id="cofre-obs" class="form-input">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-cofre">Cancelar</button>
+      <button class="btn btn-primary" id="btn-salvar-cofre">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal vincular imóvel -->
+<div class="modal-overlay" id="modal-vincular-imovel" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>Vincular Imóvel</h2>
+      <button class="modal-close" id="btn-fechar-modal-vincular">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Buscar imóvel</label>
+        <input type="text" id="vincular-busca" class="form-input" placeholder="Digite o nome do imóvel...">
+      </div>
+      <div id="vincular-resultados" class="cf-vincular-resultados"></div>
+      <div class="form-grid-2" style="margin-top:16px">
+        <div class="form-group">
+          <label class="form-label">Tipo de vínculo</label>
+          <select id="vincular-tipo" class="form-select">
+            <option value="proprietario">Proprietário</option>
+            <option value="posseiro">Posseiro</option>
+            <option value="arrendatario">Arrendatário</option>
+            <option value="comodatario">Comodatário</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">% de participação</label>
+          <input type="number" id="vincular-percentual" class="form-input" value="100" min="0" max="100" step="0.01">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-vincular">Cancelar</button>
+      <button class="btn btn-primary" id="btn-confirmar-vincular" disabled>Vincular</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/components/sidebar.js"></script>
+<script src="../js/pages/cliente-ficha.js"></script>
+</body>
+</html>
