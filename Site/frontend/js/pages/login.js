@@ -1,4 +1,22 @@
 // AgriFlow - Login
+
+// Acorda Lambda + Neon imediatamente. Promise guardada para ser aguardada no submit.
+const _warmupPromise = (function () {
+  try {
+    return fetch(CONFIG.API_URL + '/warmup', { method: 'GET' })
+      .then(() => {})
+      .catch(() => {});
+  } catch (_) { return Promise.resolve(); }
+})();
+
+// Aguarda o warmup com timeout máximo de 6s (evita travar se servidor estiver offline)
+async function _aguardarWarmup() {
+  return Promise.race([
+    _warmupPromise,
+    new Promise(r => setTimeout(r, 6000)),
+  ]);
+}
+
 (async () => {
   let _trocandoConta = false;
   let _emailRecuperar = '';
@@ -153,8 +171,10 @@
     const btn     = document.getElementById('btn-login');
     errorEl.classList.remove('show');
     spin.style.display  = 'inline-block';
-    btnText.textContent = 'Entrando...';
     btn.disabled = true;
+    btnText.textContent = 'Conectando...';
+    await _aguardarWarmup();
+    btnText.textContent = 'Entrando...';
     try {
       const data = await API.post('/api/auth/login', {
         email: document.getElementById('email').value.trim(),
@@ -357,9 +377,11 @@
       return;
     }
 
-    spin.style.display  = 'inline-block';
-    btnText.textContent = 'Criando...';
     btn.disabled = true;
+    spin.style.display  = 'inline-block';
+    btnText.textContent = 'Conectando...';
+    await _aguardarWarmup();
+    btnText.textContent = 'Criando...';
 
     try {
       const data = await API.post('/api/auth/register', {
@@ -434,9 +456,11 @@
       return;
     }
 
-    spin.style.display  = 'inline-block';
-    btnText.textContent = 'Criando conta...';
     btn.disabled = true;
+    spin.style.display  = 'inline-block';
+    btnText.textContent = 'Conectando...';
+    await _aguardarWarmup();
+    btnText.textContent = 'Criando conta...';
 
     try {
       const data = await API.post('/api/auth/register', {

@@ -12,6 +12,8 @@ const imoveisRoutes    = require('./routes/imoveis');
 const dashboardRoutes  = require('./routes/dashboard');
 const devRoutes        = require('./routes/dev');
 
+const db = require('./db');
+
 const app = express();
 
 app.use(cors({ origin: true, credentials: true }));
@@ -29,6 +31,16 @@ app.use('/api/dev',        devRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Acorda Lambda + Neon sem autenticação (usado pelo frontend no carregamento da página)
+app.get('/api/warmup', async (_req, res) => {
+  try {
+    await db.query('SELECT 1');
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(503).json({ ok: false });
+  }
 });
 
 module.exports.handler = serverless(app);
