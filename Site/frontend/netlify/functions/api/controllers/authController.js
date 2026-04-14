@@ -40,9 +40,8 @@ exports.login = async (req, res) => {
 // POST /api/auth/register — cria empresa + admin (tipo:'admin')
 //                          ou cria colaborador via convite (tipo:'colaborador')
 exports.register = async (req, res) => {
-  const client = await db.pool.connect();
+  let client;
   try {
-    await client.query('BEGIN');
     const { tipo } = req.body;
 
     if (tipo === 'colaborador') {
@@ -59,20 +58,23 @@ exports.register = async (req, res) => {
       if (decoded.type !== 'convite')
         return res.status(400).json({ error: 'Link de convite inválido' });
 
-      const { rows: existe } = await client.query('SELECT id FROM usuarios WHERE email=$1', [email.toLowerCase().trim()]);
-      if (existe.length) { await client.query('ROLLBACK'); return res.status(409).json({ error: 'Email já cadastrado' }); }
+      const { rows: existe } = await db.query('SELECT id FROM usuarios WHERE email=$1', [email.toLowerCase().trim()]);
+      if (existe.length) return res.status(409).json({ error: 'Email já cadastrado' });
 
-      const { rows: [empresa] } = await client.query('SELECT nome FROM empresas WHERE id=$1', [decoded.empresa_id]);
-      if (!empresa) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Empresa não encontrada' }); }
+      const { rows: [empresa] } = await db.query('SELECT nome FROM empresas WHERE id=$1', [decoded.empresa_id]);
+      if (!empresa) return res.status(404).json({ error: 'Empresa não encontrada' });
 
       const senhaHash = await bcrypt.hash(senha, 10);
+
+      client = await db.pool.connect();
+      await client.query('BEGIN');
       const { rows: [usuario] } = await client.query(
         `INSERT INTO usuarios (empresa_id, nome, email, senha_hash, cargo, role)
          VALUES ($1, $2, $3, $4, $5, 'colaborador') RETURNING id, nome, email, cargo, role, empresa_id`,
         [decoded.empresa_id, email.split('@')[0].trim(), email.toLowerCase().trim(), senhaHash, cargo]
       );
-
       await client.query('COMMIT');
+
       const token = jwt.sign(
         { id: usuario.id, empresa_id: decoded.empresa_id, nome: usuario.nome, email: usuario.email, role: 'colaborador' },
         process.env.JWT_SECRET, { expiresIn: '7d' }
@@ -81,26 +83,29 @@ exports.register = async (req, res) => {
 
     } else {
       // ── Admin: cria empresa + usuário admin ─────────────────
-      const { empresa_nome, nome, email, senha, cargo, telefone } = req.body;
+      const { empresa_nome, nome, email, senha, cargo } = req.body;
       if (!empresa_nome || !nome || !email || !senha)
         return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos' });
       if (senha.length < 6)
         return res.status(400).json({ error: 'Senha deve ter no mínimo 6 caracteres' });
 
-      const { rows: existe } = await client.query('SELECT id FROM usuarios WHERE email=$1', [email.toLowerCase().trim()]);
-      if (existe.length) { await client.query('ROLLBACK'); return res.status(409).json({ error: 'Este email já está cadastrado' }); }
+      const { rows: existe } = await db.query('SELECT id FROM usuarios WHERE email=$1', [email.toLowerCase().trim()]);
+      if (existe.length) return res.status(409).json({ error: 'Este email já está cadastrado' });
 
+      const senhaHash = await bcrypt.hash(senha, 10);
+
+      client = await db.pool.connect();
+      await client.query('BEGIN');
       const { rows: [empresa] } = await client.query(
         'INSERT INTO empresas (nome) VALUES ($1) RETURNING id, nome', [empresa_nome.trim()]
       );
-      const senhaHash = await bcrypt.hash(senha, 10);
       const { rows: [usuario] } = await client.query(
         `INSERT INTO usuarios (empresa_id, nome, email, senha_hash, cargo, role)
          VALUES ($1,$2,$3,$4,$5,'admin') RETURNING id, nome, email, cargo, role, empresa_id`,
         [empresa.id, nome.trim(), email.toLowerCase().trim(), senhaHash, cargo?.trim() || null]
       );
-
       await client.query('COMMIT');
+
       const token = jwt.sign(
         { id: usuario.id, empresa_id: empresa.id, nome: usuario.nome, email: usuario.email, role: 'admin' },
         process.env.JWT_SECRET, { expiresIn: '7d' }
@@ -108,11 +113,13 @@ exports.register = async (req, res) => {
       return res.status(201).json({ token, usuario: { ...usuario, empresa_nome: empresa.nome } });
     }
   } catch (err) {
-    await client.query('ROLLBACK');
+    if (client) {
+      try { await client.query('ROLLBACK'); } catch (_) {}
+    }
     console.error('Erro no registro:', err);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    res.status(500).json({ error: 'Erro ao criar conta: ' + err.message });
   } finally {
-    client.release();
+    if (client) client.release();
   }
 };
 
