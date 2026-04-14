@@ -10,6 +10,7 @@ const usuariosRoutes   = require('./routes/usuarios');
 const clientesRoutes   = require('./routes/clientes');
 const imoveisRoutes    = require('./routes/imoveis');
 const dashboardRoutes  = require('./routes/dashboard');
+const devRoutes        = require('./routes/dev');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/usuarios',   usuariosRoutes);
 app.use('/api/clientes',   clientesRoutes);
 app.use('/api/imoveis',    imoveisRoutes);
 app.use('/api/dashboard',  dashboardRoutes);
+app.use('/api/dev',        devRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

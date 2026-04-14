@@ -1,0 +1,459 @@
+/* ============================================================
+   AgriFlow — Dev Panel
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0D1117;
+  --surface:  #161B22;
+  --surface2: #21262D;
+  --border:   #30363D;
+  --text:     #E6EDF3;
+  --muted:    #7D8590;
+  --green:    #3FB950;
+  --green-bg: rgba(63,185,80,.12);
+  --blue:     #58A6FF;
+  --blue-bg:  rgba(88,166,255,.1);
+  --red:      #F85149;
+  --red-bg:   rgba(248,81,73,.1);
+  --yellow:   #D29922;
+  --yellow-bg:rgba(210,153,34,.1);
+  --radius:   8px;
+  --font:     'Inter', system-ui, sans-serif;
+  --mono:     'JetBrains Mono', monospace;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── Login ───────────────────────────────────────────────────── */
+#dev-login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.dev-login-box {
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dev-login-logo {
+  font-size: 2.5rem;
+  text-align: center;
+}
+
+.dev-login-title {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.dev-login-title span { color: var(--green); }
+
+.dev-login-sub {
+  text-align: center;
+  font-size: .8125rem;
+  color: var(--muted);
+  margin-top: -8px;
+}
+
+.dev-error {
+  display: none;
+  background: var(--red-bg);
+  border: 1px solid rgba(248,81,73,.3);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: .8125rem;
+  color: var(--red);
+}
+.dev-error.show { display: block; }
+
+.dev-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dev-field label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.dev-field input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: .9375rem;
+  outline: none;
+  transition: border-color .15s;
+}
+.dev-field input:focus { border-color: var(--green); }
+
+.dev-btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: var(--green);
+  color: #0D1117;
+  border: none;
+  border-radius: var(--radius);
+  font-size: .9375rem;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity .15s;
+}
+.dev-btn-primary:hover { opacity: .88; }
+.dev-btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Layout principal ─────────────────────────────────────────── */
+#dev-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.dev-topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.dev-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dev-badge {
+  background: var(--green);
+  color: #0D1117;
+  font-size: .625rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: var(--mono);
+}
+
+.dev-topbar-title {
+  font-size: .9375rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.dev-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dev-totais {
+  display: flex;
+  gap: 16px;
+}
+
+.dev-total-chip {
+  font-size: .75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+.dev-total-chip strong { color: var(--blue); }
+
+.dev-btn-ghost {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: .8125rem;
+  font-family: var(--font);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.dev-btn-ghost:hover { border-color: var(--red); color: var(--red); }
+
+.dev-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Sidebar de empresas ──────────────────────────────────────── */
+.dev-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 16px 0;
+}
+
+.dev-sidebar-title {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  padding: 0 16px 12px;
+}
+
+.dev-empresa-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background .12s, border-color .12s;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dev-empresa-item:hover { background: var(--surface2); }
+.dev-empresa-item.active {
+  background: var(--green-bg);
+  border-left-color: var(--green);
+}
+
+.dev-empresa-nome {
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dev-empresa-meta {
+  font-size: .72rem;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+/* ── Painel principal ──────────────────────────────────────────── */
+.dev-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.dev-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--muted);
+  font-size: .9375rem;
+}
+
+/* ── Empresa detalhe ─────────────────────────────────────────── */
+.dev-empresa-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.dev-empresa-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.dev-empresa-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.dev-stat {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dev-stat-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--blue);
+}
+
+.dev-stat-label {
+  font-size: .72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* ── Seções / abas ───────────────────────────────────────────── */
+.dev-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.dev-tab {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: .875rem;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+  margin-bottom: -1px;
+}
+.dev-tab:hover { color: var(--text); }
+.dev-tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+.dev-tab-panel { display: none; }
+.dev-tab-panel.active { display: block; }
+
+/* ── Tabelas ─────────────────────────────────────────────────── */
+.dev-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .8125rem;
+}
+
+.dev-table th {
+  text-align: left;
+  padding: 8px 12px;
+  color: var(--muted);
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  font-weight: 600;
+}
+
+.dev-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(48,54,61,.5);
+  font-family: var(--mono);
+  font-size: .8rem;
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.dev-table tr:hover td { background: rgba(33,38,45,.5); }
+
+.dev-tag {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+}
+.dev-tag-admin  { background: var(--blue-bg);   color: var(--blue);  }
+.dev-tag-colab  { background: var(--green-bg);  color: var(--green); }
+.dev-tag-inativo{ background: var(--red-bg);    color: var(--red);   }
+
+/* ── Reset de senha ──────────────────────────────────────────── */
+.dev-reset-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dev-reset-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: .8rem;
+  width: 150px;
+  outline: none;
+  display: none;
+}
+.dev-reset-input.show { display: block; }
+.dev-reset-input:focus { border-color: var(--green); }
+
+.dev-btn-sm {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: .75rem;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  border: 1px solid;
+  transition: opacity .15s;
+}
+.dev-btn-sm:hover { opacity: .8; }
+.dev-btn-reset  { border-color: var(--border); color: var(--muted); background: var(--surface2); }
+.dev-btn-salvar { border-color: var(--green);  color: var(--green); background: var(--green-bg); }
+.dev-btn-cancel { border-color: var(--border); color: var(--muted); background: none; display:none; }
+
+/* ── Cofre ───────────────────────────────────────────────────── */
+.dev-cofre-row { cursor: pointer; }
+.dev-senha-reveal {
+  font-family: var(--mono);
+  font-size: .8rem;
+  color: var(--yellow);
+  cursor: pointer;
+  letter-spacing: .05em;
+}
+.dev-senha-reveal.oculta { color: var(--muted); letter-spacing: .15em; }
+
+/* ── Loading ─────────────────────────────────────────────────── */
+.dev-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--muted);
+  gap: 10px;
+}
+
+.dev-spin {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.2);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: devspin .6s linear infinite;
+  display: inline-block;
+}
+@keyframes devspin { to { transform: rotate(360deg); } }
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }

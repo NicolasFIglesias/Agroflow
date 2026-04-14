@@ -13,7 +13,12 @@ function buildConfig() {
     database: u.pathname.replace(/^\//, ''),
     user:     decodeURIComponent(u.username),
     password: decodeURIComponent(u.password),
-    ssl:      { rejectUnauthorized: false }
+    ssl:      { rejectUnauthorized: false },
+    // Configurações para ambiente serverless (Netlify + Neon)
+    max:                    3,     // poucas conexões por instância Lambda
+    connectionTimeoutMillis: 8000, // falhar em 8s (antes do timeout de 10s da Netlify)
+    idleTimeoutMillis:      10000, // liberar conexões ociosas rapidamente
+    allowExitOnIdle:        true,  // permite o processo Lambda terminar
   };
 }
 
