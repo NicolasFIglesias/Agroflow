@@ -34,6 +34,31 @@
     tab.addEventListener('click', () => irParaAba(tab.dataset.tab))
   );
 
+  // ── Botões de mostrar/ocultar senha ──────────────────────────
+  document.querySelectorAll('.toggle-senha').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      const mostrar = input.type === 'password';
+      input.type = mostrar ? 'text' : 'password';
+      btn.innerHTML = mostrar ? _olhoFechado() : _olhoAberto();
+    });
+  });
+
+  function _olhoAberto() {
+    return `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="3" stroke-width="2"/>
+    </svg>`;
+  }
+  function _olhoFechado() {
+    return `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" stroke-width="2" stroke-linecap="round"/>
+      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" stroke-width="2" stroke-linecap="round"/>
+      <line x1="1" y1="1" x2="23" y2="23" stroke-width="2" stroke-linecap="round"/>
+    </svg>`;
+  }
+
   // ── Já logado ─────────────────────────────────────────────
   if (Auth.logado() && usuario) {
     document.getElementById('login-tabs').style.display   = 'none';
@@ -139,9 +164,12 @@
       Auth.salvar(data.token, data.usuario);
       window.location.href = data.usuario.role === 'admin' ? '/pages/visao-geral.html' : '/pages/calendario.html';
     } catch(err) {
-      // Limpar senha, manter email, mostrar mensagem específica
       document.getElementById('senha').value = '';
-      document.getElementById('login-error-msg').textContent = 'E-mail ou senha incorretos. Tente novamente.';
+      const msg = (err.message || '').toLowerCase();
+      document.getElementById('login-error-msg').textContent =
+        msg.includes('credencial') || msg.includes('inválid') || msg.includes('incorret')
+          ? 'E-mail ou senha incorretos. Tente novamente.'
+          : err.message || 'Erro ao conectar. Tente novamente.';
       errorEl.classList.add('show');
     } finally {
       spin.style.display  = 'none';

@@ -215,6 +215,30 @@ body.page-login {
 /* ── Rodapé ───────────────────────────────────────────────── */
 .login-footer { font-size: .75rem; color: #C0C4CC; margin-top: 40px; width: 100%; }
 
+/* ── Input com ícone de olho ──────────────────────────────── */
+.input-senha-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-senha-wrap .login-input {
+  padding-right: 44px;
+}
+.toggle-senha {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted, #9CA3AF);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color .15s;
+  line-height: 1;
+}
+.toggle-senha:hover { color: var(--text); }
+
 /* ── Links abaixo do form ─────────────────────────────────── */
 .login-links {
   margin-top: 14px;

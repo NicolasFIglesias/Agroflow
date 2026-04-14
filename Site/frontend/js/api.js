@@ -17,15 +17,19 @@ const API = (() => {
 
     const res = await fetch(`${CONFIG.API_URL}${path}`, opts);
 
-    if (res.status === 401) {
-      // Token expirado ou inválido — redireciona para login
-      localStorage.removeItem('agriflow_token');
-      localStorage.removeItem('agriflow_usuario');
-      window.location.href = '/pages/login.html';
-      return;
-    }
-
     const data = await res.json().catch(() => ({}));
+
+    if (res.status === 401) {
+      // Só redireciona se havia um token salvo (sessão expirada).
+      // Se não há token, é uma tentativa de login — lança o erro normalmente.
+      if (localStorage.getItem('agriflow_token')) {
+        localStorage.removeItem('agriflow_token');
+        localStorage.removeItem('agriflow_usuario');
+        window.location.href = '/pages/login.html';
+        return;
+      }
+      throw new Error(data.error || 'Credenciais inválidas');
+    }
 
     if (!res.ok) {
       throw new Error(data.error || `Erro ${res.status}`);

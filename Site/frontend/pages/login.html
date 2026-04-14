@@ -73,7 +73,12 @@
           </div>
           <div class="login-field">
             <label class="login-label" for="senha">Senha</label>
-            <input type="password" id="senha" class="login-input" placeholder="••••••••" required>
+            <div class="input-senha-wrap">
+              <input type="password" id="senha" class="login-input" placeholder="••••••••" required>
+              <button type="button" class="toggle-senha" data-target="senha" tabindex="-1">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+              </button>
+            </div>
           </div>
           <button type="submit" class="btn-primary-login" id="btn-login">
             <span class="spin" id="login-spin"></span>
@@ -126,7 +131,12 @@
           </div>
           <div class="login-field">
             <label class="login-label">Nova senha</label>
-            <input type="password" id="rec-nova-senha" class="login-input" placeholder="Mínimo 6 caracteres">
+            <div class="input-senha-wrap">
+              <input type="password" id="rec-nova-senha" class="login-input" placeholder="Mínimo 6 caracteres">
+              <button type="button" class="toggle-senha" data-target="rec-nova-senha" tabindex="-1">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+              </button>
+            </div>
             <div class="senha-meter" id="rec-senha-meter">
               <div class="senha-meter-bar"><div class="senha-meter-fill" id="rec-meter-fill"></div></div>
               <span class="senha-meter-label" id="rec-meter-label">—</span>
@@ -199,7 +209,12 @@
             </div>
             <div class="login-field">
               <label class="login-label">Senha *</label>
-              <input type="password" id="adm-senha" class="login-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+              <div class="input-senha-wrap">
+                <input type="password" id="adm-senha" class="login-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+                <button type="button" class="toggle-senha" data-target="adm-senha" tabindex="-1">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+                </button>
+              </div>
               <div class="senha-meter" id="adm-senha-meter">
                 <div class="senha-meter-bar"><div class="senha-meter-fill" id="adm-meter-fill"></div></div>
                 <span class="senha-meter-label" id="adm-meter-label">—</span>
@@ -213,7 +228,12 @@
             </div>
             <div class="login-field">
               <label class="login-label">Repetir senha *</label>
-              <input type="password" id="adm-senha-conf" class="login-input" placeholder="Repita a senha" required>
+              <div class="input-senha-wrap">
+                <input type="password" id="adm-senha-conf" class="login-input" placeholder="Repita a senha" required>
+                <button type="button" class="toggle-senha" data-target="adm-senha-conf" tabindex="-1">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+                </button>
+              </div>
             </div>
 
             <button type="submit" class="btn-primary-login" id="btn-adm">
@@ -259,7 +279,12 @@
               </div>
               <div class="login-field">
                 <label class="login-label">Senha *</label>
-                <input type="password" id="col-senha" class="login-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+                <div class="input-senha-wrap">
+                  <input type="password" id="col-senha" class="login-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+                  <button type="button" class="toggle-senha" data-target="col-senha" tabindex="-1">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+                  </button>
+                </div>
                 <div class="senha-meter" id="col-senha-meter">
                   <div class="senha-meter-bar"><div class="senha-meter-fill" id="col-meter-fill"></div></div>
                   <span class="senha-meter-label" id="col-meter-label">—</span>
@@ -273,7 +298,12 @@
               </div>
               <div class="login-field">
                 <label class="login-label">Repetir senha *</label>
-                <input type="password" id="col-senha-conf" class="login-input" placeholder="Repita a senha" required>
+                <div class="input-senha-wrap">
+                  <input type="password" id="col-senha-conf" class="login-input" placeholder="Repita a senha" required>
+                  <button type="button" class="toggle-senha" data-target="col-senha-conf" tabindex="-1">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+                  </button>
+                </div>
               </div>
               <div class="login-field">
                 <label class="login-label">Cargo *</label>
