@@ -63,18 +63,19 @@
       document.getElementById('continuar-como-nome').textContent = usuario.nome.split(' ')[0];
       irParaAba('entrar');
     });
+
+    // ── Botão continuar como (deve ser registrado dentro do bloco logado) ──
+    document.getElementById('btn-continuar-como')?.addEventListener('click', () => {
+      _trocandoConta = false;
+      document.getElementById('continuar-como-bar').style.display = 'none';
+      document.getElementById('login-tabs').style.display = 'none';
+      document.getElementById('login-headline').innerHTML  = 'Olá, <span>' + usuario.nome.split(' ')[0] + '.</span>';
+      document.getElementById('login-subline').textContent = 'Você já está conectado.';
+      irParaAba('logado');
+    });
+
     return;
   }
-
-  // ── Botão continuar como (quando em modo trocar conta) ────
-  document.getElementById('btn-continuar-como')?.addEventListener('click', () => {
-    _trocandoConta = false;
-    document.getElementById('continuar-como-bar').style.display = 'none';
-    document.getElementById('login-tabs').style.display = 'none';
-    document.getElementById('login-headline').innerHTML  = 'Olá, <span>' + (usuario?.nome?.split(' ')[0] || '') + '.</span>';
-    document.getElementById('login-subline').textContent = 'Você já está conectado.';
-    irParaAba('logado');
-  });
 
   // ── Convite na URL ────────────────────────────────────────
   const params = new URLSearchParams(window.location.search);

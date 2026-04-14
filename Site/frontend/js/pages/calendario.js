@@ -22,12 +22,13 @@
   const usuario = Auth.usuario();
 
   if (Auth.isAdmin()) {
-    await _carregarFiltroUsuarios();
+    // Carregar filtro de usuários e dados do calendário em paralelo
+    await Promise.all([_carregarFiltroUsuarios(), _carregarDados()]);
   } else {
     document.getElementById('filtro-usuario-wrap')?.classList.add('hidden');
+    await _carregarDados();
   }
 
-  await _carregarDados();
   _renderCalendario();
 
   // ── Funções principais ──────────────────────────────────────
