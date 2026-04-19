@@ -76,9 +76,3 @@ function verificarAutenticacao() { Auth.exigirLogin(); }
 function usuario() { return Auth.usuario(); }
 function logado()  { return Auth.logado(); }
 
-// Acorda Lambda + Neon em background assim que qualquer página carrega
-;(function warmupServidor() {
-  try {
-    fetch(CONFIG.API_URL + '/api/warmup', { method: 'GET' }).catch(() => {});
-  } catch (_) {}
-})();
