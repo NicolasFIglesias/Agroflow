@@ -11,6 +11,10 @@ const autenticar = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // superdev tem acesso apenas às rotas /api/dev
+    if (decoded.role === 'superdev') {
+      return res.status(403).json({ error: 'Superdev não tem acesso a esta rota' });
+    }
     req.usuario = decoded;
     next();
   } catch {

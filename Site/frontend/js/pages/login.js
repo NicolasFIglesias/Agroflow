@@ -9,7 +9,7 @@ const _INTRO_MAX = 7000; // ms máximo aguardando servidor
 
 const _warmupPromise = (function () {
   try {
-    return fetch(CONFIG.API_URL + '/warmup', { method: 'GET' })
+    return fetch(CONFIG.API_URL + '/api/warmup', { method: 'GET' })
       .then(() => {}).catch(() => {});
   } catch (_) { return Promise.resolve(); }
 })();
@@ -116,7 +116,7 @@ _introEl.style.setProperty('--intro-dur', _barDur + 's');
     document.getElementById('panel-logado').classList.add('active');
 
     document.getElementById('btn-continuar').addEventListener('click', () => {
-      window.location.href = usuario.role === 'admin' ? '/pages/visao-geral.html' : '/pages/calendario.html';
+      window.location.href = usuario.role === 'superdev' ? '/pages/dev.html' : usuario.role === 'admin' ? '/pages/visao-geral.html' : '/pages/calendario.html';
     });
 
     document.getElementById('btn-trocar-conta').addEventListener('click', () => {
@@ -205,7 +205,7 @@ _introEl.style.setProperty('--intro-dur', _barDur + 's');
       });
       if (_trocandoConta) Auth.limpar();
       Auth.salvar(data.token, data.usuario);
-      window.location.href = data.usuario.role === 'admin' ? '/pages/visao-geral.html' : '/pages/calendario.html';
+      window.location.href = data.usuario.role === 'superdev' ? '/pages/dev.html' : data.usuario.role === 'admin' ? '/pages/visao-geral.html' : '/pages/calendario.html';
     } catch(err) {
       document.getElementById('senha').value = '';
       const msg = (err.message || '').toLowerCase();
@@ -295,7 +295,7 @@ _introEl.style.setProperty('--intro-dur', _barDur + 's');
       // Login automático
       const data = await API.post('/api/auth/login', { email: _emailRecuperar, senha: nova });
       Auth.salvar(data.token, data.usuario);
-      window.location.href = data.usuario.role === 'admin' ? '/pages/visao-geral.html' : '/pages/calendario.html';
+      window.location.href = data.usuario.role === 'superdev' ? '/pages/dev.html' : data.usuario.role === 'admin' ? '/pages/visao-geral.html' : '/pages/calendario.html';
     } catch(err) {
       document.getElementById('rec2-error-msg').textContent = err.message || 'Código inválido ou expirado.';
       errorEl.classList.add('show');

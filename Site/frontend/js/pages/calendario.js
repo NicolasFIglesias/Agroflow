@@ -24,12 +24,13 @@
   ModalConcluir.init();
 
   // ── Estado ─────────────────────────────────────────────────
-  let _visao     = 'semana'; // 'semana' | 'mes'
-  let _dataRef   = new Date();
-  let _dados     = { tarefas: [], projetos_ativos: [] };
-  let _filtroUid = '';
-  let _filtroPrj = '';
-  let _usuarios  = [];
+  let _visao        = 'semana'; // 'semana' | 'mes'
+  let _dataRef      = new Date();
+  let _dados        = { tarefas: [], projetos_ativos: [] };
+  let _filtroUid    = '';
+  let _filtroPrj    = '';
+  let _usuarios     = [];
+  let _ultimaDirecao = null; // 'esq' | 'dir' | 'fade'
 
   // ── Inicialização ───────────────────────────────────────────
   const usuario = Auth.usuario();
@@ -80,8 +81,6 @@
   }
 
   // ── Renderização com animação ────────────────────────────────
-  let _ultimaDirecao = null; // 'esq' | 'dir' | 'fade'
-
   function _renderCalendario(direcao = 'fade') {
     _ultimaDirecao = direcao;
     _atualizarTituloMes();
