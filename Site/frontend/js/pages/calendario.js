@@ -4,6 +4,19 @@
 
 (async () => {
   Auth.exigirLogin();
+
+  // ── Toast (definido antes de qualquer chamada à API) ────────
+  window.Toast = {
+    show(msg, tipo = 'default') {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = `toast ${tipo}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+  };
+
   initSidebar();
   PainelLateral.init();
   ModalProjeto.init();
@@ -476,18 +489,6 @@
   function _esc(str = '') {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
-
-  // ── Toast global ────────────────────────────────────────────
-  window.Toast = {
-    show(msg, tipo = 'default') {
-      const c = document.getElementById('toast-container');
-      const t = document.createElement('div');
-      t.className = `toast ${tipo}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(() => t.remove(), 3500);
-    }
-  };
 
   // Preencher filtro de projetos
   async function _carregarFiltroProjetos() {
