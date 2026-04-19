@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = (req, res, next) => {
+const autenticar = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -17,3 +17,5 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ error: 'Token inválido ou expirado' });
   }
 };
+
+module.exports = { autenticar };
