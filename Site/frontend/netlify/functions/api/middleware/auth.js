@@ -18,4 +18,8 @@ const autenticar = (req, res, next) => {
   }
 };
 
-module.exports = { autenticar };
+// Suporta ambos os estilos de import:
+// const auth = require('./auth')          → função direta
+// const { autenticar } = require('./auth') → nomeado
+module.exports = autenticar;
+module.exports.autenticar = autenticar;

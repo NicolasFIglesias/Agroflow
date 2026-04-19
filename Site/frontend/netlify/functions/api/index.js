@@ -47,4 +47,4 @@ app.get('/api/warmup', async (_req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`AgriFlow API rodando na porta ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`AgriFlow API rodando em 0.0.0.0:${PORT}`));

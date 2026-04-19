@@ -14,11 +14,11 @@ function buildConfig() {
     user:     decodeURIComponent(u.username),
     password: decodeURIComponent(u.password),
     ssl:      { rejectUnauthorized: false },
-    // Configurações para ambiente serverless (Netlify + Neon)
-    max:                    3,     // poucas conexões por instância Lambda
-    connectionTimeoutMillis: 8000, // falhar em 8s (antes do timeout de 10s da Netlify)
-    idleTimeoutMillis:      10000, // liberar conexões ociosas rapidamente
-    allowExitOnIdle:        true,  // permite o processo Lambda terminar
+    // Configurações para servidor persistente (Railway)
+    max:                    10,    // pool maior para servidor contínuo
+    connectionTimeoutMillis: 5000,
+    idleTimeoutMillis:      30000,
+    allowExitOnIdle:        false, // processo não termina entre requests
   };
 }
 
