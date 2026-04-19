@@ -35,9 +35,15 @@ const Auth = (() => {
   }
 
   // Redireciona para login se não estiver autenticado
+  // Superdev só pode acessar /pages/dev.html
   function exigirLogin() {
     if (!logado()) {
       window.location.href = '/pages/login.html';
+      return;
+    }
+    const u = usuario();
+    if (u && u.role === 'superdev' && !window.location.pathname.endsWith('dev.html')) {
+      window.location.href = '/pages/dev.html';
     }
   }
 
