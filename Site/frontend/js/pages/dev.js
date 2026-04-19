@@ -3,6 +3,7 @@
 // ============================================================
 (async () => {
   const TOKEN_KEY = 'agriflow_dev_token';
+  const API_BASE  = CONFIG.API_URL;
   let _token        = localStorage.getItem(TOKEN_KEY) || '';
   let _empresaAtiva = null;
   let _dadosAtivos  = null;
