@@ -351,6 +351,54 @@ body.page-login {
 }
 .btn-link-sm:hover { color: var(--verde); }
 
+/* ── Intro / warmup overlay ───────────────────────────────── */
+.login-intro {
+  position: fixed; inset: 0; z-index: 999;
+  background: #fff;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+  transition: opacity .5s ease, transform .5s ease;
+}
+.login-intro.saindo {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+.intro-logo-icon {
+  font-size: 3rem;
+  animation: introIconPulse 1.6s ease infinite;
+  line-height: 1;
+}
+.intro-logo-name {
+  font-size: 1.6rem; font-weight: 800;
+  color: var(--text); letter-spacing: -.04em;
+  animation: fadeSlideUp .4s ease both;
+}
+.intro-logo-sub {
+  font-size: .875rem; color: var(--text-muted);
+  animation: fadeSlideUp .4s .08s ease both;
+}
+.intro-bar-wrap {
+  width: 120px; height: 3px;
+  background: #F3F4F6; border-radius: 100px;
+  margin-top: 20px; overflow: hidden;
+  animation: fadeSlideUp .4s .15s ease both;
+}
+.intro-bar {
+  height: 100%; width: 0%;
+  background: var(--verde); border-radius: 100px;
+  animation: introBarFill var(--intro-dur, 2s) cubic-bezier(.4,0,.2,1) forwards;
+}
+
+@keyframes introIconPulse {
+  0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(99,153,34,0)); }
+  50%       { transform: scale(1.12); filter: drop-shadow(0 0 12px rgba(99,153,34,.35)); }
+}
+@keyframes introBarFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
 /* ── Mobile ───────────────────────────────────────────────── */
 @media (max-width: 480px) {
   body.page-login { padding: 24px 20px; align-items: flex-start; padding-top: 48px; }

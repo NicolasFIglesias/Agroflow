@@ -1,21 +1,46 @@
 // AgriFlow - Login
 
-// Acorda Lambda + Neon imediatamente. Promise guardada para ser aguardada no submit.
+// ── Intro + warmup ───────────────────────────────────────────
+// Dispara warmup imediatamente e mostra animação de intro.
+// O formulário só aparece quando AMBOS terminarem (warmup + mín. 2s).
+
+const _INTRO_MIN = 2000; // ms mínimos de animação
+const _INTRO_MAX = 7000; // ms máximo aguardando servidor
+
 const _warmupPromise = (function () {
   try {
     return fetch(CONFIG.API_URL + '/warmup', { method: 'GET' })
-      .then(() => {})
-      .catch(() => {});
+      .then(() => {}).catch(() => {});
   } catch (_) { return Promise.resolve(); }
 })();
 
-// Aguarda o warmup com timeout máximo de 6s (evita travar se servidor estiver offline)
-async function _aguardarWarmup() {
-  return Promise.race([
-    _warmupPromise,
-    new Promise(r => setTimeout(r, 6000)),
-  ]);
+const _introStarted = Date.now();
+
+// Sincroniza duração da barra CSS com o tempo real (até _INTRO_MAX)
+const _introEl = document.getElementById('login-intro');
+const _wrapEl  = document.getElementById('login-wrap');
+
+async function _finalizarIntro() {
+  const elapsed = Date.now() - _introStarted;
+  const remaining = Math.max(0, _INTRO_MIN - elapsed);
+  if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
+
+  // Fade out overlay, fade in formulário
+  _introEl.classList.add('saindo');
+  _wrapEl.style.transition  = 'opacity .45s ease';
+  _wrapEl.style.opacity     = '1';
+  _wrapEl.style.pointerEvents = '';
+
+  setTimeout(() => _introEl.remove(), 520);
 }
+
+// Define duração dinâmica da barra CSS baseada no tempo real do warmup
+Promise.race([_warmupPromise, new Promise(r => setTimeout(r, _INTRO_MAX))])
+  .then(_finalizarIntro);
+
+// Calcula duração da barra: mínimo 2s, máximo 7s
+const _barDur = _INTRO_MAX / 1000;
+_introEl.style.setProperty('--intro-dur', _barDur + 's');
 
 (async () => {
   let _trocandoConta = false;
@@ -172,8 +197,6 @@ async function _aguardarWarmup() {
     errorEl.classList.remove('show');
     spin.style.display  = 'inline-block';
     btn.disabled = true;
-    btnText.textContent = 'Conectando...';
-    await _aguardarWarmup();
     btnText.textContent = 'Entrando...';
     try {
       const data = await API.post('/api/auth/login', {
@@ -379,8 +402,6 @@ async function _aguardarWarmup() {
 
     btn.disabled = true;
     spin.style.display  = 'inline-block';
-    btnText.textContent = 'Conectando...';
-    await _aguardarWarmup();
     btnText.textContent = 'Criando...';
 
     try {
@@ -458,8 +479,6 @@ async function _aguardarWarmup() {
 
     btn.disabled = true;
     spin.style.display  = 'inline-block';
-    btnText.textContent = 'Conectando...';
-    await _aguardarWarmup();
     btnText.textContent = 'Criando conta...';
 
     try {
