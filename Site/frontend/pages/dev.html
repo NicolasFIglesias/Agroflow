@@ -11,28 +11,6 @@
 </head>
 <body>
 
-<!-- ── Tela de login ──────────────────────────────────────── -->
-<div id="dev-login-screen">
-  <div class="dev-login-box">
-    <div class="dev-login-logo">🛠️</div>
-    <div class="dev-login-title">AgriFlow <span>Dev Panel</span></div>
-    <div class="dev-login-sub">Acesso restrito ao desenvolvedor</div>
-    <div class="dev-error" id="dev-login-error"></div>
-    <div class="dev-field">
-      <label>Email</label>
-      <input type="email" id="dev-email" placeholder="dev@gmail.com" autocomplete="off">
-    </div>
-    <div class="dev-field">
-      <label>Senha</label>
-      <input type="password" id="dev-senha" placeholder="••••••••">
-    </div>
-    <button id="btn-dev-login" class="dev-btn-primary">
-      <span id="dev-login-spin" class="dev-spin" style="display:none"></span>
-      <span id="dev-login-text">Entrar</span>
-    </button>
-  </div>
-</div>
-
 <!-- ── Painel principal ────────────────────────────────────── -->
 <div id="dev-panel" style="display:none">
 
@@ -70,6 +48,7 @@
 
 <script src="../js/config.js"></script>
 <script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
 <script src="../js/pages/dev.js"></script>
 </body>
 </html>

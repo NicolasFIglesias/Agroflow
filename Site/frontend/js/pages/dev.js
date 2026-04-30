@@ -1,17 +1,19 @@
-// ============================================================
 // AgriFlow — Dev Panel
-// ============================================================
 (async () => {
-  const TOKEN_KEY = 'agriflow_dev_token';
-  const API_BASE  = CONFIG.API_URL;
-  let _token        = localStorage.getItem(TOKEN_KEY) || '';
+  const API_BASE = CONFIG.API_URL;
   let _empresaAtiva = null;
   let _dadosAtivos  = null;
   let _dadosOverview= null;
 
-  // ── Autenticação ────────────────────────────────────────────
+  // ── Auth check ──────────────────────────────────────────────
+  if (!Auth.logado() || Auth.usuario()?.role !== 'superdev') {
+    window.location.href = '/pages/login.html';
+    return;
+  }
+
+  // ── API helpers ─────────────────────────────────────────────
   function devHeaders() {
-    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_token}` };
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Auth.token()}` };
   }
 
   async function devGet(path) {
@@ -30,63 +32,11 @@
     return r.json();
   }
 
-  // ── Login ───────────────────────────────────────────────────
-  const loginScreen = document.getElementById('dev-login-screen');
-  const panel       = document.getElementById('dev-panel');
+  const panel = document.getElementById('dev-panel');
 
-  async function tentarLogin() {
-    const email = document.getElementById('dev-email').value.trim();
-    const senha = document.getElementById('dev-senha').value;
-    const errEl = document.getElementById('dev-login-error');
-    const spin  = document.getElementById('dev-login-spin');
-    const btnTxt= document.getElementById('dev-login-text');
-    const btn   = document.getElementById('btn-dev-login');
+  document.getElementById('btn-dev-logout').addEventListener('click', () => Auth.logout());
 
-    errEl.classList.remove('show');
-    spin.style.display = 'inline-block';
-    btnTxt.textContent = 'Entrando...';
-    btn.disabled = true;
-
-    try {
-      const r = await fetch(API_BASE + '/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha })
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'Credenciais inválidas');
-      if (data.usuario.role !== 'superdev') throw new Error('Acesso negado — apenas superdev');
-
-      _token = data.token;
-      localStorage.setItem(TOKEN_KEY, _token);
-      mostrarPainel();
-    } catch (err) {
-      errEl.textContent = err.message;
-      errEl.classList.add('show');
-    } finally {
-      spin.style.display = 'none';
-      btnTxt.textContent = 'Entrar';
-      btn.disabled = false;
-    }
-  }
-
-  document.getElementById('btn-dev-login').addEventListener('click', tentarLogin);
-  document.getElementById('dev-senha').addEventListener('keydown', e => { if (e.key === 'Enter') tentarLogin(); });
-
-  document.getElementById('btn-dev-logout').addEventListener('click', () => {
-    localStorage.removeItem(TOKEN_KEY);
-    _token = '';
-    panel.style.display = 'none';
-    loginScreen.style.display = '';
-  });
-
-  // ── Inicialização do painel ─────────────────────────────────
-  async function mostrarPainel() {
-    loginScreen.style.display = 'none';
-    panel.style.display = 'flex';
-    await carregarOverview();
-  }
-
+  // ── Overview ─────────────────────────────────────────────────
   async function carregarOverview() {
     try {
       const data = await devGet('/api/dev/overview');
@@ -95,11 +45,7 @@
       renderListaEmpresas(data.empresas);
     } catch (err) {
       if (err.message.includes('401') || err.message.includes('403')) {
-        localStorage.removeItem(TOKEN_KEY);
-        panel.style.display = 'none';
-        loginScreen.style.display = '';
-        document.getElementById('dev-login-error').textContent = 'Sessão expirada, faça login novamente.';
-        document.getElementById('dev-login-error').classList.add('show');
+        Auth.logout();
       }
     }
   }
@@ -184,7 +130,6 @@
       <div id="tab-projetos" class="dev-tab-panel">${renderTabProjetos(dados.projetos)}</div>
     `;
 
-    // Tabs
     main.querySelectorAll('.dev-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         main.querySelectorAll('.dev-tab').forEach(t => t.classList.remove('active'));
@@ -194,7 +139,6 @@
       });
     });
 
-    // Botões de reset de senha
     main.querySelectorAll('.btn-dev-reset').forEach(btn => {
       btn.addEventListener('click', () => {
         const row = btn.closest('tr');
@@ -248,7 +192,6 @@
       });
     });
 
-    // Cofre — clientes
     main.querySelectorAll('.dev-btn-cofre').forEach(btn => {
       btn.addEventListener('click', async () => {
         const cid = btn.dataset.cid;
@@ -289,7 +232,6 @@
           </td>`;
           row.after(tr);
 
-          // Toggle senha
           tr.querySelectorAll('.dev-senha-reveal').forEach(el => {
             el.addEventListener('click', () => {
               const oculta = el.classList.toggle('oculta');
@@ -398,18 +340,7 @@
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  // ── Boot ────────────────────────────────────────────────────
-  if (_token) {
-    try {
-      const data = await devGet('/api/dev/overview');
-      _dadosOverview = data;
-      loginScreen.style.display = 'none';
-      panel.style.display = 'flex';
-      renderTotais(data.totais);
-      renderListaEmpresas(data.empresas);
-    } catch {
-      localStorage.removeItem(TOKEN_KEY);
-      _token = '';
-    }
-  }
+  // ── Boot ─────────────────────────────────────────────────────
+  panel.style.display = 'flex';
+  await carregarOverview();
 })();
