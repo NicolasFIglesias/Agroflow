@@ -13,17 +13,7 @@ const imoveisRoutes   = require('./routes/imoveis');
 const app = express();
 
 // ── CORS ──────────────────────────────────────────────────────
-const allowedOrigins = process.env.FRONTEND_URL
-  ? [process.env.FRONTEND_URL]
-  : ['http://localhost:8080', 'http://127.0.0.1:5500', 'http://localhost:5500'];
-
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-    cb(new Error('Origem não permitida pelo CORS'));
-  },
-  credentials: true
-}));
+app.use(cors({ origin: true, credentials: true }));
 
 app.use(express.json());
 
