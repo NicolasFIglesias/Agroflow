@@ -221,10 +221,10 @@
               ${cofre.length === 0
                 ? '<span style="color:var(--muted);font-size:.8rem">Cofre vazio</span>'
                 : `<table class="dev-table">
-                    <thead><tr><th>Título</th><th>Login</th><th>Senha</th><th>URL</th></tr></thead>
+                    <thead><tr><th>Sistema</th><th>Login</th><th>Senha</th><th>URL</th></tr></thead>
                     <tbody>${cofre.map(s => `
                       <tr>
-                        <td>${_esc(s.titulo || '—')}</td>
+                        <td>${_esc(s.sistema || '—')}</td>
                         <td>${_esc(s.login || '—')}</td>
                         <td>
                           <span class="dev-senha-reveal oculta" data-senha="${_esc(s.senha_dec || '')}">••••••••</span>

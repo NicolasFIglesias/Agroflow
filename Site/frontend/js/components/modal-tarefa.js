@@ -3,16 +3,18 @@
 // ============================================================
 
 const ModalTarefa = (() => {
-  let _modo      = 'criar';
-  let _tarefaId  = null;
-  let _projetos  = [];
-  let _usuarios  = [];
-  let _onSucesso = null;
+  let _modo              = 'criar';
+  let _tarefaId          = null;
+  let _grupoRecorrencia  = null;
+  let _projetos          = [];
+  let _usuarios          = [];
+  let _onSucesso         = null;
 
   async function abrir(tarefa = null, { onSucesso, projetoId = null, dataInicio = null } = {}) {
-    _modo     = tarefa ? 'editar' : 'criar';
-    _tarefaId = tarefa?.id || null;
-    _onSucesso = onSucesso;
+    _modo             = tarefa ? 'editar' : 'criar';
+    _tarefaId         = tarefa?.id || null;
+    _grupoRecorrencia = tarefa?.grupo_recorrencia || null;
+    _onSucesso        = onSucesso;
 
     // Carregar dados
     try {
@@ -38,6 +40,10 @@ const ModalTarefa = (() => {
     document.getElementById('tarefa-data-fim').value  = tarefa?.data_fim?.slice(0,10) || '';
     document.getElementById('tarefa-dia-inteiro').checked = tarefa?.dia_inteiro !== false;
 
+    // Mostrar/ocultar seção de repetição (só no modo criar)
+    const repetirSection = document.getElementById('tarefa-repetir-section');
+    if (repetirSection) repetirSection.style.display = _modo === 'criar' ? '' : 'none';
+
     // Reset repetir
     const repetirChk = document.getElementById('tarefa-repetir');
     if (repetirChk) {
@@ -46,6 +52,14 @@ const ModalTarefa = (() => {
       document.querySelectorAll('.repetir-dia-btn').forEach(btn => btn.classList.remove('active'));
       const ate = document.getElementById('tarefa-repetir-ate');
       if (ate) ate.value = '';
+    }
+
+    // Mostrar "editar grupo" só no modo editar quando há grupo_recorrencia
+    const grupoSection = document.getElementById('tarefa-grupo-section');
+    if (grupoSection) {
+      grupoSection.style.display = (_modo === 'editar' && _grupoRecorrencia) ? '' : 'none';
+      const grupoChk = document.getElementById('tarefa-editar-grupo');
+      if (grupoChk) grupoChk.checked = false;
     }
 
     // Prioridade
@@ -182,8 +196,9 @@ const ModalTarefa = (() => {
             return;
           }
 
+          const grupoId = crypto.randomUUID();
           await Promise.all(datas.map(data =>
-            API.post('/api/tarefas', { ...body, data_inicio: data })
+            API.post('/api/tarefas', { ...body, data_inicio: data, grupo_recorrencia: grupoId })
           ));
           Toast.show(`${datas.length} tarefas criadas!`, 'success');
           Confetti?.center(90);
@@ -194,7 +209,19 @@ const ModalTarefa = (() => {
         }
       } else {
         await API.put(`/api/tarefas/${_tarefaId}`, body);
-        Toast.show('Tarefa atualizada!', 'success');
+
+        const editarGrupo = document.getElementById('tarefa-editar-grupo')?.checked;
+        if (editarGrupo && _grupoRecorrencia) {
+          await API.put(`/api/tarefas/grupo/${_grupoRecorrencia}`, {
+            titulo:    body.titulo,
+            descricao: body.descricao,
+            hora:      body.hora,
+            prioridade: body.prioridade,
+          });
+          Toast.show('Todas as ocorrências atualizadas!', 'success');
+        } else {
+          Toast.show('Tarefa atualizada!', 'success');
+        }
       }
       fechar();
       _onSucesso?.();

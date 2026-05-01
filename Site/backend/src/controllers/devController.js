@@ -124,27 +124,26 @@ exports.dadosEmpresa = async (req, res) => {
 exports.cofre = async (req, res) => {
   try {
     const { rows } = await db.query(
-      `SELECT id, titulo, login, senha_enc, url, notas, created_at
-       FROM cofre_senhas WHERE cliente_id=$1 ORDER BY titulo`,
+      `SELECT id, sistema, login, senha_criptografada, iv, tag, url, observacao, created_at
+       FROM cofre_senhas WHERE cliente_id=$1 ORDER BY sistema`,
       [req.params.clienteId]
     );
 
     const ALGORITHM = 'aes-256-gcm';
     const hex = process.env.COFRE_MASTER_KEY || '';
     if (hex.length !== 64) {
-      return res.json(rows.map(r => ({ ...r, senha_dec: '[COFRE_MASTER_KEY não configurado]' })));
+      return res.json(rows.map(r => ({ ...r, senha_dec: '[chave não configurada]' })));
     }
     const masterKey = Buffer.from(hex, 'hex');
 
     const decryptados = rows.map(r => {
       try {
-        const raw = Buffer.from(r.senha_enc, 'base64');
-        const iv  = raw.slice(0, 16);
-        const tag = raw.slice(16, 32);
-        const enc = raw.slice(32);
+        const iv  = Buffer.from(r.iv, 'hex');
+        const tag = Buffer.from(r.tag, 'hex');
+        const enc = Buffer.from(r.senha_criptografada, 'base64');
         const decipher = crypto.createDecipheriv(ALGORITHM, masterKey, iv);
         decipher.setAuthTag(tag);
-        const senha_dec = decipher.update(enc) + decipher.final('utf8');
+        const senha_dec = decipher.update(enc, null, 'utf8') + decipher.final('utf8');
         return { ...r, senha_dec };
       } catch {
         return { ...r, senha_dec: '[erro ao descriptografar]' };

@@ -393,7 +393,15 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <!-- Seção de editar grupo — só visível no modo editar quando há grupo_recorrencia -->
+      <div class="form-group" id="tarefa-grupo-section" style="display:none">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.875rem;font-weight:500">
+          <input type="checkbox" id="tarefa-editar-grupo"> Atualizar todas as ocorrências desta recorrência
+        </label>
+        <p style="font-size:.78rem;color:var(--text-muted);margin-top:4px;padding-left:26px">Altera título, descrição, hora e prioridade de todo o grupo</p>
+      </div>
+
+      <div class="form-group" id="tarefa-repetir-section">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.875rem;font-weight:500">
           <input type="checkbox" id="tarefa-repetir"> Repetir por dias da semana
         </label>

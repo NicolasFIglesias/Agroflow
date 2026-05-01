@@ -6,7 +6,8 @@ exports.criar = async (req, res) => {
     const {
       projeto_id, titulo, descricao, tipo = 'equipe',
       data_inicio, data_fim, hora, dia_inteiro = true,
-      atribuido_a, status = 'ativa', prioridade = 'normal'
+      atribuido_a, status = 'ativa', prioridade = 'normal',
+      grupo_recorrencia = null
     } = req.body;
 
     if (!titulo || !atribuido_a) {
@@ -29,13 +30,13 @@ exports.criar = async (req, res) => {
     const { rows: [tarefa] } = await db.query(
       `INSERT INTO tarefas
          (empresa_id, projeto_id, titulo, descricao, tipo, data_inicio, data_fim,
-          hora, dia_inteiro, atribuido_a, criado_por, ordem, status, prioridade)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+          hora, dia_inteiro, atribuido_a, criado_por, ordem, status, prioridade, grupo_recorrencia)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
        RETURNING id`,
       [
         req.usuario.empresa_id, projeto_id || null, titulo, descricao || null, tipo,
         data_inicio || null, data_fim || null, hora || null, dia_inteiro,
-        responsavel, req.usuario.id, ordem, status, prioridade
+        responsavel, req.usuario.id, ordem, status, prioridade, grupo_recorrencia || null
       ]
     );
 
@@ -266,6 +267,24 @@ exports.excluir = async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('Erro ao excluir tarefa:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+// PUT /api/tarefas/grupo/:grupoId
+exports.atualizarGrupo = async (req, res) => {
+  try {
+    const { titulo, descricao, hora, prioridade } = req.body;
+    const { rowCount } = await db.query(
+      `UPDATE tarefas
+       SET titulo=$1, descricao=$2, hora=$3, prioridade=$4, updated_at=NOW()
+       WHERE grupo_recorrencia=$5 AND empresa_id=$6`,
+      [titulo, descricao || null, hora || null, prioridade,
+       req.params.grupoId, req.usuario.empresa_id]
+    );
+    res.json({ ok: true, atualizadas: rowCount });
+  } catch (err) {
+    console.error('Erro ao atualizar grupo:', err);
     res.status(500).json({ error: 'Erro interno' });
   }
 };
