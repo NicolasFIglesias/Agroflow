@@ -147,8 +147,9 @@ const PainelLateral = (() => {
     // Editar
     document.getElementById('btn-editar-tarefa')?.addEventListener('click', () => {
       if (_tarefaAtual) {
+        const t = _tarefaAtual; // salvar antes de fechar() zerar _tarefaAtual
         fechar();
-        ModalTarefa.abrir(_tarefaAtual, { modo: 'editar' });
+        ModalTarefa.abrir(t, { onSucesso: () => document.dispatchEvent(new CustomEvent('tarefa-atualizada')) });
       }
     });
 
