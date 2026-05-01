@@ -9,11 +9,9 @@ let _buscaTimer  = null;
 let _editandoId  = null;
 
 // ── Init ──────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  initSidebar();
-  carregarLista();
-  bindEventos();
-});
+initSidebar();
+carregarLista();
+bindEventos();
 
 function bindEventos() {
   // Busca com debounce
@@ -56,8 +54,42 @@ function bindEventos() {
   document.getElementById('btn-tipo-pf').addEventListener('click', () => setTipoPessoa('PF'));
   document.getElementById('btn-tipo-pj').addEventListener('click', () => setTipoPessoa('PJ'));
 
+  // Máscaras de documento
+  _bindMascara('cliente-cpf',  _mascaraCPF,  11);
+  _bindMascara('cliente-cnpj', _mascaraCNPJ, 14);
+  _bindMascara('cliente-rg',   _soNumeros,   12);
+  _bindMascara('cliente-inscricao-estadual', _soNumeros, 15);
+  _bindMascara('cliente-dap-caf', _soNumeros, 15);
+
   // Salvar
   document.getElementById('btn-salvar-cliente').addEventListener('click', salvarCliente);
+}
+
+// ── Máscaras ──────────────────────────────────────────────────
+function _soNumeros(v) { return v.replace(/\D/g, ''); }
+
+function _mascaraCPF(v) {
+  const d = v.replace(/\D/g, '').slice(0, 11);
+  return d.replace(/(\d{3})(\d)/, '$1.$2')
+          .replace(/(\d{3})(\d)/, '$1.$2')
+          .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+}
+
+function _mascaraCNPJ(v) {
+  const d = v.replace(/\D/g, '').slice(0, 14);
+  return d.replace(/(\d{2})(\d)/, '$1.$2')
+          .replace(/(\d{3})(\d)/, '$1.$2')
+          .replace(/(\d{3})(\d)/, '$1/$2')
+          .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+}
+
+function _bindMascara(id, fn, maxDigitos) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', e => {
+    const antes = e.target.value;
+    e.target.value = fn(antes);
+  });
 }
 
 // ── Lista ─────────────────────────────────────────────────────
@@ -216,7 +248,7 @@ function abrirModal(dados = null) {
     set('cliente-email2',            dados.email2);
   }
 
-  document.getElementById('modal-cliente').style.display = 'flex';
+  document.getElementById('modal-cliente').classList.add('open');
 }
 
 async function abrirModalEditar(id) {
@@ -229,7 +261,7 @@ async function abrirModalEditar(id) {
 }
 
 function fecharModal() {
-  document.getElementById('modal-cliente').style.display = 'none';
+  document.getElementById('modal-cliente').classList.remove('open');
   _editandoId = null;
 }
 
@@ -253,13 +285,24 @@ async function salvarCliente() {
   if (!nome_completo) { alert('Nome completo é obrigatório.'); return; }
   if (!celular)       { alert('Celular é obrigatório.'); return; }
 
+  const cpfVal  = document.getElementById('cliente-cpf').value;
+  const cnpjVal = document.getElementById('cliente-cnpj').value;
+  if (tipo_pessoa === 'PF' && cpfVal) {
+    const digitos = cpfVal.replace(/\D/g, '');
+    if (digitos.length !== 11) { alert('CPF deve ter 11 dígitos.'); return; }
+  }
+  if (tipo_pessoa === 'PJ' && cnpjVal) {
+    const digitos = cnpjVal.replace(/\D/g, '');
+    if (digitos.length !== 14) { alert('CNPJ deve ter 14 dígitos.'); return; }
+  }
+
   const body = {
     tipo_pessoa,
     nome_completo,
     celular,
     nome_fantasia:       document.getElementById('cliente-nome-fantasia').value || undefined,
-    cpf:                 document.getElementById('cliente-cpf').value           || undefined,
-    cnpj:                document.getElementById('cliente-cnpj').value          || undefined,
+    cpf:                 cpfVal  || undefined,
+    cnpj:                cnpjVal || undefined,
     rg:                  document.getElementById('cliente-rg').value            || undefined,
     inscricao_estadual:  document.getElementById('cliente-inscricao-estadual').value || undefined,
     data_nascimento:     document.getElementById('cliente-data-nascimento').value    || undefined,

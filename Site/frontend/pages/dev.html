@@ -46,6 +46,46 @@
   </div>
 </div>
 
+<!-- Modal — Editar usuário -->
+<div id="dev-modal-usuario" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center">
+  <div style="background:#1e2a3a;border-radius:12px;padding:24px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <h3 style="font-size:1rem;font-weight:700;color:#e2e8f0">Editar Usuário</h3>
+      <button id="dev-modal-fechar" style="color:#94a3b8;font-size:1.2rem;background:none;border:none;cursor:pointer">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label style="font-size:.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Nome</label>
+        <input id="dev-edit-nome" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:.875rem">
+      </div>
+      <div>
+        <label style="font-size:.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em">E-mail</label>
+        <input id="dev-edit-email" type="email" style="width:100%;margin-top:4px;padding:8px 10px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:.875rem">
+      </div>
+      <div>
+        <label style="font-size:.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Cargo</label>
+        <input id="dev-edit-cargo" type="text" style="width:100%;margin-top:4px;padding:8px 10px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:.875rem">
+      </div>
+      <div>
+        <label style="font-size:.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Papel</label>
+        <select id="dev-edit-role" style="width:100%;margin-top:4px;padding:8px 10px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:.875rem">
+          <option value="colaborador">colaborador</option>
+          <option value="admin">admin</option>
+          <option value="superdev">superdev</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding-top:4px">
+        <input type="checkbox" id="dev-edit-ativo" style="accent-color:#22c55e;width:16px;height:16px">
+        <label for="dev-edit-ativo" style="font-size:.875rem;color:#e2e8f0;cursor:pointer">Usuário ativo</label>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px">
+      <button id="dev-modal-cancelar" style="padding:8px 16px;border-radius:6px;border:1px solid #334155;background:none;color:#94a3b8;font-size:.875rem;cursor:pointer">Cancelar</button>
+      <button id="dev-modal-salvar" style="padding:8px 16px;border-radius:6px;border:none;background:#22c55e;color:#fff;font-size:.875rem;font-weight:600;cursor:pointer">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script src="../js/config.js"></script>
 <script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>

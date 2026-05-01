@@ -43,6 +43,9 @@ const ModalTarefa = (() => {
     if (repetirChk) {
       repetirChk.checked = false;
       document.getElementById('tarefa-repetir-opcoes').style.display = 'none';
+      document.querySelectorAll('.repetir-dia-btn').forEach(btn => btn.classList.remove('active'));
+      const ate = document.getElementById('tarefa-repetir-ate');
+      if (ate) ate.value = '';
     }
 
     // Prioridade
@@ -144,19 +147,45 @@ const ModalTarefa = (() => {
     try {
       if (_modo === 'criar') {
         const repetir = document.getElementById('tarefa-repetir')?.checked;
-        const diasRepetir = repetir
-          ? Math.min(365, Math.max(2, parseInt(document.getElementById('tarefa-repetir-dias')?.value) || 7))
-          : 1;
 
-        if (diasRepetir > 1) {
-          const baseData = new Date(body.data_inicio + 'T12:00:00');
-          const promises = Array.from({ length: diasRepetir }, (_, i) => {
-            const d = new Date(baseData);
-            d.setDate(d.getDate() + i);
-            return API.post('/api/tarefas', { ...body, data_inicio: d.toISOString().slice(0,10) });
-          });
-          await Promise.all(promises);
-          Toast.show(`${diasRepetir} tarefas criadas!`, 'success');
+        if (repetir) {
+          const diasSelecionados = Array.from(document.querySelectorAll('.repetir-dia-btn.active'))
+            .map(btn => parseInt(btn.dataset.dow));
+          const ateData = document.getElementById('tarefa-repetir-ate')?.value;
+
+          if (diasSelecionados.length === 0) {
+            Toast.show('Selecione pelo menos um dia da semana', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Criar tarefa';
+            return;
+          }
+          if (!ateData) {
+            Toast.show('Informe a data limite de repetição', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Criar tarefa';
+            return;
+          }
+
+          const datas = [];
+          const inicio = new Date(body.data_inicio + 'T12:00:00');
+          const fim    = new Date(ateData + 'T12:00:00');
+          for (let d = new Date(inicio); d <= fim; d.setDate(d.getDate() + 1)) {
+            if (diasSelecionados.includes(d.getDay())) {
+              datas.push(d.toISOString().slice(0, 10));
+            }
+          }
+
+          if (datas.length === 0) {
+            Toast.show('Nenhuma data encontrada com os dias selecionados', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Criar tarefa';
+            return;
+          }
+
+          await Promise.all(datas.map(data =>
+            API.post('/api/tarefas', { ...body, data_inicio: data })
+          ));
+          Toast.show(`${datas.length} tarefas criadas!`, 'success');
           Confetti?.center(90);
         } else {
           await API.post('/api/tarefas', body);
@@ -201,6 +230,11 @@ const ModalTarefa = (() => {
     document.getElementById('tarefa-repetir')?.addEventListener('change', function() {
       const opcoes = document.getElementById('tarefa-repetir-opcoes');
       if (opcoes) opcoes.style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Dias da semana toggle
+    document.querySelectorAll('.repetir-dia-btn').forEach(btn => {
+      btn.addEventListener('click', () => btn.classList.toggle('active'));
     });
   }
 

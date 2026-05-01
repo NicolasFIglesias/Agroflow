@@ -139,13 +139,14 @@
       });
     });
 
-    main.querySelectorAll('.btn-dev-reset').forEach(btn => {
+    // Senha reset buttons (btn-dev-reset but NOT btn-dev-editar-usuario)
+    main.querySelectorAll('.btn-dev-reset:not(.btn-dev-editar-usuario)').forEach(btn => {
       btn.addEventListener('click', () => {
         const row = btn.closest('tr');
         const inp = row.querySelector('.dev-reset-input');
         const salvar = row.querySelector('.dev-btn-salvar');
         const cancel = row.querySelector('.dev-btn-cancel');
-        inp.classList.add('show');
+        inp.style.display = '';
         salvar.style.display = '';
         cancel.style.display = '';
         btn.style.display = 'none';
@@ -156,10 +157,11 @@
     main.querySelectorAll('.dev-btn-cancel').forEach(btn => {
       btn.addEventListener('click', () => {
         const row = btn.closest('tr');
-        row.querySelector('.dev-reset-input').classList.remove('show');
+        row.querySelector('.dev-reset-input').style.display = 'none';
+        row.querySelector('.dev-reset-input').value = '';
         row.querySelector('.dev-btn-salvar').style.display = 'none';
         btn.style.display = 'none';
-        row.querySelector('.btn-dev-reset').style.display = '';
+        row.querySelector('.btn-dev-reset:not(.btn-dev-editar-usuario)').style.display = '';
       });
     });
 
@@ -174,13 +176,13 @@
         try {
           await devPut(`/api/dev/usuarios/${uid}/senha`, { nova_senha: nova });
           btn.textContent = '✓ Salvo';
-          btn.style.background = 'var(--green-bg)';
+          btn.style.background = '#16a34a';
           setTimeout(() => {
-            row.querySelector('.dev-reset-input').classList.remove('show');
+            row.querySelector('.dev-reset-input').style.display = 'none';
             row.querySelector('.dev-reset-input').value = '';
             row.querySelector('.dev-btn-cancel').style.display = 'none';
-            row.querySelector('.btn-dev-reset').style.display = '';
-            btn.textContent = 'Salvar';
+            row.querySelector('.btn-dev-reset:not(.btn-dev-editar-usuario)').style.display = '';
+            btn.textContent = 'Salvar senha';
             btn.disabled = false;
             btn.style.background = '';
           }, 1500);
@@ -190,6 +192,11 @@
           alert('Erro: ' + err.message);
         }
       });
+    });
+
+    // Editar usuário
+    main.querySelectorAll('.btn-dev-editar-usuario').forEach(btn => {
+      btn.addEventListener('click', () => _abrirModalEditarUsuario(btn));
     });
 
     main.querySelectorAll('.dev-btn-cofre').forEach(btn => {
@@ -250,9 +257,9 @@
   function renderTabUsuarios(usuarios) {
     if (!usuarios.length) return '<div class="dev-loading" style="color:var(--muted)">Nenhum usuário</div>';
     return `<table class="dev-table">
-      <thead><tr><th>Nome</th><th>Email</th><th>Cargo</th><th>Papel</th><th>Status</th><th>Nova Senha</th></tr></thead>
+      <thead><tr><th>Nome</th><th>Email</th><th>Cargo</th><th>Papel</th><th>Status</th><th>Ações</th></tr></thead>
       <tbody>${usuarios.map(u => `
-        <tr>
+        <tr data-uid="${u.id}">
           <td>${_esc(u.nome)}</td>
           <td style="color:var(--blue)">${_esc(u.email)}</td>
           <td>${_esc(u.cargo || '—')}</td>
@@ -260,9 +267,12 @@
           <td><span class="dev-tag ${u.ativo ? 'dev-tag-colab' : 'dev-tag-inativo'}">${u.ativo ? 'ativo' : 'inativo'}</span></td>
           <td>
             <div class="dev-reset-row">
-              <input class="dev-reset-input" type="text" placeholder="nova senha">
-              <button class="dev-btn-sm dev-btn-reset btn-dev-reset">Resetar</button>
-              <button class="dev-btn-sm dev-btn-salvar" data-uid="${u.id}" style="display:none">Salvar</button>
+              <button class="dev-btn-sm dev-btn-reset btn-dev-reset">Senha</button>
+              <button class="dev-btn-sm dev-btn-reset btn-dev-editar-usuario" data-uid="${u.id}"
+                data-nome="${_esc(u.nome)}" data-email="${_esc(u.email)}"
+                data-cargo="${_esc(u.cargo||'')}" data-role="${u.role}" data-ativo="${u.ativo}">Editar</button>
+              <input class="dev-reset-input" type="text" placeholder="nova senha" style="display:none">
+              <button class="dev-btn-sm dev-btn-salvar" data-uid="${u.id}" style="display:none">Salvar senha</button>
               <button class="dev-btn-sm dev-btn-cancel" style="display:none">✕</button>
             </div>
           </td>
@@ -296,9 +306,9 @@
         <tr>
           <td>${_esc(i.denominacao || '—')}</td>
           <td>${_esc([i.municipio, i.uf].filter(Boolean).join('/') || '—')}</td>
-          <td style="color:var(--muted)">${i.area_total ? i.area_total + ' ha' : '—'}</td>
-          <td><span class="dev-tag dev-tag-${i.car_status === 'ativo' ? 'colab' : 'inativo'}">${_esc(i.car_status || '—')}</span></td>
-          <td style="color:var(--muted)">${i.ccir_vencimento ? new Date(i.ccir_vencimento).toLocaleDateString('pt-BR') : '—'}</td>
+          <td style="color:var(--muted)">${i.area_total_ha ? parseFloat(i.area_total_ha).toLocaleString('pt-BR') + ' ha' : '—'}</td>
+          <td><span class="dev-tag dev-tag-${i.situacao_car === 'ativo' ? 'colab' : 'inativo'}">${_esc(i.situacao_car || '—')}</span></td>
+          <td style="color:var(--muted)">${i.vencimento_ccir ? new Date(i.vencimento_ccir).toLocaleDateString('pt-BR') : '—'}</td>
         </tr>
       `).join('')}</tbody>
     </table>`;
@@ -339,6 +349,56 @@
   function _esc(str) {
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+
+  // ── Modal editar usuário ──────────────────────────────────────
+  let _editandoUid = null;
+
+  function _abrirModalEditarUsuario(btn) {
+    _editandoUid = btn.dataset.uid;
+    document.getElementById('dev-edit-nome').value  = btn.dataset.nome || '';
+    document.getElementById('dev-edit-email').value = btn.dataset.email || '';
+    document.getElementById('dev-edit-cargo').value = btn.dataset.cargo || '';
+    document.getElementById('dev-edit-role').value  = btn.dataset.role || 'colaborador';
+    document.getElementById('dev-edit-ativo').checked = btn.dataset.ativo === 'true';
+    const modal = document.getElementById('dev-modal-usuario');
+    modal.style.display = 'flex';
+  }
+
+  document.getElementById('dev-modal-fechar')?.addEventListener('click', _fecharModalUsuario);
+  document.getElementById('dev-modal-cancelar')?.addEventListener('click', _fecharModalUsuario);
+  document.getElementById('dev-modal-usuario')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('dev-modal-usuario')) _fecharModalUsuario();
+  });
+
+  function _fecharModalUsuario() {
+    document.getElementById('dev-modal-usuario').style.display = 'none';
+    _editandoUid = null;
+  }
+
+  document.getElementById('dev-modal-salvar')?.addEventListener('click', async () => {
+    if (!_editandoUid) return;
+    const btn = document.getElementById('dev-modal-salvar');
+    btn.textContent = '...';
+    btn.disabled = true;
+    try {
+      await devPut(`/api/dev/usuarios/${_editandoUid}`, {
+        nome:  document.getElementById('dev-edit-nome').value.trim(),
+        email: document.getElementById('dev-edit-email').value.trim(),
+        cargo: document.getElementById('dev-edit-cargo').value.trim(),
+        role:  document.getElementById('dev-edit-role').value,
+        ativo: document.getElementById('dev-edit-ativo').checked,
+      });
+      _fecharModalUsuario();
+      await selecionarEmpresa(_empresaAtiva,
+        document.querySelector('.dev-empresa-item.active')?.dataset.nome || '',
+        _dadosOverview?.empresas?.find(e => e.id === _empresaAtiva));
+    } catch (err) {
+      alert('Erro: ' + err.message);
+    } finally {
+      btn.textContent = 'Salvar';
+      btn.disabled = false;
+    }
+  });
 
   // ── Boot ─────────────────────────────────────────────────────
   panel.style.display = 'flex';

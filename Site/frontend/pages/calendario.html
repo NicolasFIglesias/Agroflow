@@ -395,13 +395,22 @@
 
       <div class="form-group">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.875rem;font-weight:500">
-          <input type="checkbox" id="tarefa-repetir"> Repetir diariamente
+          <input type="checkbox" id="tarefa-repetir"> Repetir por dias da semana
         </label>
-        <div id="tarefa-repetir-opcoes" style="display:none;margin-top:10px;display:none">
-          <label class="form-label">Repetir por</label>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-            <input type="number" id="tarefa-repetir-dias" class="form-input" value="7" min="2" max="365" style="width:90px">
-            <span style="font-size:.875rem;color:var(--text-muted)">dias consecutivos</span>
+        <div id="tarefa-repetir-opcoes" style="display:none;margin-top:12px">
+          <label class="form-label" style="margin-bottom:8px">Repetir toda(s):</label>
+          <div class="repetir-dias-semana">
+            <button type="button" class="repetir-dia-btn" data-dow="1">Seg</button>
+            <button type="button" class="repetir-dia-btn" data-dow="2">Ter</button>
+            <button type="button" class="repetir-dia-btn" data-dow="3">Qua</button>
+            <button type="button" class="repetir-dia-btn" data-dow="4">Qui</button>
+            <button type="button" class="repetir-dia-btn" data-dow="5">Sex</button>
+            <button type="button" class="repetir-dia-btn" data-dow="6">Sáb</button>
+            <button type="button" class="repetir-dia-btn" data-dow="0">Dom</button>
+          </div>
+          <div style="margin-top:12px">
+            <label class="form-label">Repetir até</label>
+            <input type="date" id="tarefa-repetir-ate" class="form-input" style="margin-top:4px">
           </div>
         </div>
       </div>

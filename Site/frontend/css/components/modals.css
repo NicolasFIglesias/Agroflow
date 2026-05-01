@@ -216,3 +216,37 @@
 }
 
 .delegacao-form.hidden { display: none; }
+
+/* ── Repetir por dias da semana ──────────────────────────────── */
+.repetir-dias-semana {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.repetir-dia-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.repetir-dia-btn:hover {
+  border-color: var(--verde);
+  color: var(--verde);
+}
+
+.repetir-dia-btn.active {
+  background: var(--verde);
+  color: #fff;
+  border-color: var(--verde);
+}

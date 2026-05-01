@@ -8,11 +8,9 @@ let _filtroTipo  = '';
 let _buscaTimer  = null;
 let _editandoId  = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-  initSidebar();
-  carregarLista();
-  bindEventos();
-});
+initSidebar();
+carregarLista();
+bindEventos();
 
 function bindEventos() {
   document.getElementById('imo-busca-input').addEventListener('input', e => {
@@ -178,7 +176,7 @@ function abrirModal(dados = null) {
     set('imovel-atividade',      dados.atividade_principal);
   }
 
-  document.getElementById('modal-imovel').style.display = 'flex';
+  document.getElementById('modal-imovel').classList.add('open');
 }
 
 async function abrirModalEditar(id) {
@@ -191,7 +189,7 @@ async function abrirModalEditar(id) {
 }
 
 function fecharModal() {
-  document.getElementById('modal-imovel').style.display = 'none';
+  document.getElementById('modal-imovel').classList.remove('open');
   _editandoId = null;
 }
 
