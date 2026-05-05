@@ -85,7 +85,7 @@ exports.dadosEmpresa = async (req, res) => {
     ] = await Promise.all([
       db.query(`SELECT id, nome_completo, tipo_pessoa, cpf, cnpj, celular, email, municipio, uf, ativo, created_at
                 FROM clientes WHERE empresa_id=$1 ORDER BY nome_completo`, [eId]),
-      db.query(`SELECT id, denominacao, municipio, uf, area_total, car_status, ccir_vencimento, ativo, created_at
+      db.query(`SELECT id, denominacao, municipio, uf, area_total_ha, situacao_car, vencimento_ccir, ativo, created_at
                 FROM imoveis WHERE empresa_id=$1 ORDER BY denominacao`, [eId]),
       db.query(`SELECT id, titulo, status, prioridade, tipo, data_inicio, atribuido_a, created_at
                 FROM tarefas WHERE empresa_id=$1 ORDER BY created_at DESC LIMIT 100`, [eId]),

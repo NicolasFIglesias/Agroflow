@@ -4,7 +4,7 @@
 
 .sidebar {
   width: var(--sidebar-w);
-  background: var(--md-surface-container-low);
+  background: #C8E0A8;
   position: fixed;
   top: 0; left: 0;
   height: 100vh;
@@ -12,7 +12,7 @@
   flex-direction: column;
   z-index: 200;
   transition: transform .3s cubic-bezier(.2,.0,0,1);
-  border-right: 1px solid var(--md-outline-variant);
+  border-right: 1px solid #A8C888;
 }
 
 /* ── Logo / Header ────────────────────────────────────────── */
@@ -34,12 +34,12 @@
 .sidebar-logo-text {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--md-on-surface);
+  color: #1a3a0a;
   letter-spacing: -.01em;
 }
 .sidebar-logo-sub {
   font-size: .7rem;
-  color: var(--md-on-surface-variant);
+  color: #3a6020;
   margin-top: 1px;
 }
 
@@ -57,9 +57,9 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .1em;
-  color: var(--md-on-surface-variant);
+  color: #3a6020;
   padding: 16px 4px 6px;
-  opacity: .7;
+  opacity: .85;
 }
 
 /* MD3 Navigation Drawer item */
@@ -69,7 +69,7 @@
   gap: 12px;
   padding: 0 16px;
   height: 56px;
-  color: var(--md-on-surface-variant);
+  color: #2a4a10;
   font-size: .875rem;
   font-weight: 500;
   letter-spacing: .01em;
@@ -95,13 +95,13 @@
 .sidebar-item:active::after { opacity: .12; }
 
 .sidebar-item:hover {
-  color: var(--md-on-surface);
+  color: #1a3a0a;
 }
 
-/* MD3 active indicator — filled pill with primary-container */
+/* MD3 active indicator */
 .sidebar-item.active {
-  background: var(--md-primary-container);
-  color: var(--md-on-primary-container);
+  background: rgba(255,255,255,.55);
+  color: #1a3a0a;
   font-weight: 700;
 }
 .sidebar-item.active::after { display: none; }
@@ -114,15 +114,14 @@
 /* ── Divider ──────────────────────────────────────────────── */
 .sidebar-divider {
   height: 1px;
-  background: var(--md-outline-variant);
+  background: rgba(30,80,10,.2);
   margin: 8px 16px;
-  opacity: .5;
 }
 
 /* ── User chip ────────────────────────────────────────────── */
 .sidebar-user {
   padding: 8px 16px;
-  border-top: 1px solid var(--md-outline-variant);
+  border-top: 1px solid rgba(30,80,10,.2);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -130,8 +129,8 @@
 .sidebar-avatar {
   width: 36px; height: 36px;
   border-radius: 50%;
-  background: var(--md-primary);
-  color: var(--md-on-primary);
+  background: #386A20;
+  color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-size: .875rem; font-weight: 700;
   flex-shrink: 0;
@@ -140,12 +139,12 @@
 .sidebar-user-name {
   font-size: .875rem;
   font-weight: 600;
-  color: var(--md-on-surface);
+  color: #1a3a0a;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .sidebar-user-role {
   font-size: .72rem;
-  color: var(--md-on-surface-variant);
+  color: #3a6020;
 }
 
 .sidebar-logout-btn {
