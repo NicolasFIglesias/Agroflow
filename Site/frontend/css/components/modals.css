@@ -122,34 +122,34 @@
 }
 .btn-add-tarefa:hover { opacity: .7; }
 
-/* ── Toggle pessoal/equipe ────────────────────────────────── */
+/* ── Toggle pessoal/equipe (MD3 Segmented Button) ────────── */
 .tipo-toggle {
   display: flex;
   gap: 0;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 3px;
+  background: var(--md-surface-container, #EDF0E7);
+  border: 1px solid var(--md-outline-variant, #C3C8BC);
+  border-radius: var(--radius-full);
+  padding: 4px;
 }
 
 .tipo-btn {
   flex: 1;
-  padding: 7px;
-  border-radius: 5px;
+  padding: 8px;
+  border-radius: var(--radius-full);
   font-size: .875rem;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--md-on-surface-variant, #434842);
   transition: all .15s;
   text-align: center;
   cursor: pointer;
   background: none;
   border: none;
+  letter-spacing: .01em;
 }
 
 .tipo-btn.active {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow-sm);
+  background: var(--md-secondary-container, #D9E7CB);
+  color: var(--md-on-secondary-container, #131F0D);
   font-weight: 600;
 }
 

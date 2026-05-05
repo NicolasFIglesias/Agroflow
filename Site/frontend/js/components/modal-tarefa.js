@@ -44,6 +44,12 @@ const ModalTarefa = (() => {
     const repetirSection = document.getElementById('tarefa-repetir-section');
     if (repetirSection) repetirSection.style.display = _modo === 'criar' ? '' : 'none';
 
+    // Mostrar/ocultar botões de delete (só no modo editar)
+    const btnDel   = document.getElementById('btn-deletar-tarefa');
+    const btnDelGrp = document.getElementById('btn-deletar-grupo');
+    if (btnDel)    btnDel.style.display    = _modo === 'editar' ? ''       : 'none';
+    if (btnDelGrp) btnDelGrp.style.display = (_modo === 'editar' && _grupoRecorrencia) ? '' : 'none';
+
     // Reset repetir
     const repetirChk = document.getElementById('tarefa-repetir');
     if (repetirChk) {
@@ -262,6 +268,30 @@ const ModalTarefa = (() => {
     // Dias da semana toggle
     document.querySelectorAll('.repetir-dia-btn').forEach(btn => {
       btn.addEventListener('click', () => btn.classList.toggle('active'));
+    });
+
+    // Excluir esta tarefa
+    document.getElementById('btn-deletar-tarefa')?.addEventListener('click', async () => {
+      if (!_tarefaId) return;
+      if (!confirm('Excluir esta tarefa?')) return;
+      try {
+        await API.delete(`/api/tarefas/${_tarefaId}`);
+        fechar();
+        Toast.show('Tarefa excluída', 'success');
+        document.dispatchEvent(new CustomEvent('tarefa-atualizada'));
+      } catch (err) { Toast.show(err.message || 'Erro ao excluir', 'error'); }
+    });
+
+    // Excluir todas do grupo
+    document.getElementById('btn-deletar-grupo')?.addEventListener('click', async () => {
+      if (!_grupoRecorrencia) return;
+      if (!confirm('Excluir TODAS as ocorrências desta recorrência?')) return;
+      try {
+        await API.delete(`/api/tarefas/grupo/${_grupoRecorrencia}`);
+        fechar();
+        Toast.show('Todas as ocorrências excluídas', 'success');
+        document.dispatchEvent(new CustomEvent('tarefa-atualizada'));
+      } catch (err) { Toast.show(err.message || 'Erro ao excluir grupo', 'error'); }
     });
   }
 

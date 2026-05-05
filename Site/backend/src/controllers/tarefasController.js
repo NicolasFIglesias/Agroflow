@@ -271,6 +271,20 @@ exports.excluir = async (req, res) => {
   }
 };
 
+// DELETE /api/tarefas/grupo/:grupoId
+exports.excluirGrupo = async (req, res) => {
+  try {
+    const { rowCount } = await db.query(
+      `DELETE FROM tarefas WHERE grupo_recorrencia=$1 AND empresa_id=$2`,
+      [req.params.grupoId, req.usuario.empresa_id]
+    );
+    res.json({ ok: true, excluidas: rowCount });
+  } catch (err) {
+    console.error('Erro ao excluir grupo:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
 // PUT /api/tarefas/grupo/:grupoId
 exports.atualizarGrupo = async (req, res) => {
   try {

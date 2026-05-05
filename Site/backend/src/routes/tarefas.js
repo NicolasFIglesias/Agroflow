@@ -6,7 +6,8 @@ router.use(auth);
 
 router.post('/',                    ctrl.criar);
 router.get('/',                     ctrl.listar);
-router.put('/grupo/:grupoId',       ctrl.atualizarGrupo);
+router.put('/grupo/:grupoId',        ctrl.atualizarGrupo);
+router.delete('/grupo/:grupoId',    ctrl.excluirGrupo);
 router.get('/:id',                  ctrl.buscarPorId);
 router.put('/:id',                  ctrl.editar);
 router.put('/:id/status',           ctrl.alterarStatus);

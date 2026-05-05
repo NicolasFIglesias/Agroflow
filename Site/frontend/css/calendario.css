@@ -18,17 +18,16 @@
 
 /* ── Controles ────────────────────────────────────────────── */
 .cal-controls {
-  background: linear-gradient(180deg, #fdf6e4 0%, #f0e4cc 100%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  background: var(--md-surface-container-low);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--radius-xl);
   padding: var(--space-md) var(--space-lg);
   display: flex;
   align-items: center;
   gap: var(--space-md);
   margin-bottom: var(--space-md);
   flex-wrap: wrap;
-  border-left: 4px solid var(--verde);
-  box-shadow: 0 3px 8px rgba(80,50,10,.14), inset 0 1px 0 rgba(255,255,255,.6);
+  box-shadow: var(--shadow-sm);
 }
 
 .cal-nav {
@@ -102,7 +101,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   border-bottom: 2px solid var(--border);
-  background: linear-gradient(180deg, #253a0a 0%, #1a2808 100%);
+  background: var(--md-primary);
 }
 
 .cal-semana-dia-header {
@@ -224,7 +223,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   border-bottom: 2px solid var(--border);
-  background: linear-gradient(180deg, #253a0a 0%, #1a2808 100%);
+  background: var(--md-primary);
 }
 
 .cal-mes-dia-header {

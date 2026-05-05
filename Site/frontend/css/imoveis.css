@@ -96,8 +96,7 @@
   .imo-row > *:nth-child(6) { display: none; }
 }
 
-/* ── Modal ───────────────────────────────────────────────────── */
-/* Inherits from clientes.css modal styles — same skeuomorphic design */
+/* Modal — inherits MD3 style from clientes.css */
 
 @media (max-width: 700px) {
   .form-grid-2 { grid-template-columns: 1fr; }

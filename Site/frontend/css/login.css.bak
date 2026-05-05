@@ -1,0 +1,366 @@
+/* ============================================================
+   AgriFlow — Login (minimalista, centralizado, animado)
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --verde:     #639922;
+  --verde-esc: #4a7219;
+  --verde-cl:  #EAF3DE;
+  --border:    #E5E7EB;
+  --text:      #111827;
+  --text-muted:#6B7280;
+  --bg:        #F9FAFB;
+  --radius-sm: 10px;
+  --font: 'Inter', system-ui, sans-serif;
+}
+
+body.page-login {
+  background: #D6E9C0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font);
+  padding: 24px;
+}
+
+/* ── Wrapper central ──────────────────────────────────────── */
+.login-wrap {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+/* ── Logo ─────────────────────────────────────────────────── */
+.login-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: fadeSlideUp .5s ease both;
+}
+
+.login-logo-icon {
+  width: 52px;
+  height: 52px;
+  background: var(--verde);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  box-shadow: 0 8px 24px rgba(99,153,34,.25);
+}
+
+.login-logo-name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -.03em;
+}
+
+.login-logo-sub {
+  font-size: .8rem;
+  color: var(--text-muted);
+  margin-top: -6px;
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+.login-card {
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,.04), 0 20px 40px rgba(0,0,0,.06);
+  overflow: hidden;
+  animation: fadeSlideUp .5s .1s ease both;
+}
+
+/* ── Abas ─────────────────────────────────────────────────── */
+.login-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+
+.login-tab {
+  padding: 16px;
+  text-align: center;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color .2s;
+  position: relative;
+  font-family: var(--font);
+}
+
+.login-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: var(--verde);
+  border-radius: 2px 2px 0 0;
+  transform: scaleX(0);
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+
+.login-tab.active {
+  color: var(--text);
+}
+
+.login-tab.active::after {
+  transform: scaleX(1);
+}
+
+/* ── Painéis de conteúdo ──────────────────────────────────── */
+.login-panels {
+  position: relative;
+  overflow: hidden;
+}
+
+.login-panel {
+  padding: 32px;
+  display: none;
+}
+
+.login-panel.active {
+  display: block;
+  animation: panelUp .35s cubic-bezier(.4,0,.2,1) both;
+}
+
+.login-panel.saindo {
+  display: block;
+  animation: panelUpSair .25s cubic-bezier(.4,0,.2,1) both;
+  pointer-events: none;
+}
+
+/* ── Animações ────────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes panelUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes panelUpSair {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-14px); }
+}
+
+/* ── Títulos dos painéis ──────────────────────────────────── */
+.panel-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.02em;
+  margin-bottom: 4px;
+}
+
+.panel-subtitle {
+  font-size: .875rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+/* ── Campos ───────────────────────────────────────────────── */
+.login-field {
+  margin-bottom: 16px;
+}
+
+.login-label {
+  display: block;
+  font-size: .8125rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .9375rem;
+  font-family: var(--font);
+  color: var(--text);
+  background: #fff;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+
+.login-input:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 3px rgba(99,153,34,.1);
+}
+
+.login-input::placeholder { color: #C0C4CC; }
+
+/* ── Botão principal ──────────────────────────────────────── */
+.btn-primary-login {
+  width: 100%;
+  padding: 13px;
+  background: var(--verde);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: .9375rem;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  box-shadow: 0 4px 14px rgba(99,153,34,.3);
+  margin-top: 8px;
+}
+
+.btn-primary-login:hover {
+  background: var(--verde-esc);
+  box-shadow: 0 6px 18px rgba(99,153,34,.38);
+}
+
+.btn-primary-login:active { transform: scale(.98); }
+.btn-primary-login:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+/* ── Erro ─────────────────────────────────────────────────── */
+.login-error {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #991B1B;
+  padding: 10px 13px;
+  border-radius: var(--radius-sm);
+  font-size: .8125rem;
+  margin-bottom: 16px;
+}
+.login-error.show { display: flex; }
+
+/* ── Separador de seção ───────────────────────────────────── */
+.section-sep {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-muted);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+  margin-top: 4px;
+}
+
+/* ── Card conta já conectada ──────────────────────────────── */
+.conta-atual {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+}
+
+.conta-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--verde);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.conta-nome    { font-size: .9375rem; font-weight: 700; color: var(--text); }
+.conta-empresa { font-size: .8rem; font-weight: 600; color: var(--verde-esc); }
+.conta-cargo   { font-size: .78rem; color: var(--text-muted); }
+
+.btn-secundario {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .9rem;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  margin-top: 10px;
+  transition: border-color .15s, color .15s;
+}
+.btn-secundario:hover { border-color: #9CA3AF; color: var(--text); }
+
+/* ── Hint de teste ────────────────────────────────────────── */
+.login-hint {
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--bg);
+  border: 1px dashed #D1D5DB;
+  border-radius: 12px;
+  font-size: .78rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  animation: fadeSlideUp .5s .2s ease both;
+}
+
+.login-hint strong {
+  display: block;
+  color: var(--text);
+  font-size: .8rem;
+  margin-bottom: 2px;
+}
+
+.login-hint code {
+  background: #E5E7EB;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: var(--verde-esc);
+}
+
+/* ── Rodapé ───────────────────────────────────────────────── */
+.login-footer {
+  font-size: .75rem;
+  color: #C0C4CC;
+  text-align: center;
+  animation: fadeSlideUp .5s .25s ease both;
+}
+
+/* ── Spinner ──────────────────────────────────────────────── */
+.spin {
+  width: 17px; height: 17px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: giro .6s linear infinite;
+  display: none;
+}
+@keyframes giro { to { transform: rotate(360deg); } }
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  body.page-login { padding: 16px; align-items: flex-start; padding-top: 40px; }
+  .login-panel { padding: 24px; }
+}
