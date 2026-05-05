@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>">
+  <title>Modelos de Documentos — AgriFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components/sidebar.css">
+  <link rel="stylesheet" href="../css/contratos.css">
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🌿</div>
+    <div><div class="sidebar-logo-text">AgriFlow</div><div class="sidebar-logo-sub">Crédito Rural</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Principal</div>
+    <a href="/pages/clientes.html" class="sidebar-item" data-page="clientes">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke-width="2"/></svg>
+      Clientes
+    </a>
+    <a href="/pages/contratos.html" class="sidebar-item" data-page="contratos">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8" stroke-width="2" stroke-linecap="round"/></svg>
+      Contratos
+    </a>
+    <div class="sidebar-divider"></div>
+    <a href="/pages/modelos-documentos.html" class="sidebar-item active" data-page="modelos-documentos">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 22h14a2 2 0 002-2V7.5L14.5 2H6a2 2 0 00-2 2v4" stroke-width="2" stroke-linecap="round"/><polyline points="14 2 14 8 20 8" stroke-width="2"/><path d="M2 15h10M2 19h6" stroke-width="2" stroke-linecap="round"/></svg>
+      Modelos
+    </a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name" id="sidebar-user-name">—</div>
+      <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+    </div>
+  </div>
+  <button class="sidebar-logout-btn" id="btn-logout">
+    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12V5a2 2 0 012-2h7" stroke-width="2" stroke-linecap="round"/></svg>
+    Sair da conta
+  </button>
+</aside>
+
+<main class="app-main">
+  <div class="app-content">
+    <div class="ct-header">
+      <div>
+        <h1>Modelos de documentos</h1>
+        <p>Templates .docx com tags para geração automática</p>
+      </div>
+      <button class="btn btn-primary btn-lg" id="btn-upload-modelo">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke-width="2" stroke-linecap="round"/></svg>
+        Upload modelo
+      </button>
+    </div>
+
+    <div style="margin-bottom:16px">
+      <select id="md-filtro-tipo" class="ct-filtro-select">
+        <option value="">Todos os tipos</option>
+        <option value="arrendamento">Arrendamento</option>
+        <option value="compra_venda">Compra e Venda</option>
+        <option value="comodato">Comodato</option>
+        <option value="permuta">Permuta</option>
+        <option value="aluguel">Aluguel</option>
+        <option value="recibo">Recibo</option>
+        <option value="nota_promissoria">Nota Promissória</option>
+      </select>
+    </div>
+
+    <div id="md-lista"><div class="ct-loading">Carregando...</div></div>
+
+  </div>
+</main>
+
+<!-- Modal upload -->
+<div class="modal-overlay" id="modal-upload">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-header">
+      <h2 id="modal-upload-titulo">Upload de modelo</h2>
+      <button class="modal-close" id="btn-fechar-upload">✕</button>
+    </div>
+    <div class="modal-body" id="modal-upload-body">
+      <div class="form-group">
+        <label class="form-label">Tipo de contrato *</label>
+        <select id="up-tipo" class="form-select">
+          <option value="">Selecione...</option>
+          <option value="arrendamento">Arrendamento Rural</option>
+          <option value="compra_venda">Compra e Venda</option>
+          <option value="comodato">Comodato</option>
+          <option value="permuta">Permuta</option>
+          <option value="aluguel">Aluguel / Locação</option>
+          <option value="recibo">Recibo</option>
+          <option value="nota_promissoria">Nota Promissória</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nome do modelo *</label>
+        <input type="text" id="up-nome" class="form-input" placeholder="Ex: Arrendamento — Modelo Sicredi">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Arquivo .docx *</label>
+        <input type="file" id="up-arquivo" class="form-input" accept=".docx">
+      </div>
+      <div id="up-tags-resultado" style="display:none">
+        <div style="font-size:.82rem;font-weight:700;color:var(--md-on-surface-variant);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Tags detectadas</div>
+        <div id="up-tags-lista" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btn-cancelar-upload">Cancelar</button>
+      <button class="btn btn-primary"   id="btn-enviar-upload">Enviar e validar →</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/components/sidebar.js"></script>
+<script src="../js/pages/modelos-documentos.js"></script>
+</body>
+</html>

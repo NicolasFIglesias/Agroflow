@@ -1,0 +1,245 @@
+/* ── Contratos ───────────────────────────────────────────── */
+
+.ct-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.ct-header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing:-.02em; }
+.ct-header p  { color: var(--md-on-surface-variant); font-size: .9rem; margin-top: 4px; }
+
+/* Filtros */
+.ct-filtros {
+  display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.ct-busca {
+  position: relative; flex: 1; min-width: 240px;
+}
+.ct-busca-icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--md-on-surface-variant); pointer-events: none;
+}
+.ct-busca-input {
+  width: 100%; padding: 10px 12px 10px 38px;
+  border: 1px solid var(--md-outline); border-radius: var(--radius-full);
+  font-size: .9rem; background: var(--md-surface); color: var(--md-on-surface);
+  outline: none; transition: border .15s;
+}
+.ct-busca-input:focus { border-color: var(--md-primary); border-width: 2px; padding-left: 37px; }
+.ct-filtro-select {
+  padding: 10px 16px; border: 1px solid var(--md-outline); border-radius: var(--radius-full);
+  font-size: .875rem; background: var(--md-surface); color: var(--md-on-surface);
+  cursor: pointer; outline: none;
+}
+
+/* Lista */
+.ct-lista-wrap {
+  background: var(--md-surface-container-low);
+  border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-sm);
+}
+.ct-lista-header {
+  display: grid; grid-template-columns: 100px 1fr 1.5fr 110px 100px 48px;
+  gap: 12px; padding: 12px 20px;
+  font-size: .75rem; font-weight: 700; color: var(--md-on-surface-variant);
+  text-transform: uppercase; letter-spacing: .05em;
+  border-bottom: 1px solid var(--md-outline-variant);
+}
+.ct-row {
+  display: grid; grid-template-columns: 100px 1fr 1.5fr 110px 100px 48px;
+  gap: 12px; padding: 14px 20px;
+  align-items: center; border-bottom: 1px solid var(--md-outline-variant);
+  transition: background .12s; cursor: pointer;
+}
+.ct-row:last-child { border-bottom: none; }
+.ct-row:hover { background: var(--md-surface-container); }
+
+.ct-numero { font-size: .82rem; font-weight: 700; color: var(--md-primary); font-family: monospace; }
+.ct-tipo   { font-size: .78rem; color: var(--md-on-surface-variant); }
+.ct-nome   { font-size: .9rem; font-weight: 600; color: var(--md-on-surface); }
+.ct-nome-sub { font-size: .78rem; color: var(--md-on-surface-variant); }
+.ct-data   { font-size: .82rem; color: var(--md-on-surface-variant); }
+
+/* Status badges */
+.ct-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: var(--radius-full);
+  font-size: .72rem; font-weight: 700;
+}
+.ct-status-ativo     { background: var(--md-primary-container);   color: var(--md-on-primary-container); }
+.ct-status-rascunho  { background: var(--md-surface-container-high); color: var(--md-on-surface-variant); }
+.ct-status-vencido   { background: var(--md-error-container);     color: var(--md-on-error-container); }
+.ct-status-encerrado { background: var(--md-surface-container-highest); color: var(--md-on-surface-variant); }
+.ct-status-vencendo  { background: #FEF3C7; color: #78400A; }
+
+/* Menu de ações */
+.ct-menu-wrap { position: relative; }
+.ct-menu-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; color: var(--md-on-surface-variant);
+  background: none; border: none; cursor: pointer; transition: background .12s;
+}
+.ct-menu-btn:hover { background: var(--md-surface-container-high); }
+.ct-menu-dropdown {
+  position: absolute; right: 0; top: 36px; z-index: 100;
+  background: var(--md-surface-container-highest);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
+  min-width: 180px; overflow: hidden;
+  display: none;
+}
+.ct-menu-dropdown.open { display: block; }
+.ct-menu-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; font-size: .875rem;
+  color: var(--md-on-surface); cursor: pointer;
+  transition: background .1s; background: none; border: none;
+  width: 100%; text-align: left; font-family: inherit;
+}
+.ct-menu-item:hover { background: var(--md-surface-container-high); }
+.ct-menu-item.danger { color: var(--md-error); }
+
+/* Paginação */
+.ct-paginacao {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; padding: 20px 0 8px;
+}
+.ct-pag-info { font-size: .85rem; color: var(--md-on-surface-variant); }
+.ct-loading, .ct-vazio {
+  padding: 48px 20px; text-align: center;
+  color: var(--md-on-surface-variant); font-size: .9rem;
+}
+
+/* ── Tipo seletor (novo contrato) ────────────────────────── */
+.ct-tipo-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; max-width: 700px;
+}
+.ct-tipo-card {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 24px 16px; border-radius: var(--radius-xl);
+  border: 2px solid var(--md-outline-variant);
+  background: var(--md-surface-container-low);
+  cursor: pointer; transition: all .15s;
+  text-align: center;
+}
+.ct-tipo-card:hover {
+  border-color: var(--md-primary);
+  background: var(--md-primary-container);
+}
+.ct-tipo-card.active {
+  border-color: var(--md-primary);
+  background: var(--md-primary-container);
+  box-shadow: var(--shadow-sm);
+}
+.ct-tipo-icon { font-size: 2rem; }
+.ct-tipo-label { font-size: .875rem; font-weight: 600; color: var(--md-on-surface); line-height: 1.3; }
+
+/* ── Wizard steps ────────────────────────────────────────── */
+.ct-wizard {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.ct-steps {
+  display: flex; align-items: center; gap: 0; margin-bottom: 32px;
+  overflow-x: auto; padding-bottom: 4px;
+}
+.ct-step {
+  display: flex; align-items: center; flex-shrink: 0;
+}
+.ct-step-num {
+  width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--md-outline-variant);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; font-weight: 700; color: var(--md-on-surface-variant);
+  background: var(--md-surface);
+}
+.ct-step.done .ct-step-num   { background: var(--md-primary); border-color: var(--md-primary); color: #fff; }
+.ct-step.active .ct-step-num { background: var(--md-primary-container); border-color: var(--md-primary); color: var(--md-on-primary-container); }
+.ct-step-label { font-size: .78rem; color: var(--md-on-surface-variant); margin-left: 6px; white-space: nowrap; }
+.ct-step.active .ct-step-label { color: var(--md-primary); font-weight: 600; }
+.ct-step-line { flex: 1; height: 2px; background: var(--md-outline-variant); min-width: 20px; margin: 0 8px; }
+
+/* ── Formulário wizard ───────────────────────────────────── */
+.ct-form-section {
+  background: var(--md-surface-container-low);
+  border-radius: var(--radius-xl); padding: 24px;
+  margin-bottom: 16px; box-shadow: var(--shadow-sm);
+}
+.ct-form-section-title {
+  font-size: .72rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--md-on-surface-variant);
+  margin-bottom: 16px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--md-outline-variant);
+}
+.ct-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+.ct-span2 { grid-column: span 2; }
+
+/* Auto-preenchido */
+.ct-auto-input {
+  background: var(--md-primary-container) !important;
+  border-color: var(--md-primary) !important;
+}
+
+/* Busca dropdown */
+.ct-search-wrap { position: relative; }
+.ct-search-results {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+  background: var(--md-surface-container-highest);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
+  max-height: 240px; overflow-y: auto; margin-top: 4px;
+  display: none;
+}
+.ct-search-results.open { display: block; }
+.ct-search-item {
+  padding: 10px 16px; cursor: pointer; font-size: .875rem;
+  transition: background .1s;
+}
+.ct-search-item:hover { background: var(--md-surface-container-high); }
+.ct-search-item-nome { font-weight: 600; color: var(--md-on-surface); }
+.ct-search-item-sub  { font-size: .78rem; color: var(--md-on-surface-variant); }
+.ct-selected-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border-radius: var(--radius-full);
+  background: var(--md-secondary-container); color: var(--md-on-secondary-container);
+  font-size: .875rem; font-weight: 600; margin-top: 6px;
+}
+.ct-selected-chip button { background: none; border: none; cursor: pointer; font-size: 1rem; color: inherit; }
+
+/* Rascunho indicator */
+.ct-rascunho-indicator {
+  font-size: .78rem; color: var(--md-on-surface-variant);
+  display: flex; align-items: center; gap: 6px;
+}
+.ct-rascunho-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--md-primary); }
+
+/* Revisão */
+.ct-revisao-bloco {
+  background: var(--md-surface-container-low);
+  border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 12px;
+}
+.ct-revisao-titulo {
+  font-size: .72rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--md-on-surface-variant); margin-bottom: 8px;
+}
+.ct-revisao-linha {
+  display: flex; gap: 8px; font-size: .875rem; margin-bottom: 5px;
+}
+.ct-revisao-chave { color: var(--md-on-surface-variant); min-width: 130px; flex-shrink: 0; }
+.ct-revisao-valor { color: var(--md-on-surface); font-weight: 500; }
+
+/* Success */
+.ct-success {
+  text-align: center; padding: 40px 24px; max-width: 480px; margin: 0 auto;
+}
+.ct-success-icon { font-size: 3rem; margin-bottom: 16px; }
+.ct-success h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+.ct-success p { color: var(--md-on-surface-variant); margin-bottom: 24px; }
+.ct-success-numero { font-size: 1.1rem; font-weight: 700; color: var(--md-primary); font-family: monospace; }
+.ct-success-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .ct-lista-header, .ct-row { grid-template-columns: 90px 1fr 100px 48px; }
+  .ct-lista-header :nth-child(3), .ct-lista-header :nth-child(4),
+  .ct-row > *:nth-child(3), .ct-row > *:nth-child(4) { display: none; }
+  .ct-tipo-grid { grid-template-columns: repeat(2, 1fr); }
+  .ct-form-grid  { grid-template-columns: 1fr; }
+  .ct-span2      { grid-column: span 1; }
+}
