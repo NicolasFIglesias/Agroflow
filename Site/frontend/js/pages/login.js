@@ -119,6 +119,40 @@ Promise.race([_warmupPromise, new Promise(r => setTimeout(r, _INTRO_MAX))])
   document.getElementById('btn-voltar-adm').addEventListener('click', () => mostrarStep('tipo'));
   document.getElementById('btn-voltar-colab').addEventListener('click', () => mostrarStep('tipo'));
 
+  // ── Login (sempre registrado, mesmo que usuário já esteja logado) ──
+  document.getElementById('form-login').addEventListener('submit', async e => {
+    e.preventDefault();
+    const errorEl = document.getElementById('login-error');
+    const spin    = document.getElementById('login-spin');
+    const btnText = document.getElementById('login-btn-text');
+    const btn     = document.getElementById('btn-login');
+    errorEl.classList.remove('show');
+    spin.style.display  = 'inline-block';
+    btn.disabled        = true;
+    btnText.textContent = 'Entrando...';
+    try {
+      const data = await API.post('/api/auth/login', {
+        email: document.getElementById('email').value.trim(),
+        senha: document.getElementById('senha').value,
+      });
+      if (_trocandoConta) Auth.limpar();
+      Auth.salvar(data.token, data.usuario);
+      _redirecionar(data.usuario);
+    } catch(err) {
+      document.getElementById('senha').value = '';
+      const msg = (err.message || '').toLowerCase();
+      document.getElementById('login-error-msg').textContent =
+        msg.includes('credencial') || msg.includes('inválid') || msg.includes('incorret')
+          ? 'E-mail ou senha incorretos. Tente novamente.'
+          : err.message || 'Erro ao conectar. Tente novamente.';
+      errorEl.classList.add('show');
+    } finally {
+      spin.style.display  = 'none';
+      btnText.textContent = 'Entrar na conta';
+      btn.disabled        = false;
+    }
+  });
+
   // ── Já logado ─────────────────────────────────────────────
   if (Auth.logado() && usuario) {
     const primeiroNome = usuario.nome.split(' ')[0];
@@ -166,40 +200,6 @@ Promise.race([_warmupPromise, new Promise(r => setTimeout(r, _INTRO_MAX))])
     document.getElementById('col-convite').value = conviteUrl;
     verificarConvite(conviteUrl);
   }
-
-  // ── Login ─────────────────────────────────────────────────
-  document.getElementById('form-login').addEventListener('submit', async e => {
-    e.preventDefault();
-    const errorEl = document.getElementById('login-error');
-    const spin    = document.getElementById('login-spin');
-    const btnText = document.getElementById('login-btn-text');
-    const btn     = document.getElementById('btn-login');
-    errorEl.classList.remove('show');
-    spin.style.display  = 'inline-block';
-    btn.disabled        = true;
-    btnText.textContent = 'Entrando...';
-    try {
-      const data = await API.post('/api/auth/login', {
-        email: document.getElementById('email').value.trim(),
-        senha: document.getElementById('senha').value,
-      });
-      if (_trocandoConta) Auth.limpar();
-      Auth.salvar(data.token, data.usuario);
-      _redirecionar(data.usuario);
-    } catch(err) {
-      document.getElementById('senha').value = '';
-      const msg = (err.message || '').toLowerCase();
-      document.getElementById('login-error-msg').textContent =
-        msg.includes('credencial') || msg.includes('inválid') || msg.includes('incorret')
-          ? 'E-mail ou senha incorretos. Tente novamente.'
-          : err.message || 'Erro ao conectar. Tente novamente.';
-      errorEl.classList.add('show');
-    } finally {
-      spin.style.display  = 'none';
-      btnText.textContent = 'Entrar na conta';
-      btn.disabled        = false;
-    }
-  });
 
   // ── Esqueci minha senha ───────────────────────────────────
   document.getElementById('btn-esqueci').addEventListener('click', () => {
