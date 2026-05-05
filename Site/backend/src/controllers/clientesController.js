@@ -252,3 +252,82 @@ exports.excluirConjuge = async (req, res) => {
     res.status(500).json({ error: 'Erro interno' });
   }
 };
+
+// GET /api/clientes/:id/contas
+exports.listarContas = async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT * FROM contas_bancarias WHERE cliente_id=$1 ORDER BY created_at`,
+      [req.params.id]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Erro ao listar contas:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+// POST /api/clientes/:id/contas
+exports.criarConta = async (req, res) => {
+  try {
+    const { banco, agencia, numero_conta, tipo_conta, titular, cpf_cnpj_titular, chave_pix, tipo_chave_pix, observacao } = req.body;
+    if (!banco || !agencia || !numero_conta || !tipo_conta)
+      return res.status(400).json({ error: 'banco, agencia, numero_conta e tipo_conta são obrigatórios' });
+
+    const { rows: [conta] } = await db.query(
+      `INSERT INTO contas_bancarias
+         (cliente_id, banco, agencia, numero_conta, tipo_conta, titular, cpf_cnpj_titular, chave_pix, tipo_chave_pix, observacao)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+       RETURNING *`,
+      [
+        req.params.id, banco, agencia, numero_conta, tipo_conta,
+        titular || null, cpf_cnpj_titular || null,
+        chave_pix || null, tipo_chave_pix || null, observacao || null,
+      ]
+    );
+    res.status(201).json(conta);
+  } catch (err) {
+    console.error('Erro ao criar conta:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+// PUT /api/clientes/:id/contas/:contaId
+exports.editarConta = async (req, res) => {
+  try {
+    const { banco, agencia, numero_conta, tipo_conta, titular, cpf_cnpj_titular, chave_pix, tipo_chave_pix, observacao } = req.body;
+    const { rows } = await db.query(
+      `UPDATE contas_bancarias
+       SET banco=$1, agencia=$2, numero_conta=$3, tipo_conta=$4, titular=$5,
+           cpf_cnpj_titular=$6, chave_pix=$7, tipo_chave_pix=$8, observacao=$9
+       WHERE id=$10 AND cliente_id=$11
+       RETURNING *`,
+      [
+        banco, agencia, numero_conta, tipo_conta,
+        titular || null, cpf_cnpj_titular || null,
+        chave_pix || null, tipo_chave_pix || null, observacao || null,
+        req.params.contaId, req.params.id,
+      ]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Conta não encontrada' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Erro ao editar conta:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+// DELETE /api/clientes/:id/contas/:contaId
+exports.excluirConta = async (req, res) => {
+  try {
+    const { rowCount } = await db.query(
+      `DELETE FROM contas_bancarias WHERE id=$1 AND cliente_id=$2`,
+      [req.params.contaId, req.params.id]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Conta não encontrada' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Erro ao excluir conta:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};

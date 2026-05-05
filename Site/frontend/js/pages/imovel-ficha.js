@@ -1,297 +1,286 @@
-/* ── Imovel Ficha ──────────────────────────────────────────── */
+/* ── Ficha do Imóvel ──────────────────────────────────────── */
 verificarAutenticacao();
+initSidebar();
 
-const params  = new URLSearchParams(location.search);
-const imovelId = params.get('id');
-if (!imovelId) window.location.href = '/pages/imoveis.html';
+const _id = new URLSearchParams(location.search).get('id');
+if (!_id) location.href = '/pages/imoveis.html';
 
 let _imovel = null;
-let _mapInstance = null;
-let _propClienteId = null;
-let _propBuscaTimer = null;
+let _mapa   = null;
+let _marker = null;
 
-document.addEventListener('DOMContentLoaded', async () => {
-  initSidebar();
-  await carregarImovel();
-  bindTabs();
-  bindProprietarios();
-});
-
-async function carregarImovel() {
+(async () => {
   try {
-    _imovel = await API.get('/api/imoveis/' + imovelId);
-    renderHero();
+    _imovel = await API.get(`/api/imoveis/${_id}`);
+    renderHeader();
     renderDados();
-    renderDocumentos();
-    renderProprietarios();
-  } catch (err) {
-    console.error(err);
+    renderRegistro();
+    renderCCIR();
+    bindEventos();
+    ativarAba('dados');
+  } catch {
     alert('Erro ao carregar imóvel.');
-    window.location.href = '/pages/imoveis.html';
+    location.href = '/pages/imoveis.html';
   }
-}
+})();
 
-function renderHero() {
-  const im = _imovel;
-  const TIPO = { fazenda:'Fazenda', sitio:'Sítio', chacara:'Chácara', gleba:'Gleba', lote_rural:'Lote Rural', outro:'Outro' };
-  document.getElementById('cf-nome').textContent = im.denominacao;
-  document.getElementById('cf-breadcrumb-nome').textContent = im.denominacao;
-  document.title = im.denominacao + ' — AgriFlow';
-
-  const area = parseFloat(im.area_total_ha).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-  const meta = [];
-  if (im.tipo_imovel) meta.push(`<span>${TIPO[im.tipo_imovel] || im.tipo_imovel}</span>`);
-  meta.push(`<span>📍 ${im.municipio}/${im.uf}</span>`);
-  meta.push(`<span>📐 ${area} ha</span>`);
-  if (im.atividade_principal) meta.push(`<span>🌱 ${im.atividade_principal}</span>`);
-  document.getElementById('cf-hero-meta').innerHTML = meta.join('');
+function renderHeader() {
+  const i = _imovel;
+  document.getElementById('ficha-nome').textContent = i.denominacao;
+  document.title = i.denominacao + ' — AgriFlow';
+  const area = parseFloat(i.area_total_ha).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  const CCIR = { em_dia: '✅ CCIR', vencido: '⚠️ CCIR Vencido', em_renovacao: '🔄 CCIR Renovação' };
+  const CAR  = { ativo: '✅ CAR', pendente_analise: '⏳ CAR Pendente', cancelado: '❌ CAR', suspenso: '⚠️ CAR Suspenso' };
+  const partes = [
+    `${area} ha`,
+    `${i.municipio}/${i.uf}`,
+    i.matricula ? `Mat. ${i.matricula}` : null,
+    i.situacao_ccir ? CCIR[i.situacao_ccir] : null,
+    i.situacao_car  ? CAR[i.situacao_car]   : null,
+  ].filter(Boolean);
+  document.getElementById('ficha-meta').innerHTML = partes.map(p => `<span>${p}</span>`).join('');
 }
 
 function renderDados() {
-  const im = _imovel;
-  const CAR_LABEL  = { ativo:'Ativo', pendente_analise:'Pendente de análise', cancelado:'Cancelado', suspenso:'Suspenso' };
-  const CCIR_LABEL = { em_dia:'Em dia', vencido:'Vencido', em_renovacao:'Em renovação' };
-  const ITR_LABEL  = { em_dia:'Em dia', pendente:'Pendente', isento:'Isento' };
-  const MAT_LABEL  = { regular:'Regular', com_onus:'Com ônus', com_pendencia:'Com pendência', em_regularizacao:'Em regularização' };
-  const BIOMA = { amazonia:'Amazônia', cerrado:'Cerrado', pantanal:'Pantanal', mata_atlantica:'Mata Atlântica', caatinga:'Caatinga', pampa:'Pampa' };
-
-  const html = `
-    <div class="cf-section-title">Identificação</div>
-    ${campo('Denominação', im.denominacao)}
-    ${campo('Município / UF', im.municipio + '/' + im.uf)}
-    ${campo('Área Total (ha)', parseFloat(im.area_total_ha).toLocaleString('pt-BR', {minimumFractionDigits:4}))}
-    ${campo('Tipo de Imóvel', im.tipo_imovel)}
-    ${campo('Localização', im.localizacao)}
-    ${campo('Distrito', im.distrito)}
-    ${campo('Bioma', BIOMA[im.bioma] || im.bioma)}
-    ${campo('Atividade Principal', im.atividade_principal)}
-    ${campo('Código SNCR', im.codigo_sncr)}
-    ${campo('Módulos Fiscais', im.modulos_fiscais)}
-    ${campo('Fração Mínima (ha)', im.fracao_minima)}
-
-    <div class="cf-section-title">Registro de Imóveis</div>
-    ${campo('Matrícula', im.matricula)}
-    ${campo('Cartório', im.cartorio_registro)}
-    ${campo('Livro / Folha', im.livro_folha)}
-    ${campo('Data de Registro', im.data_registro ? new Date(im.data_registro).toLocaleDateString('pt-BR') : null)}
-    ${campo('NIRF', im.nirf)}
-    ${campo('Situação da Matrícula', MAT_LABEL[im.situacao_matricula] || im.situacao_matricula)}
-    ${im.obs_matricula ? campo('Obs. Matrícula', im.obs_matricula) : ''}
-
-    <div class="cf-section-title">CCIR</div>
-    ${campo('Nº do CCIR', im.numero_ccir)}
-    ${campo('Situação CCIR', CCIR_LABEL[im.situacao_ccir] || im.situacao_ccir)}
-    ${campo('Vencimento CCIR', im.vencimento_ccir ? new Date(im.vencimento_ccir).toLocaleDateString('pt-BR') : null)}
-
-    <div class="cf-section-title">ITR</div>
-    ${campo('Nº do ITR', im.numero_itr)}
-    ${campo('Ano de Exercício', im.ano_exercicio_itr)}
-    ${campo('Data de Pagamento', im.data_pagamento_itr ? new Date(im.data_pagamento_itr).toLocaleDateString('pt-BR') : null)}
-    ${campo('Situação ITR', ITR_LABEL[im.situacao_itr] || im.situacao_itr)}
-
-    <div class="cf-section-title">CAR</div>
-    ${campo('Inscrição CAR', im.inscricao_car)}
-    ${campo('Situação CAR', CAR_LABEL[im.situacao_car] || im.situacao_car)}
-    ${campo('Data de Inscrição', im.data_inscricao_car ? new Date(im.data_inscricao_car).toLocaleDateString('pt-BR') : null)}
-
-    <div class="cf-section-title">Confrontantes</div>
-    ${campo('Norte', im.confrontante_norte)}
-    ${campo('Sul', im.confrontante_sul)}
-    ${campo('Leste', im.confrontante_leste)}
-    ${campo('Oeste', im.confrontante_oeste)}
-    ${im.obs_confrontantes ? campo('Obs. Confrontantes', im.obs_confrontantes) : ''}
-  `;
-  document.getElementById('dados-grid').innerHTML = html;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+  const i = _imovel;
+  set('i-denominacao', i.denominacao);
+  set('i-municipio',   i.municipio);
+  set('i-uf',          i.uf);
+  set('i-area',        i.area_total_ha);
+  set('i-tipo',        i.tipo_imovel);
+  set('i-atividade',   i.atividade_principal);
+  set('i-bioma',       i.bioma);
+  set('i-localizacao', i.localizacao);
 }
 
-function renderDocumentos() {
-  // Placeholder — documentos serão implementados com upload
-  document.getElementById('docs-grid').innerHTML = `
-    <div class="cf-section-title">Coordenadas Geográficas</div>
-    ${campo('Latitude', _imovel.latitude)}
-    ${campo('Longitude', _imovel.longitude)}
-    ${campo('Datum', _imovel.datum)}
-    ${_imovel.link_google_maps ? `<div class="cf-field"><div class="cf-field-label">Google Maps</div><a href="${_imovel.link_google_maps}" target="_blank" rel="noopener" class="cf-field-value" style="color:var(--verde);text-decoration:none">Abrir no Maps ↗</a></div>` : campo('Google Maps', null)}
-  `;
+function renderRegistro() {
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+  const i = _imovel;
+  set('i-matricula',     i.matricula);
+  set('i-cartorio',      i.cartorio_registro);
+  set('i-livro',         i.livro_folha);
+  set('i-data-registro', i.data_registro?.slice(0, 10));
+  set('i-nirf',          i.nirf);
+  set('i-sit-matricula', i.situacao_matricula);
+  set('i-obs-matricula', i.obs_matricula);
 }
 
-function renderProprietarios() {
-  const el = document.getElementById('proprietarios-lista');
+function renderCCIR() {
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+  const i = _imovel;
+  set('i-num-ccir',  i.numero_ccir);
+  set('i-sit-ccir',  i.situacao_ccir);
+  set('i-venc-ccir', i.vencimento_ccir?.slice(0, 10));
+  set('i-num-itr',   i.numero_itr);
+  set('i-sit-itr',   i.situacao_itr);
+  set('i-ano-itr',   i.ano_exercicio_itr);
+  set('i-pag-itr',   i.data_pagamento_itr?.slice(0, 10));
+  set('i-insc-car',  i.inscricao_car);
+  set('i-sit-car',   i.situacao_car);
+  set('i-data-car',  i.data_inscricao_car?.slice(0, 10));
+}
+
+/* ── Abas ─────────────────────────────────────────────────── */
+function ativarAba(nome) {
+  document.querySelectorAll('.ficha-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === nome));
+  document.querySelectorAll('.ficha-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${nome}`)?.classList.add('active');
+  if (nome === 'proprietarios') carregarProprietarios();
+  if (nome === 'localizacao')   initMapa();
+}
+
+/* ── Proprietários ────────────────────────────────────────── */
+async function carregarProprietarios() {
+  const el = document.getElementById('lista-proprietarios');
   const props = _imovel.proprietarios || [];
-  const VINCULO = { proprietario:'Proprietário', posseiro:'Posseiro', arrendatario:'Arrendatário', comodatario:'Comodatário', outro:'Outro' };
-
-  if (props.length === 0) {
-    el.innerHTML = '<p style="color:var(--cinza-medio);font-size:.9rem">Nenhum proprietário vinculado.</p>';
-    return;
-  }
-  el.innerHTML = props.map(p => {
-    const iniciais = (p.nome_completo || '?').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-    const doc = p.cpf || p.cnpj || '';
-    return `
-    <div class="imf-prop-card" data-id="${p.id}">
-      <div class="imf-prop-avatar">${iniciais}</div>
-      <div>
-        <div class="imf-prop-nome">${p.nome_completo}</div>
-        ${doc ? `<div class="imf-prop-doc">${doc}</div>` : ''}
+  if (!props.length) { el.innerHTML = '<div class="text-muted" style="padding:24px;text-align:center">Nenhum proprietário vinculado.</div>'; return; }
+  const TIPO = { proprietario:'Proprietário', posseiro:'Posseiro', arrendatario:'Arrendatário', comodatario:'Comodatário', outro:'Outro' };
+  el.innerHTML = props.map(p => `
+    <div class="prop-row">
+      <div class="ficha-avatar" style="width:36px;height:36px;font-size:.8rem">
+        ${(p.nome_completo||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()}
       </div>
-      <span class="imf-prop-badge">${VINCULO[p.tipo_vinculo] || p.tipo_vinculo} ${p.percentual_participacao < 100 ? '(' + p.percentual_participacao + '%)' : ''}</span>
-      <button class="cli-btn-acao excluir prop-btn-desvincular" data-vinculo="${p.vinculo_id}" title="Desvincular" style="flex-shrink:0" onclick="event.stopPropagation()">
-        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <line x1="18" y1="6" x2="6" y2="18" stroke-width="2"/><line x1="6" y1="6" x2="18" y2="18" stroke-width="2"/>
-        </svg>
-      </button>
-    </div>`;
-  }).join('');
-
-  el.querySelectorAll('.imf-prop-card').forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.closest('.prop-btn-desvincular')) return;
-      window.location.href = `/pages/cliente-ficha.html?id=${card.dataset.id}`;
-    });
-  });
-  el.querySelectorAll('.prop-btn-desvincular').forEach(btn => {
-    btn.addEventListener('click', () => desvincularProp(btn.dataset.vinculo));
-  });
+      <div style="flex:1">
+        <div class="prop-nome" onclick="window.location.href='/pages/cliente-ficha.html?id=${p.id}'" style="cursor:pointer;color:var(--md-primary)">${_esc(p.nome_completo)}</div>
+        <div class="prop-badge">${TIPO[p.tipo_vinculo] || p.tipo_vinculo} · ${p.percentual_participacao}%</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="desvincularProp('${p.vinculo_id}')">Desvincular</button>
+    </div>`).join('');
 }
 
 async function desvincularProp(vinculoId) {
-  if (!confirm('Desvincular este proprietário do imóvel?')) return;
+  if (!confirm('Desvincular este proprietário?')) return;
   try {
-    await API.delete(`/api/imoveis/${imovelId}/proprietarios/${vinculoId}`);
-    _imovel = await API.get('/api/imoveis/' + imovelId);
-    renderProprietarios();
-  } catch (err) {
-    alert('Erro ao desvincular.');
-  }
+    await API.delete(`/api/imoveis/${_id}/proprietarios/${vinculoId}`);
+    _imovel = await API.get(`/api/imoveis/${_id}`);
+    carregarProprietarios();
+  } catch { alert('Erro.'); }
 }
 
-// ── Tabs ──────────────────────────────────────────────────────
-function bindTabs() {
-  document.querySelectorAll('.cf-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.cf-tab').forEach(t => t.classList.toggle('active', t === tab));
-      document.querySelectorAll('.cf-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab.dataset.tab));
-      if (tab.dataset.tab === 'mapa') initMapa();
-    });
-  });
-  document.getElementById('btn-editar-imovel').addEventListener('click', () => {
-    window.location.href = `/pages/imoveis.html?editar=${imovelId}`;
-  });
-}
-
-// ── Mapa Leaflet ──────────────────────────────────────────────
+/* ── Mapa Leaflet ─────────────────────────────────────────── */
 function initMapa() {
-  const lat = parseFloat(_imovel.latitude);
-  const lng = parseFloat(_imovel.longitude);
-
-  if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-    document.getElementById('imf-mapa').style.display = 'none';
-    document.getElementById('imf-mapa-sem-coords').style.display = 'flex';
-    document.getElementById('imf-mapa-coords').style.display = 'none';
-    document.getElementById('btn-editar-coords').addEventListener('click', () => {
-      window.location.href = `/pages/imoveis.html?editar=${imovelId}`;
-    });
-    return;
-  }
-
-  document.getElementById('imf-mapa').style.display = 'block';
-  document.getElementById('imf-mapa-sem-coords').style.display = 'none';
-  document.getElementById('imf-mapa-coords').style.display = 'flex';
-  document.getElementById('imf-coords-text').textContent = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)} (${_imovel.datum || 'SIRGAS 2000'})`;
-
-  const gmapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-  document.getElementById('imf-gmaps-link').href = _imovel.link_google_maps || gmapsUrl;
-
-  if (_mapInstance) {
-    _mapInstance.setView([lat, lng], 13);
-    return;
-  }
-
-  _mapInstance = L.map('imf-mapa').setView([lat, lng], 13);
+  if (_mapa) { _mapa.invalidateSize(); return; }
+  const lat = _imovel.latitude  || -15.8;
+  const lng = _imovel.longitude || -52.0;
+  _mapa = L.map('mapa-imovel').setView([lat, lng], _imovel.latitude ? 12 : 5);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-  }).addTo(_mapInstance);
-
-  const marker = L.marker([lat, lng]).addTo(_mapInstance);
-  marker.bindPopup(`<b>${_imovel.denominacao}</b><br>${_imovel.municipio}/${_imovel.uf}<br>${parseFloat(_imovel.area_total_ha).toLocaleString('pt-BR')} ha`).openPopup();
+    attribution: '© OpenStreetMap', maxZoom: 18
+  }).addTo(_mapa);
+  if (_imovel.latitude && _imovel.longitude) {
+    _marker = L.marker([lat, lng]).addTo(_mapa).bindPopup(_imovel.denominacao).openPopup();
+  }
+  document.getElementById('i-lat').value = _imovel.latitude  || '';
+  document.getElementById('i-lng').value = _imovel.longitude || '';
+  document.getElementById('i-gmaps').value = _imovel.link_google_maps || '';
 }
 
-// ── Proprietários modal ───────────────────────────────────────
-function bindProprietarios() {
-  document.getElementById('btn-add-proprietario').addEventListener('click', () => {
-    _propClienteId = null;
-    document.getElementById('prop-busca').value = '';
-    document.getElementById('prop-resultados').innerHTML = '';
-    document.getElementById('btn-confirmar-prop').disabled = true;
-    document.getElementById('modal-add-prop').style.display = 'flex';
-  });
-  document.getElementById('btn-fechar-modal-prop').addEventListener('click', () => fecharModal('modal-add-prop'));
-  document.getElementById('btn-cancelar-prop').addEventListener('click', () => fecharModal('modal-add-prop'));
-  document.getElementById('modal-add-prop').addEventListener('click', e => {
-    if (e.target.id === 'modal-add-prop') fecharModal('modal-add-prop');
-  });
-
-  document.getElementById('prop-busca').addEventListener('input', e => {
-    clearTimeout(_propBuscaTimer);
-    _propBuscaTimer = setTimeout(() => buscarClientes(e.target.value), 350);
-  });
-  document.getElementById('btn-confirmar-prop').addEventListener('click', confirmarProp);
-}
-
-async function buscarClientes(busca) {
-  if (!busca.trim()) { document.getElementById('prop-resultados').innerHTML = ''; return; }
-  try {
-    const data = await API.get('/api/clientes?busca=' + encodeURIComponent(busca) + '&por_pagina=8');
-    const el = document.getElementById('prop-resultados');
-    if (data.clientes.length === 0) {
-      el.innerHTML = '<p style="color:var(--cinza-medio);font-size:.85rem;padding:8px">Nenhum cliente encontrado.</p>';
-      return;
-    }
-    el.innerHTML = data.clientes.map(c => `
-      <div class="cf-vincular-item" data-id="${c.id}">
-        <div>${c.nome_completo}</div>
-        <div class="cf-vincular-sub">${c.cpf || c.cnpj || ''} ${c.municipio ? '· ' + c.municipio : ''}</div>
-      </div>`).join('');
-    el.querySelectorAll('.cf-vincular-item').forEach(item => {
-      item.addEventListener('click', () => {
-        el.querySelectorAll('.cf-vincular-item').forEach(i => i.classList.remove('selected'));
-        item.classList.add('selected');
-        _propClienteId = item.dataset.id;
-        document.getElementById('btn-confirmar-prop').disabled = false;
-      });
-    });
-  } catch (err) {
-    console.error(err);
+function atualizarMapa() {
+  const lat = parseFloat(document.getElementById('i-lat').value);
+  const lng = parseFloat(document.getElementById('i-lng').value);
+  if (!isNaN(lat) && !isNaN(lng)) {
+    if (!_mapa) { initMapa(); return; }
+    _mapa.setView([lat, lng], 12);
+    if (_marker) _marker.remove();
+    _marker = L.marker([lat, lng]).addTo(_mapa).bindPopup(_imovel.denominacao).openPopup();
   }
 }
 
-async function confirmarProp() {
-  if (!_propClienteId) return;
-  const btn = document.getElementById('btn-confirmar-prop');
-  btn.disabled = true;
-  try {
-    await API.post(`/api/imoveis/${imovelId}/proprietarios`, {
-      cliente_id: _propClienteId,
-      tipo_vinculo: document.getElementById('prop-tipo').value,
-      percentual_participacao: parseFloat(document.getElementById('prop-percentual').value) || 100,
-    });
-    fecharModal('modal-add-prop');
-    _imovel = await API.get('/api/imoveis/' + imovelId);
-    renderProprietarios();
-  } catch (err) {
-    alert(err.message || 'Erro ao vincular proprietário.');
-    btn.disabled = false;
-  }
+/* ── Salvar ───────────────────────────────────────────────── */
+async function salvarDadosPrincipal() {
+  const g = id => document.getElementById(id)?.value;
+  const body = {
+    denominacao: g('i-denominacao').trim(),
+    municipio:   g('i-municipio').trim(),
+    uf:          g('i-uf'),
+    area_total_ha: parseFloat(g('i-area')) || undefined,
+    tipo_imovel:  g('i-tipo') || undefined,
+    atividade_principal: g('i-atividade') || undefined,
+    bioma: g('i-bioma') || undefined,
+    localizacao: g('i-localizacao') || undefined,
+  };
+  if (!body.denominacao || !body.municipio || !body.uf) { alert('Denominação, município e UF são obrigatórios.'); return; }
+  const btn = document.getElementById('btn-salvar-dados');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+  try { await API.put(`/api/imoveis/${_id}`, body); _imovel = { ..._imovel, ...body }; renderHeader(); alert('Salvo!'); }
+  catch (err) { alert(err.message || 'Erro.'); }
+  finally { btn.disabled = false; btn.textContent = 'Salvar alterações'; }
 }
 
-// ── Utils ─────────────────────────────────────────────────────
-function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+async function salvarRegistro() {
+  const g = id => document.getElementById(id)?.value;
+  const body = {
+    matricula: g('i-matricula')||undefined, cartorio_registro: g('i-cartorio')||undefined,
+    livro_folha: g('i-livro')||undefined, data_registro: g('i-data-registro')||undefined,
+    nirf: g('i-nirf')||undefined, situacao_matricula: g('i-sit-matricula')||undefined,
+    obs_matricula: g('i-obs-matricula')||undefined,
+  };
+  try { await API.put(`/api/imoveis/${_id}`, body); alert('Registro salvo!'); }
+  catch (err) { alert(err.message || 'Erro.'); }
+}
 
-function campo(label, val) {
-  const vazio = val === null || val === undefined || val === '';
-  return `<div class="cf-field">
-    <div class="cf-field-label">${label}</div>
-    <div class="cf-field-value${vazio ? ' empty' : ''}">${vazio ? '—' : val}</div>
-  </div>`;
+async function salvarCCIR() {
+  const g = id => document.getElementById(id)?.value;
+  const body = {
+    numero_ccir: g('i-num-ccir')||undefined, situacao_ccir: g('i-sit-ccir')||undefined,
+    vencimento_ccir: g('i-venc-ccir')||undefined, numero_itr: g('i-num-itr')||undefined,
+    situacao_itr: g('i-sit-itr')||undefined, ano_exercicio_itr: g('i-ano-itr')||undefined,
+    data_pagamento_itr: g('i-pag-itr')||undefined, inscricao_car: g('i-insc-car')||undefined,
+    situacao_car: g('i-sit-car')||undefined, data_inscricao_car: g('i-data-car')||undefined,
+  };
+  try { await API.put(`/api/imoveis/${_id}`, body); renderHeader(); alert('CCIR/ITR/CAR salvo!'); }
+  catch (err) { alert(err.message || 'Erro.'); }
+}
+
+async function salvarLocalizacao() {
+  const lat = document.getElementById('i-lat').value;
+  const lng = document.getElementById('i-lng').value;
+  const body = {
+    latitude: lat ? parseFloat(lat) : null,
+    longitude: lng ? parseFloat(lng) : null,
+    link_google_maps: document.getElementById('i-gmaps').value || undefined,
+  };
+  try { await API.put(`/api/imoveis/${_id}`, body); alert('Coordenadas salvas!'); }
+  catch (err) { alert(err.message || 'Erro.'); }
+}
+
+/* ── Vincular proprietário ────────────────────────────────── */
+let _buscaTimer = null;
+
+function bindEventos() {
+  document.querySelectorAll('.ficha-tab').forEach(t =>
+    t.addEventListener('click', () => ativarAba(t.dataset.tab)));
+
+  document.getElementById('btn-salvar-dados')?.addEventListener('click', salvarDadosPrincipal);
+  document.getElementById('btn-salvar-registro')?.addEventListener('click', salvarRegistro);
+  document.getElementById('btn-salvar-ccir')?.addEventListener('click', salvarCCIR);
+  document.getElementById('btn-salvar-loc')?.addEventListener('click', salvarLocalizacao);
+  document.getElementById('btn-atualizar-mapa')?.addEventListener('click', atualizarMapa);
+
+  document.getElementById('btn-abrir-gmaps')?.addEventListener('click', () => {
+    const url = document.getElementById('i-gmaps').value ||
+      (_imovel.latitude && _imovel.longitude
+        ? `https://maps.google.com/?q=${_imovel.latitude},${_imovel.longitude}`
+        : null);
+    if (url) window.open(url, '_blank');
+    else alert('Preencha o link do Google Maps ou as coordenadas.');
+  });
+
+  // Modal vincular proprietário
+  document.getElementById('btn-vincular-prop')?.addEventListener('click', () =>
+    document.getElementById('modal-prop').classList.add('open'));
+  document.getElementById('btn-fechar-prop')?.addEventListener('click', () =>
+    document.getElementById('modal-prop').classList.remove('open'));
+  document.getElementById('btn-cancelar-prop')?.addEventListener('click', () =>
+    document.getElementById('modal-prop').classList.remove('open'));
+
+  document.getElementById('prop-busca')?.addEventListener('input', e => {
+    clearTimeout(_buscaTimer);
+    const q = e.target.value.trim();
+    if (q.length < 2) { document.getElementById('prop-resultados').innerHTML = ''; return; }
+    _buscaTimer = setTimeout(async () => {
+      try {
+        const data = await API.get(`/api/clientes?busca=${encodeURIComponent(q)}&por_pagina=5`);
+        const el = document.getElementById('prop-resultados');
+        el.innerHTML = data.clientes.map(c => `
+          <div style="padding:8px 12px;border:1px solid var(--md-outline-variant);border-radius:8px;cursor:pointer;margin-bottom:4px;font-size:.875rem"
+               onclick="selecionarProp('${c.id}','${_esc(c.nome_completo)}')">
+            ${_esc(c.nome_completo)} ${c.cpf ? `· ${c.cpf}` : ''}
+          </div>`).join('') || '<div class="text-muted" style="font-size:.8rem">Nenhum resultado.</div>';
+      } catch {}
+    }, 300);
+  });
+
+  document.getElementById('btn-salvar-prop')?.addEventListener('click', async () => {
+    const clienteId = document.getElementById('prop-cliente-id').value;
+    if (!clienteId) { alert('Selecione um cliente.'); return; }
+    const body = {
+      cliente_id: clienteId,
+      percentual_participacao: parseFloat(document.getElementById('prop-perc').value) || 100,
+      tipo_vinculo: document.getElementById('prop-tipo').value || 'proprietario',
+    };
+    try {
+      await API.post(`/api/imoveis/${_id}/proprietarios`, body);
+      document.getElementById('modal-prop').classList.remove('open');
+      _imovel = await API.get(`/api/imoveis/${_id}`);
+      carregarProprietarios();
+      document.getElementById('prop-cliente-id').value = '';
+      document.getElementById('prop-busca').value = '';
+      document.getElementById('prop-resultados').innerHTML = '';
+      document.getElementById('prop-selecionado').style.display = 'none';
+    } catch (err) { alert(err.message || 'Erro ao vincular.'); }
+  });
+}
+
+function selecionarProp(id, nome) {
+  document.getElementById('prop-cliente-id').value = id;
+  document.getElementById('prop-resultados').innerHTML = '';
+  document.getElementById('prop-busca').value = nome;
+  const el = document.getElementById('prop-selecionado');
+  el.textContent = '✓ ' + nome;
+  el.style.display = '';
+}
+
+function _esc(str = '') {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }

@@ -10,7 +10,8 @@ router.get('/:id', ctrl.buscarPorId);
 router.put('/:id', ctrl.editar);
 router.delete('/:id', ctrl.excluir);
 
-router.post('/:id/proprietarios',              ctrl.vincularProprietario);
-router.delete('/:id/proprietarios/:vinculoId', ctrl.desvincularProprietario);
+router.post('/:id/proprietarios',                   ctrl.vincularProprietario);
+router.put('/:id/proprietarios/:vinculoId',         ctrl.editarVinculo);
+router.delete('/:id/proprietarios/:vinculoId',      ctrl.desvincularProprietario);
 
 module.exports = router;

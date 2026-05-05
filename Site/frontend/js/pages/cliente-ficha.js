@@ -1,736 +1,487 @@
-/* ── Cliente Ficha ─────────────────────────────────────────── */
+/* ── Ficha do Cliente ─────────────────────────────────────── */
 verificarAutenticacao();
+initSidebar();
 
-const params    = new URLSearchParams(location.search);
-const clienteId = params.get('id');
-if (!clienteId) window.location.href = '/pages/clientes.html';
+const _id = new URLSearchParams(location.search).get('id');
+if (!_id) location.href = '/pages/clientes.html';
 
-let _cliente       = null;
-let _timelinePagina = 1;
-let _timelineTotal  = 0;
-let _contaEditandoId = null;
-let _imovelVincularId = null;
-let _cofreEditandoId  = null;
-let _vincularBuscaTimer = null;
+let _cliente = null;
+let _editandoConta = null;
+let _editandoCofre = null;
+let _tlFiltro = '';
+const _isAdmin = () => ['admin', 'superdev'].includes(Auth.usuario()?.role);
 
-document.addEventListener('DOMContentLoaded', async () => {
-  initSidebar();
+(async () => {
   await carregarCliente();
-  bindTabs();
-  bindTimeline();
-  bindContas();
-  bindConjuge();
-  bindImoveis();
-  bindCofre();
+  bindEventos();
+  ativarAba('dados');
+})();
 
-  // Admin-only tab
-  const u = usuario();
-  if (u && u.role === 'admin') {
-    document.querySelectorAll('.cf-tab-admin').forEach(t => t.style.display = '');
-  }
-});
-
-// ── Carregar cliente ──────────────────────────────────────────
 async function carregarCliente() {
   try {
-    _cliente = await API.get('/api/clientes/' + clienteId);
-    renderHero();
+    _cliente = await API.get(`/api/clientes/${_id}`);
+    renderHeader();
     renderDados();
-    renderContas();
     renderConjuge();
-    renderImoveis();
-
-    // Abrir tab direto se ?tab= na URL
-    const tabParam = params.get('tab');
-    if (tabParam) ativarTab(tabParam);
-    else carregarTimeline(true);
-  } catch (err) {
-    console.error(err);
+  } catch {
     alert('Erro ao carregar cliente.');
-    window.location.href = '/pages/clientes.html';
+    location.href = '/pages/clientes.html';
   }
 }
 
-// ── Hero ──────────────────────────────────────────────────────
-function renderHero() {
+function renderHeader() {
   const c = _cliente;
-  const iniciais = (c.nome_completo || '?').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-  document.getElementById('cf-hero-avatar').textContent = iniciais;
-  document.getElementById('cf-nome').textContent = c.nome_completo;
-  document.getElementById('cf-breadcrumb-nome').textContent = c.nome_completo;
+  const iniciais = (c.nome_completo || '?').split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  document.getElementById('ficha-avatar').textContent = iniciais;
+  document.getElementById('ficha-nome').textContent = c.nome_completo;
   document.title = c.nome_completo + ' — AgriFlow';
 
-  const meta = [];
-  if (c.tipo_pessoa) meta.push(`<span>${c.tipo_pessoa === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}</span>`);
-  if (c.municipio)   meta.push(`<span>📍 ${c.municipio}${c.uf ? '/' + c.uf : ''}</span>`);
-  if (c.celular)     meta.push(`<span>📱 ${c.celular}</span>`);
-  if (c.email)       meta.push(`<span>✉ ${c.email}</span>`);
-  document.getElementById('cf-hero-meta').innerHTML = meta.join('');
+  const partes = [];
+  if (c.cpf)       partes.push(`CPF: ${c.cpf}`);
+  if (c.cnpj)      partes.push(`CNPJ: ${c.cnpj}`);
+  if (c.municipio && c.uf) partes.push(`${c.municipio}/${c.uf}`);
+  if (c.celular)   partes.push(`📱 ${c.celular}`);
+  if (parseInt(c.total_imoveis) > 0) partes.push(`${c.total_imoveis} imóvel${c.total_imoveis !== '1' ? 's' : ''}`);
+  document.getElementById('ficha-meta').innerHTML = partes.map(p => `<span>${p}</span>`).join('');
+
+  const mostrarConjuge = ['casado', 'uniao_estavel'].includes(c.estado_civil);
+  document.getElementById('tab-btn-conjuge').style.display = mostrarConjuge ? '' : 'none';
 }
 
-// ── Dados pessoais ────────────────────────────────────────────
 function renderDados() {
   const c = _cliente;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
   const isPJ = c.tipo_pessoa === 'PJ';
-  const f = (v) => v || '<span class="empty">—</span>';
 
-  const html = `
-    <div class="cf-section-title">Identificação</div>
-    ${isPJ ? campo('Razão Social', c.nome_completo) : campo('Nome Completo', c.nome_completo)}
-    ${isPJ ? campo('Nome Fantasia', c.nome_fantasia) : ''}
-    ${!isPJ ? campo('CPF', c.cpf) : campo('CNPJ', c.cnpj)}
-    ${!isPJ ? campo('RG', c.rg) : ''}
-    ${!isPJ ? campo('Data de Nascimento', c.data_nascimento ? new Date(c.data_nascimento).toLocaleDateString('pt-BR') : null) : ''}
-    ${!isPJ ? campo('Nacionalidade', c.nacionalidade) : ''}
-    ${!isPJ ? campo('Estado Civil', formatEstadoCivil(c.estado_civil)) : ''}
-    ${campo('Profissão / Atividade', c.profissao)}
-    ${campo('DAP / CAF', c.dap_caf)}
-    ${campo('Inscrição Estadual', c.inscricao_estadual)}
-    ${campo('NIRF', c.nirf)}
+  document.getElementById('f-tipo-pessoa').value = c.tipo_pessoa;
+  document.getElementById('btn-tipo-pf').classList.toggle('active', !isPJ);
+  document.getElementById('btn-tipo-pj').classList.toggle('active', isPJ);
+  document.getElementById('g-cpf').style.display          = isPJ ? 'none' : '';
+  document.getElementById('g-cnpj').style.display         = isPJ ? '' : 'none';
+  document.getElementById('g-nome-fantasia').style.display = isPJ ? '' : 'none';
+  document.getElementById('g-rg').style.display           = isPJ ? 'none' : '';
+  document.getElementById('g-nascimento').style.display   = isPJ ? 'none' : '';
 
-    <div class="cf-section-title">Endereço</div>
-    ${campo('CEP', c.cep)}
-    ${campo('Logradouro', c.logradouro ? c.logradouro + (c.numero ? ', ' + c.numero : '') + (c.complemento ? ' — ' + c.complemento : '') : null)}
-    ${campo('Bairro', c.bairro)}
-    ${campo('Município / UF', c.municipio ? c.municipio + (c.uf ? '/' + c.uf : '') : null)}
-    ${campo('Endereço Rural', c.endereco_rural)}
-    ${campo('Caixa Postal', c.caixa_postal)}
+  set('f-nome',           c.nome_completo);
+  set('f-cpf',            c.cpf);
+  set('f-cnpj',           c.cnpj);
+  set('f-nome-fantasia',  c.nome_fantasia);
+  set('f-rg',             c.rg);
+  set('f-nascimento',     c.data_nascimento?.slice(0, 10));
+  set('f-estado-civil',   c.estado_civil);
+  set('f-profissao',      c.profissao);
+  set('f-dap',            c.dap_caf);
+  set('f-ie',             c.inscricao_estadual);
+  set('f-nirf',           c.nirf);
+  set('f-cep',            c.cep);
+  set('f-logradouro',     c.logradouro);
+  set('f-numero',         c.numero);
+  set('f-complemento',    c.complemento);
+  set('f-bairro',         c.bairro);
+  set('f-municipio',      c.municipio);
+  set('f-uf',             c.uf);
+  set('f-endereco-rural', c.endereco_rural);
+  set('f-celular',        c.celular);
+  set('f-celular2',       c.celular2);
+  set('f-telefone',       c.telefone_fixo);
+  set('f-email',          c.email);
+  set('f-email2',         c.email2);
+  set('f-ref-nome',       c.contato_referencia_nome);
+  set('f-ref-tel',        c.contato_referencia_telefone);
 
-    <div class="cf-section-title">Contato</div>
-    ${campo('Celular', c.celular)}
-    ${campo('Celular 2', c.celular2)}
-    ${campo('Telefone Fixo', c.telefone_fixo)}
-    ${campo('E-mail', c.email)}
-    ${campo('E-mail 2', c.email2)}
-    ${campo('Contato de Referência', c.contato_referencia_nome ? c.contato_referencia_nome + (c.contato_referencia_telefone ? ' — ' + c.contato_referencia_telefone : '') : null)}
-  `;
-  document.getElementById('dados-grid').innerHTML = html;
+  if (c.data_nascimento) {
+    const anos = Math.floor((new Date() - new Date(c.data_nascimento + 'T12:00:00')) / (365.25 * 24 * 3600 * 1000));
+    document.getElementById('f-idade').textContent = `(${anos} anos)`;
+  }
 }
 
-function campo(label, val) {
-  const vazio = !val;
-  return `<div class="cf-field">
-    <div class="cf-field-label">${label}</div>
-    <div class="cf-field-value${vazio ? ' empty' : ''}">${val || '—'}</div>
-  </div>`;
+function renderConjuge() {
+  const cj = _cliente.conjuge;
+  if (!cj) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+  set('c-nome',       cj.nome_completo);
+  set('c-cpf',        cj.cpf);
+  set('c-rg',         cj.rg);
+  set('c-nascimento', cj.data_nascimento?.slice(0, 10));
+  set('c-profissao',  cj.profissao);
+  set('c-telefone',   cj.telefone);
+  set('c-email',      cj.email);
+  set('c-regime',     cj.regime_bens);
+  set('c-dap',        cj.dap_caf);
 }
 
-function formatEstadoCivil(v) {
-  const m = { solteiro:'Solteiro(a)', casado:'Casado(a)', divorciado:'Divorciado(a)', viuvo:'Viúvo(a)', uniao_estavel:'União estável' };
-  return m[v] || v;
-}
-
-// ── Tabs ──────────────────────────────────────────────────────
-function bindTabs() {
-  document.querySelectorAll('.cf-tab').forEach(tab => {
-    tab.addEventListener('click', () => ativarTab(tab.dataset.tab));
-  });
-  document.getElementById('btn-editar-cliente').addEventListener('click', () => {
-    sessionStorage.setItem('editarCliente', JSON.stringify(_cliente));
-    window.location.href = `/pages/clientes.html?editar=${clienteId}`;
-  });
-}
-
-function ativarTab(nome) {
-  document.querySelectorAll('.cf-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === nome));
-  document.querySelectorAll('.cf-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + nome));
-  if (nome === 'timeline') carregarTimeline(true);
+/* ── Abas ─────────────────────────────────────────────────── */
+function ativarAba(nome) {
+  document.querySelectorAll('.ficha-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === nome));
+  document.querySelectorAll('.ficha-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${nome}`)?.classList.add('active');
+  if (nome === 'bancario') carregarContas();
+  if (nome === 'imoveis')  carregarImoveisCliente();
+  if (nome === 'timeline') carregarTimeline();
   if (nome === 'cofre')    carregarCofre();
 }
 
-// ── Contas bancárias ──────────────────────────────────────────
-function renderContas() {
-  const contas = _cliente.contas || [];
-  const el = document.getElementById('contas-lista');
-  if (contas.length === 0) {
-    el.innerHTML = '<p style="color:var(--cinza-medio);font-size:.9rem">Nenhuma conta cadastrada.</p>';
-    return;
-  }
-  const TIPO = { corrente:'Corrente', poupanca:'Poupança', salario:'Salário', investimento:'Investimento' };
-  el.innerHTML = contas.map(ct => `
-    <div class="cf-conta-card">
-      <div>
-        <div class="cf-conta-banco">${ct.banco}</div>
-        <div class="cf-conta-info-grid">
-          ${campoInline('Agência', ct.agencia)}
-          ${campoInline('Conta', ct.numero_conta + ' (' + (TIPO[ct.tipo_conta]||ct.tipo_conta) + ')')}
-          ${ct.titular ? campoInline('Titular', ct.titular) : ''}
-          ${ct.chave_pix ? campoInline('PIX', ct.chave_pix) : ''}
-          ${ct.observacao ? campoInline('Obs.', ct.observacao) : ''}
-        </div>
-      </div>
-      <div class="cf-conta-actions">
-        <button class="cli-btn-acao conta-btn-editar" data-id="${ct.id}" title="Editar">
-          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke-width="2"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2"/>
-          </svg>
-        </button>
-        <button class="cli-btn-acao excluir conta-btn-excluir" data-id="${ct.id}" title="Excluir">
-          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <polyline points="3 6 5 6 21 6" stroke-width="2"/><path d="M19 6l-1 14H6L5 6" stroke-width="2"/>
-            <path d="M10 11v6M14 11v6" stroke-width="2"/><path d="M9 6V4h6v2" stroke-width="2"/>
-          </svg>
-        </button>
-      </div>
-    </div>`).join('');
-
-  el.querySelectorAll('.conta-btn-editar').forEach(btn => {
-    btn.addEventListener('click', () => abrirModalConta(btn.dataset.id));
-  });
-  el.querySelectorAll('.conta-btn-excluir').forEach(btn => {
-    btn.addEventListener('click', () => excluirConta(btn.dataset.id));
-  });
-}
-
-function campoInline(label, val) {
-  return `<div>
-    <div class="cf-field-label" style="font-size:.7rem">${label}</div>
-    <div class="cf-field-value" style="font-size:.84rem">${val || '—'}</div>
-  </div>`;
-}
-
-function bindContas() {
-  document.getElementById('btn-nova-conta').addEventListener('click', () => abrirModalConta());
-  document.getElementById('btn-fechar-modal-conta').addEventListener('click', () => fecharModal('modal-conta'));
-  document.getElementById('btn-cancelar-conta').addEventListener('click', () => fecharModal('modal-conta'));
-  document.getElementById('modal-conta').addEventListener('click', e => { if (e.target.id === 'modal-conta') fecharModal('modal-conta'); });
-  document.getElementById('btn-salvar-conta').addEventListener('click', salvarConta);
-}
-
-function abrirModalConta(id = null) {
-  _contaEditandoId = id;
-  document.getElementById('modal-conta-titulo').textContent = id ? 'Editar Conta' : 'Nova Conta';
-  ['banco','agencia','numero','titular','pix','pix-tipo','obs'].forEach(f => {
-    const el = document.getElementById('conta-' + f);
-    if (el) el.value = '';
-  });
-  document.getElementById('conta-tipo').value = 'corrente';
-  if (id) {
-    const ct = _cliente.contas.find(c => c.id === id);
-    if (ct) {
-      document.getElementById('conta-banco').value    = ct.banco || '';
-      document.getElementById('conta-agencia').value  = ct.agencia || '';
-      document.getElementById('conta-numero').value   = ct.numero_conta || '';
-      document.getElementById('conta-tipo').value     = ct.tipo_conta || 'corrente';
-      document.getElementById('conta-titular').value  = ct.titular || '';
-      document.getElementById('conta-pix').value      = ct.chave_pix || '';
-      document.getElementById('conta-pix-tipo').value = ct.tipo_chave_pix || '';
-      document.getElementById('conta-obs').value      = ct.observacao || '';
-    }
-  }
-  document.getElementById('modal-conta').style.display = 'flex';
-}
-
-async function salvarConta() {
-  const btn = document.getElementById('btn-salvar-conta');
-  const body = {
-    banco:        document.getElementById('conta-banco').value.trim(),
-    agencia:      document.getElementById('conta-agencia').value.trim(),
-    numero_conta: document.getElementById('conta-numero').value.trim(),
-    tipo_conta:   document.getElementById('conta-tipo').value,
-    titular:      document.getElementById('conta-titular').value  || undefined,
-    chave_pix:    document.getElementById('conta-pix').value      || undefined,
-    tipo_chave_pix: document.getElementById('conta-pix-tipo').value || undefined,
-    observacao:   document.getElementById('conta-obs').value      || undefined,
-  };
-  if (!body.banco || !body.agencia || !body.numero_conta) {
-    alert('Banco, agência e número são obrigatórios.');
-    return;
-  }
-  btn.disabled = true;
+/* ── Contas bancárias ─────────────────────────────────────── */
+async function carregarContas() {
+  const el = document.getElementById('lista-contas');
+  el.innerHTML = '<div class="text-muted" style="padding:16px">Carregando...</div>';
   try {
-    if (_contaEditandoId) {
-      await API.put(`/api/clientes/${clienteId}/contas/${_contaEditandoId}`, body);
-    } else {
-      await API.post(`/api/clientes/${clienteId}/contas`, body);
-    }
-    fecharModal('modal-conta');
-    _cliente = await API.get('/api/clientes/' + clienteId);
-    renderContas();
-  } catch (err) {
-    alert(err.message || 'Erro ao salvar conta.');
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-async function excluirConta(id) {
-  if (!confirm('Remover esta conta bancária?')) return;
-  try {
-    await API.delete(`/api/clientes/${clienteId}/contas/${id}`);
-    _cliente = await API.get('/api/clientes/' + clienteId);
-    renderContas();
-  } catch (err) {
-    alert('Erro ao excluir conta.');
-  }
-}
-
-// ── Cônjuge ───────────────────────────────────────────────────
-function renderConjuge() {
-  const el = document.getElementById('conjuge-conteudo');
-  const cj = _cliente.conjuge;
-  const REGIME = {
-    comunhao_parcial:'Comunhão Parcial', comunhao_universal:'Comunhão Universal',
-    separacao_total:'Separação Total', participacao_aquestos:'Part. de Aquestos',
-  };
-  if (!cj) {
-    el.innerHTML = `
-      <div class="cf-conjuge-empty">
-        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin:0 auto;display:block;color:var(--cinza-medio)">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="2"/>
-        </svg>
-        <p>Nenhum cônjuge cadastrado.</p>
-        <button class="btn btn-secondary btn-sm" id="btn-add-conjuge">Adicionar cônjuge</button>
-      </div>`;
-    document.getElementById('btn-add-conjuge').addEventListener('click', () => abrirModalConjuge());
-    return;
-  }
-  el.innerHTML = `
-    <div class="cf-panel-header">
-      <h3>Dados do Cônjuge</h3>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary btn-sm" id="btn-editar-conjuge">Editar</button>
-        <button class="btn btn-secondary btn-sm" id="btn-excluir-conjuge" style="color:#EF4444">Remover</button>
-      </div>
-    </div>
-    <div class="cf-section-grid">
-      ${campo('Nome Completo', cj.nome_completo)}
-      ${campo('CPF', cj.cpf)}
-      ${campo('RG', cj.rg)}
-      ${campo('Data de Nascimento', cj.data_nascimento ? new Date(cj.data_nascimento).toLocaleDateString('pt-BR') : null)}
-      ${campo('Profissão', cj.profissao)}
-      ${campo('Telefone', cj.telefone)}
-      ${campo('E-mail', cj.email)}
-      ${campo('Regime de Bens', REGIME[cj.regime_bens] || cj.regime_bens)}
-      ${campo('DAP / CAF', cj.dap_caf)}
-    </div>`;
-  document.getElementById('btn-editar-conjuge').addEventListener('click', () => abrirModalConjuge(cj));
-  document.getElementById('btn-excluir-conjuge').addEventListener('click', excluirConjuge);
-}
-
-function bindConjuge() {
-  document.getElementById('btn-fechar-modal-conjuge').addEventListener('click', () => fecharModal('modal-conjuge'));
-  document.getElementById('btn-cancelar-conjuge').addEventListener('click', () => fecharModal('modal-conjuge'));
-  document.getElementById('modal-conjuge').addEventListener('click', e => { if (e.target.id === 'modal-conjuge') fecharModal('modal-conjuge'); });
-  document.getElementById('btn-salvar-conjuge').addEventListener('click', salvarConjuge);
-}
-
-function abrirModalConjuge(cj = null) {
-  ['nome','cpf','rg','nascimento','profissao','telefone','email','regime','dap'].forEach(f => {
-    const el = document.getElementById('conjuge-' + f);
-    if (el) el.value = '';
-  });
-  if (cj) {
-    document.getElementById('conjuge-nome').value      = cj.nome_completo || '';
-    document.getElementById('conjuge-cpf').value       = cj.cpf || '';
-    document.getElementById('conjuge-rg').value        = cj.rg || '';
-    document.getElementById('conjuge-nascimento').value= cj.data_nascimento?.slice(0,10) || '';
-    document.getElementById('conjuge-profissao').value = cj.profissao || '';
-    document.getElementById('conjuge-telefone').value  = cj.telefone || '';
-    document.getElementById('conjuge-email').value     = cj.email || '';
-    document.getElementById('conjuge-regime').value    = cj.regime_bens || '';
-    document.getElementById('conjuge-dap').value       = cj.dap_caf || '';
-  }
-  document.getElementById('modal-conjuge').style.display = 'flex';
-}
-
-async function salvarConjuge() {
-  const btn = document.getElementById('btn-salvar-conjuge');
-  const nome = document.getElementById('conjuge-nome').value.trim();
-  if (!nome) { alert('Nome é obrigatório.'); return; }
-  const body = {
-    nome_completo:  nome,
-    cpf:            document.getElementById('conjuge-cpf').value       || undefined,
-    rg:             document.getElementById('conjuge-rg').value        || undefined,
-    data_nascimento:document.getElementById('conjuge-nascimento').value || undefined,
-    profissao:      document.getElementById('conjuge-profissao').value || undefined,
-    telefone:       document.getElementById('conjuge-telefone').value  || undefined,
-    email:          document.getElementById('conjuge-email').value     || undefined,
-    regime_bens:    document.getElementById('conjuge-regime').value    || undefined,
-    dap_caf:        document.getElementById('conjuge-dap').value       || undefined,
-  };
-  btn.disabled = true;
-  try {
-    await API.put(`/api/clientes/${clienteId}/conjuge`, body);
-    fecharModal('modal-conjuge');
-    _cliente = await API.get('/api/clientes/' + clienteId);
-    renderConjuge();
-  } catch (err) {
-    alert(err.message || 'Erro ao salvar cônjuge.');
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-async function excluirConjuge() {
-  if (!confirm('Remover dados do cônjuge?')) return;
-  try {
-    await API.delete(`/api/clientes/${clienteId}/conjuge`);
-    _cliente = await API.get('/api/clientes/' + clienteId);
-    renderConjuge();
-  } catch (err) {
-    alert('Erro ao remover cônjuge.');
-  }
-}
-
-// ── Imóveis ───────────────────────────────────────────────────
-function renderImoveis() {
-  const el = document.getElementById('imoveis-lista');
-  const imoveis = _cliente.imoveis || [];
-  if (imoveis.length === 0) {
-    el.innerHTML = '<p style="color:var(--cinza-medio);font-size:.9rem">Nenhum imóvel vinculado.</p>';
-    return;
-  }
-  const VINCULO = { proprietario:'Proprietário', posseiro:'Posseiro', arrendatario:'Arrendatário', comodatario:'Comodatário', outro:'Outro' };
-  el.innerHTML = imoveis.map(im => `
-    <div class="cf-imovel-card" data-id="${im.id}">
-      <div class="cf-imovel-icon">
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path d="M3 9.5L12 4l9 5.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" stroke-width="2"/>
-        </svg>
-      </div>
-      <div class="cf-imovel-info">
-        <div class="cf-imovel-nome">${im.denominacao}</div>
-        <div class="cf-imovel-sub">${im.municipio}/${im.uf} · ${parseFloat(im.area_total_ha).toLocaleString('pt-BR')} ha</div>
-      </div>
-      <span class="cf-imovel-badge">${VINCULO[im.tipo_vinculo] || im.tipo_vinculo || 'Proprietário'} ${im.percentual_participacao < 100 ? '(' + im.percentual_participacao + '%)' : ''}</span>
-      <button class="cli-btn-acao excluir imovel-btn-desvincular" data-vinculo="${im.vinculo_id}" title="Desvincular" style="flex-shrink:0">
-        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <line x1="18" y1="6" x2="6" y2="18" stroke-width="2"/><line x1="6" y1="6" x2="18" y2="18" stroke-width="2"/>
-        </svg>
-      </button>
-    </div>`).join('');
-
-  el.querySelectorAll('.cf-imovel-card').forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.closest('.imovel-btn-desvincular')) return;
-      window.location.href = `/pages/imovel-ficha.html?id=${card.dataset.id}`;
-    });
-  });
-  el.querySelectorAll('.imovel-btn-desvincular').forEach(btn => {
-    btn.addEventListener('click', () => desvincularImovel(btn.dataset.vinculo));
-  });
-}
-
-function bindImoveis() {
-  document.getElementById('btn-vincular-imovel').addEventListener('click', () => {
-    _imovelVincularId = null;
-    document.getElementById('vincular-busca').value = '';
-    document.getElementById('vincular-resultados').innerHTML = '';
-    document.getElementById('btn-confirmar-vincular').disabled = true;
-    document.getElementById('modal-vincular-imovel').style.display = 'flex';
-  });
-  document.getElementById('btn-fechar-modal-vincular').addEventListener('click', () => fecharModal('modal-vincular-imovel'));
-  document.getElementById('btn-cancelar-vincular').addEventListener('click', () => fecharModal('modal-vincular-imovel'));
-  document.getElementById('modal-vincular-imovel').addEventListener('click', e => {
-    if (e.target.id === 'modal-vincular-imovel') fecharModal('modal-vincular-imovel');
-  });
-
-  document.getElementById('vincular-busca').addEventListener('input', e => {
-    clearTimeout(_vincularBuscaTimer);
-    _vincularBuscaTimer = setTimeout(() => buscarImoveisParaVincular(e.target.value), 350);
-  });
-  document.getElementById('btn-confirmar-vincular').addEventListener('click', confirmarVincularImovel);
-}
-
-async function buscarImoveisParaVincular(busca) {
-  if (!busca.trim()) { document.getElementById('vincular-resultados').innerHTML = ''; return; }
-  try {
-    const data = await API.get('/api/imoveis?busca=' + encodeURIComponent(busca) + '&por_pagina=8');
-    const el = document.getElementById('vincular-resultados');
-    if (data.imoveis.length === 0) {
-      el.innerHTML = '<p style="color:var(--cinza-medio);font-size:.85rem;padding:8px">Nenhum imóvel encontrado.</p>';
-      return;
-    }
-    el.innerHTML = data.imoveis.map(im => `
-      <div class="cf-vincular-item" data-id="${im.id}">
-        <div>${im.denominacao}</div>
-        <div class="cf-vincular-sub">${im.municipio}/${im.uf} · ${parseFloat(im.area_total_ha).toLocaleString('pt-BR')} ha</div>
-      </div>`).join('');
-    el.querySelectorAll('.cf-vincular-item').forEach(item => {
-      item.addEventListener('click', () => {
-        el.querySelectorAll('.cf-vincular-item').forEach(i => i.classList.remove('selected'));
-        item.classList.add('selected');
-        _imovelVincularId = item.dataset.id;
-        document.getElementById('btn-confirmar-vincular').disabled = false;
-      });
-    });
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-async function confirmarVincularImovel() {
-  if (!_imovelVincularId) return;
-  const btn = document.getElementById('btn-confirmar-vincular');
-  const body = {
-    cliente_id: clienteId,
-    tipo_vinculo: document.getElementById('vincular-tipo').value,
-    percentual_participacao: parseFloat(document.getElementById('vincular-percentual').value) || 100,
-  };
-  btn.disabled = true;
-  try {
-    await API.post(`/api/imoveis/${_imovelVincularId}/proprietarios`, body);
-    fecharModal('modal-vincular-imovel');
-    _cliente = await API.get('/api/clientes/' + clienteId);
-    renderImoveis();
-  } catch (err) {
-    alert(err.message || 'Erro ao vincular imóvel.');
-    btn.disabled = false;
-  }
-}
-
-async function desvincularImovel(vinculoId) {
-  if (!confirm('Desvincular este imóvel do cliente?')) return;
-  try {
-    // Find which imovel this vinculo belongs to
-    const im = _cliente.imoveis.find(i => i.vinculo_id === vinculoId);
-    if (!im) return;
-    await API.delete(`/api/imoveis/${im.id}/proprietarios/${vinculoId}`);
-    _cliente = await API.get('/api/clientes/' + clienteId);
-    renderImoveis();
-  } catch (err) {
-    alert('Erro ao desvincular imóvel.');
-  }
-}
-
-// ── Timeline ──────────────────────────────────────────────────
-function bindTimeline() {
-  document.getElementById('timeline-tipo').addEventListener('change', e => {
-    document.getElementById('timeline-lembrete-data').style.display =
-      e.target.value === 'lembrete' ? 'flex' : 'none';
-  });
-  document.getElementById('btn-add-timeline').addEventListener('click', adicionarTimeline);
-  document.getElementById('btn-mais-timeline').addEventListener('click', () => {
-    _timelinePagina++;
-    carregarTimeline(false);
-  });
-}
-
-async function carregarTimeline(reset) {
-  if (reset) {
-    _timelinePagina = 1;
-    document.getElementById('timeline-lista').innerHTML = '<div style="color:var(--cinza-medio);font-size:.85rem;padding:8px">Carregando...</div>';
-  }
-  try {
-    const data = await API.get(`/api/clientes/${clienteId}/timeline?pagina=${_timelinePagina}&por_pagina=20`);
-    _timelineTotal = data.total;
-
-    const lista = document.getElementById('timeline-lista');
-    if (reset) lista.innerHTML = '';
-
-    if (data.entradas.length === 0 && reset) {
-      lista.innerHTML = '<p style="color:var(--cinza-medio);font-size:.85rem;padding:8px">Nenhuma entrada na timeline.</p>';
-    } else {
-      lista.insertAdjacentHTML('beforeend', data.entradas.map(renderEntrada).join(''));
-    }
-
-    const carregados = (_timelinePagina - 1) * 20 + data.entradas.length;
-    const mais = document.getElementById('timeline-mais');
-    mais.style.display = carregados < _timelineTotal ? 'block' : 'none';
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-function renderEntrada(e) {
-  const dotClass = e.is_sistema ? 'sistema' : (e.tipo === 'lembrete' ? 'lembrete' : '');
-  const data = new Date(e.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
-  const lembrete = e.tipo === 'lembrete' && e.data_lembrete
-    ? `<div class="cf-entry-lembrete-badge">⏰ Lembrete: ${new Date(e.data_lembrete).toLocaleString('pt-BR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>`
-    : '';
-  return `
-  <div class="cf-entry">
-    <div class="cf-entry-dot ${dotClass}"></div>
-    <div class="cf-entry-body">
-      ${lembrete}
-      <div class="cf-entry-texto">${e.texto}</div>
-      <div class="cf-entry-meta">${e.criado_por_nome || 'Sistema'} · ${data}</div>
-    </div>
-  </div>`;
-}
-
-async function adicionarTimeline() {
-  const btn  = document.getElementById('btn-add-timeline');
-  const tipo = document.getElementById('timeline-tipo').value;
-  const texto = document.getElementById('timeline-texto').value.trim();
-  const data_lembrete = document.getElementById('timeline-data-lembrete').value;
-
-  if (!texto) { alert('Escreva uma nota antes de adicionar.'); return; }
-  if (tipo === 'lembrete' && !data_lembrete) { alert('Informe a data/hora do lembrete.'); return; }
-
-  btn.disabled = true;
-  try {
-    await API.post(`/api/clientes/${clienteId}/timeline`, {
-      tipo, texto,
-      data_lembrete: data_lembrete || undefined,
-    });
-    document.getElementById('timeline-texto').value = '';
-    document.getElementById('timeline-data-lembrete').value = '';
-    document.getElementById('timeline-tipo').value = 'manual';
-    document.getElementById('timeline-lembrete-data').style.display = 'none';
-    _timelinePagina = 1;
-    carregarTimeline(true);
-  } catch (err) {
-    alert(err.message || 'Erro ao adicionar nota.');
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-// ── Cofre ─────────────────────────────────────────────────────
-function bindCofre() {
-  document.getElementById('btn-nova-credencial').addEventListener('click', () => abrirModalCofre());
-  document.getElementById('btn-fechar-modal-cofre').addEventListener('click', () => fecharModal('modal-cofre'));
-  document.getElementById('btn-cancelar-cofre').addEventListener('click', () => fecharModal('modal-cofre'));
-  document.getElementById('modal-cofre').addEventListener('click', e => { if (e.target.id === 'modal-cofre') fecharModal('modal-cofre'); });
-  document.getElementById('btn-salvar-cofre').addEventListener('click', salvarCofre);
-}
-
-async function carregarCofre() {
-  const el = document.getElementById('cofre-lista');
-  el.innerHTML = '<div style="color:var(--cinza-medio);font-size:.85rem">Carregando...</div>';
-  try {
-    const rows = await API.get(`/api/clientes/${clienteId}/cofre`);
-    if (rows.length === 0) {
-      el.innerHTML = '<p style="color:var(--cinza-medio);font-size:.9rem">Nenhuma credencial armazenada.</p>';
-      return;
-    }
-    el.innerHTML = rows.map(cr => `
-      <div class="cf-cofre-card">
-        <div>
-          <div class="cf-cofre-sistema">${cr.sistema}</div>
-          <div class="cf-cofre-login">${cr.login}</div>
-          ${cr.url ? `<a href="${cr.url}" class="cf-cofre-url" target="_blank" rel="noopener">${cr.url}</a>` : ''}
-          ${cr.observacao ? `<div style="font-size:.8rem;color:var(--cinza-medio);margin-top:4px">${cr.observacao}</div>` : ''}
-          <div id="cofre-senha-${cr.id}" style="display:none" class="cf-cofre-senha-reveal">
-            <span id="cofre-senha-val-${cr.id}"></span>
-            <button onclick="document.getElementById('cofre-senha-${cr.id}').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:.85rem;color:var(--cinza-medio)">✕</button>
+    const contas = await API.get(`/api/clientes/${_id}/contas`);
+    if (!contas.length) { el.innerHTML = '<div class="text-muted" style="padding:24px;text-align:center">Nenhuma conta cadastrada.</div>'; return; }
+    const TIPO = { corrente:'Conta Corrente', poupanca:'Poupança', salario:'Salário', investimento:'Investimento' };
+    const PIX  = { cpf_cnpj:'CPF/CNPJ', telefone:'Tel', email:'E-mail', aleatoria:'Aleatória' };
+    el.innerHTML = contas.map(c => `
+      <div class="conta-card">
+        <div class="conta-info">
+          <div class="conta-banco">🏦 ${_esc(c.banco)}</div>
+          <div class="conta-detalhes">
+            Ag ${_esc(c.agencia)} · ${TIPO[c.tipo_conta] || c.tipo_conta} ${_esc(c.numero_conta)}<br>
+            Titular: ${_esc(c.titular || _cliente.nome_completo)}
+            ${c.chave_pix ? `<br>PIX (${PIX[c.tipo_chave_pix] || c.tipo_chave_pix}): ${_esc(c.chave_pix)}` : ''}
+            ${c.observacao ? `<br><em>${_esc(c.observacao)}</em>` : ''}
           </div>
         </div>
-        <div class="cf-cofre-actions">
-          <button class="cli-btn-acao cofre-btn-revelar" data-id="${cr.id}" title="Revelar senha">
-            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke-width="2"/>
-              <circle cx="12" cy="12" r="3" stroke-width="2"/>
-            </svg>
-          </button>
-          <button class="cli-btn-acao cofre-btn-copiar" data-id="${cr.id}" title="Copiar senha">
-            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <rect x="9" y="9" width="13" height="13" rx="2" stroke-width="2"/>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke-width="2"/>
-            </svg>
-          </button>
-          <button class="cli-btn-acao cofre-btn-editar" data-id="${cr.id}" title="Editar">
-            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke-width="2"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2"/>
-            </svg>
-          </button>
-          <button class="cli-btn-acao excluir cofre-btn-excluir" data-id="${cr.id}" title="Excluir">
-            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <polyline points="3 6 5 6 21 6" stroke-width="2"/>
-              <path d="M19 6l-1 14H6L5 6" stroke-width="2"/>
-              <path d="M10 11v6M14 11v6" stroke-width="2"/>
-              <path d="M9 6V4h6v2" stroke-width="2"/>
-            </svg>
-          </button>
+        <div class="conta-acoes">
+          <button class="btn btn-secondary btn-sm" onclick='abrirModalConta(${JSON.stringify(c)})'>✏️</button>
+          <button class="btn btn-danger btn-sm"    onclick="excluirConta('${c.id}')">🗑️</button>
         </div>
       </div>`).join('');
-
-    el.querySelectorAll('.cofre-btn-revelar').forEach(btn => {
-      btn.addEventListener('click', () => revelarSenha(btn.dataset.id));
-    });
-    el.querySelectorAll('.cofre-btn-copiar').forEach(btn => {
-      btn.addEventListener('click', () => copiarSenha(btn.dataset.id, btn));
-    });
-    el.querySelectorAll('.cofre-btn-editar').forEach(btn => {
-      btn.addEventListener('click', () => abrirModalCofre(btn.dataset.id));
-    });
-    el.querySelectorAll('.cofre-btn-excluir').forEach(btn => {
-      btn.addEventListener('click', () => excluirCredencial(btn.dataset.id));
-    });
-  } catch (err) {
-    el.innerHTML = '<p style="color:#EF4444;font-size:.85rem">Erro ao carregar cofre.</p>';
-  }
+  } catch { el.innerHTML = '<div class="text-muted" style="padding:16px">Erro ao carregar contas.</div>'; }
 }
 
-async function revelarSenha(id) {
+function abrirModalConta(c = null) {
+  _editandoConta = c?.id || null;
+  document.getElementById('modal-conta-titulo').textContent = c ? 'Editar conta' : 'Nova conta bancária';
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  set('mc-banco',    c?.banco);
+  set('mc-agencia',  c?.agencia);
+  set('mc-numero',   c?.numero_conta);
+  set('mc-tipo',     c?.tipo_conta);
+  set('mc-titular',  c?.titular || _cliente.nome_completo);
+  set('mc-doc',      c?.cpf_cnpj_titular || (_cliente.cpf || _cliente.cnpj || ''));
+  set('mc-pix',      c?.chave_pix);
+  set('mc-tipo-pix', c?.tipo_chave_pix);
+  set('mc-obs',      c?.observacao);
+  document.getElementById('modal-conta').classList.add('open');
+}
+
+async function excluirConta(contaId) {
+  if (!confirm('Excluir esta conta?')) return;
+  try { await API.delete(`/api/clientes/${_id}/contas/${contaId}`); carregarContas(); }
+  catch { alert('Erro ao excluir conta.'); }
+}
+
+/* ── Imóveis vinculados ───────────────────────────────────── */
+async function carregarImoveisCliente() {
+  const el = document.getElementById('lista-imoveis-cliente');
+  el.innerHTML = '<div class="text-muted" style="padding:16px">Carregando...</div>';
   try {
-    const { senha } = await API.get(`/api/clientes/${clienteId}/cofre/${id}/revelar`);
-    document.getElementById('cofre-senha-val-' + id).textContent = senha;
-    document.getElementById('cofre-senha-' + id).style.display = 'flex';
-  } catch (err) {
-    alert('Erro ao revelar senha.');
-  }
+    const imoveis = _cliente.imoveis || [];
+    if (!imoveis.length) { el.innerHTML = '<div class="text-muted" style="padding:24px;text-align:center">Nenhum imóvel vinculado.</div>'; return; }
+    const CCIR = { em_dia:'✅ CCIR Em dia', vencido:'⚠️ CCIR Vencido', em_renovacao:'🔄 CCIR Em renovação' };
+    const CAR  = { ativo:'✅ CAR Ativo', pendente_analise:'⏳ CAR Pendente', cancelado:'❌ CAR Cancelado', suspenso:'⚠️ CAR Suspenso' };
+    el.innerHTML = imoveis.map(i => `
+      <div class="imovel-card" onclick="window.location.href='/pages/imovel-ficha.html?id=${i.id}'">
+        <div class="imovel-card-nome">🌾 ${_esc(i.denominacao)}</div>
+        <div class="imovel-card-meta">
+          <span>${parseFloat(i.area_total_ha).toLocaleString('pt-BR',{minimumFractionDigits:2})} ha</span>
+          <span>${_esc(i.municipio)}/${_esc(i.uf)}</span>
+          ${i.situacao_ccir ? `<span>${CCIR[i.situacao_ccir] || i.situacao_ccir}</span>` : ''}
+          ${i.situacao_car  ? `<span>${CAR[i.situacao_car]   || i.situacao_car}</span>` : ''}
+          <span>Participação: ${i.percentual_participacao}%</span>
+        </div>
+      </div>`).join('');
+  } catch { el.innerHTML = '<div class="text-muted">Erro.</div>'; }
 }
 
-async function copiarSenha(id, btn) {
+/* ── Timeline ─────────────────────────────────────────────── */
+async function carregarTimeline() {
+  const el = document.getElementById('tl-lista');
+  el.innerHTML = '';
   try {
-    const { senha } = await API.post(`/api/clientes/${clienteId}/cofre/${id}/copiar`);
-    await navigator.clipboard.writeText(senha);
-    const orig = btn.title;
-    btn.title = 'Copiado!';
-    btn.style.color = 'var(--verde)';
-    setTimeout(() => { btn.title = orig; btn.style.color = ''; }, 2000);
-  } catch (err) {
-    alert('Erro ao copiar senha.');
-  }
+    const params = new URLSearchParams({ pagina: 1, por_pagina: 50 });
+    if (_tlFiltro) params.set('tipo', _tlFiltro);
+    const data = await API.get(`/api/clientes/${_id}/timeline?${params}`);
+    const entradas = Array.isArray(data) ? data : (data.entradas || []);
+    if (!entradas.length) { el.innerHTML = '<div class="text-muted" style="padding:16px;text-align:center">Nenhuma entrada.</div>'; return; }
+    const grupos = {};
+    entradas.forEach(e => {
+      const d = new Date(e.created_at);
+      const hoje = new Date(); const ontem = new Date(hoje); ontem.setDate(hoje.getDate() - 1);
+      const label = d.toDateString() === hoje.toDateString() ? 'Hoje'
+        : d.toDateString() === ontem.toDateString() ? 'Ontem'
+        : d.toLocaleDateString('pt-BR');
+      if (!grupos[label]) grupos[label] = [];
+      grupos[label].push(e);
+    });
+    el.innerHTML = Object.entries(grupos).map(([data, items]) => `
+      <div class="tl-grupo-data">${data}</div>
+      ${items.map(e => `
+        <div class="tl-item ${e.tipo}">
+          <div class="tl-item-meta">
+            <span class="tl-item-usuario">${e.tipo === 'automatica' ? '⚙️ Sistema' : `👤 ${_esc(e.usuario_nome || '')}`}</span>
+            · ${new Date(e.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
+          </div>
+          <div class="tl-item-texto">${_esc(e.texto)}</div>
+        </div>`).join('')}
+    `).join('');
+  } catch { el.innerHTML = '<div class="text-muted" style="padding:16px">Erro ao carregar timeline.</div>'; }
 }
 
-function abrirModalCofre(id = null) {
-  _cofreEditandoId = id;
-  document.getElementById('modal-cofre-titulo').textContent = id ? 'Editar Credencial' : 'Nova Credencial';
-  ['sistema','login','senha','url','obs'].forEach(f => {
-    const el = document.getElementById('cofre-' + f);
-    if (el) el.value = '';
-  });
-  document.getElementById('modal-cofre').style.display = 'flex';
-}
-
-async function salvarCofre() {
-  const btn = document.getElementById('btn-salvar-cofre');
-  const sistema = document.getElementById('cofre-sistema').value.trim();
-  const login   = document.getElementById('cofre-login').value.trim();
-  const senha   = document.getElementById('cofre-senha').value;
-  if (!sistema || !login) { alert('Sistema e login são obrigatórios.'); return; }
-  if (!_cofreEditandoId && !senha) { alert('Senha é obrigatória.'); return; }
-
-  const body = {
-    sistema, login,
-    url:       document.getElementById('cofre-url').value || undefined,
-    observacao:document.getElementById('cofre-obs').value || undefined,
-  };
-  if (senha) body.senha = senha;
-
-  btn.disabled = true;
+async function enviarTimeline(tipo = 'manual', texto = null, dataLembrete = null) {
+  const t = texto || document.getElementById('tl-texto').value.trim();
+  if (!t) return;
   try {
-    if (_cofreEditandoId) {
-      await API.put(`/api/clientes/${clienteId}/cofre/${_cofreEditandoId}`, body);
-    } else {
-      await API.post(`/api/clientes/${clienteId}/cofre`, body);
+    await API.post(`/api/clientes/${_id}/timeline`, { tipo, texto: t, data_lembrete: dataLembrete });
+    document.getElementById('tl-texto').value = '';
+    carregarTimeline();
+  } catch (err) { alert('Erro: ' + err.message); }
+}
+
+/* ── Cofre ────────────────────────────────────────────────── */
+async function carregarCofre() {
+  const el = document.getElementById('lista-cofre');
+  el.innerHTML = '<div class="text-muted" style="padding:16px">Carregando...</div>';
+  try {
+    const cofre = await API.get(`/api/clientes/${_id}/cofre`);
+    if (!cofre.length) { el.innerHTML = '<div class="text-muted" style="padding:24px;text-align:center">Nenhuma credencial cadastrada.</div>'; return; }
+    el.innerHTML = cofre.map(c => `
+      <div class="cofre-item">
+        <div class="cofre-sistema">🔐 ${_esc(c.sistema)}
+          ${c.url ? `<a href="${_esc(c.url)}" target="_blank" class="btn btn-ghost btn-sm">🔗 Abrir</a>` : ''}
+        </div>
+        <div class="cofre-login">Login: ${_esc(c.login)}</div>
+        <div class="cofre-acoes">
+          ${_isAdmin() ? `
+            <span class="cofre-senha-reveal" id="cofre-reveal-${c.id}">••••••••</span>
+            <button class="btn btn-secondary btn-sm" onclick="revelarSenha('${c.id}')">👁 Revelar</button>
+            <button class="btn btn-secondary btn-sm" onclick="copiarSenha('${c.id}')">📋 Copiar</button>
+            <button class="btn btn-secondary btn-sm" onclick='abrirModalCofre(${JSON.stringify(c)})'>✏️</button>
+            <button class="btn btn-danger btn-sm"    onclick="excluirCofre('${c.id}')">🗑️</button>
+          ` : '<span class="text-muted" style="font-size:.8rem">Apenas administradores podem ver senhas.</span>'}
+        </div>
+        <div class="cofre-meta">Atualizado em ${new Date(c.atualizado_em || c.created_at).toLocaleDateString('pt-BR')}</div>
+      </div>`).join('');
+  } catch { el.innerHTML = '<div class="text-muted" style="padding:16px">Erro ao carregar cofre.</div>'; }
+}
+
+const _cofreTimer = {};
+
+async function revelarSenha(cofreId) {
+  if (!_isAdmin()) return;
+  try {
+    const { senha } = await API.get(`/api/clientes/${_id}/cofre/${cofreId}/revelar`);
+    const el = document.getElementById(`cofre-reveal-${cofreId}`);
+    if (el) {
+      el.textContent = senha;
+      clearTimeout(_cofreTimer[cofreId]);
+      _cofreTimer[cofreId] = setTimeout(() => { if (el) el.textContent = '••••••••'; }, 30000);
     }
-    fecharModal('modal-cofre');
-    carregarCofre();
-  } catch (err) {
-    alert(err.message || 'Erro ao salvar credencial.');
-  } finally {
-    btn.disabled = false;
-  }
+  } catch (err) { alert('Erro: ' + err.message); }
 }
 
-async function excluirCredencial(id) {
-  if (!confirm('Excluir esta credencial permanentemente?')) return;
+async function copiarSenha(cofreId) {
+  if (!_isAdmin()) return;
   try {
-    await API.delete(`/api/clientes/${clienteId}/cofre/${id}`);
-    carregarCofre();
-  } catch (err) {
-    alert('Erro ao excluir credencial.');
-  }
+    const { senha } = await API.post(`/api/clientes/${_id}/cofre/${cofreId}/copiar`, {});
+    await navigator.clipboard.writeText(senha);
+    alert('Senha copiada! Será apagada do clipboard em 30 segundos.');
+    setTimeout(() => navigator.clipboard.writeText('').catch(() => {}), 30000);
+  } catch (err) { alert('Erro: ' + err.message); }
 }
 
-// ── Utils ─────────────────────────────────────────────────────
-function fecharModal(id) {
-  document.getElementById(id).style.display = 'none';
+function abrirModalCofre(c = null) {
+  _editandoCofre = c?.id || null;
+  document.getElementById('modal-cofre-titulo').textContent = c ? 'Editar credencial' : 'Nova credencial';
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  set('cf-sistema', c?.sistema);
+  set('cf-login',   c?.login);
+  set('cf-senha',   '');
+  set('cf-url',     c?.url);
+  set('cf-obs',     c?.observacao);
+  document.getElementById('modal-cofre').classList.add('open');
+}
+
+async function excluirCofre(cofreId) {
+  if (!_isAdmin()) return;
+  if (!confirm('Excluir esta credencial?')) return;
+  try { await API.delete(`/api/clientes/${_id}/cofre/${cofreId}`); carregarCofre(); }
+  catch { alert('Erro ao excluir.'); }
+}
+
+/* ── Salvar dados ─────────────────────────────────────────── */
+async function salvarDados() {
+  const g = id => document.getElementById(id)?.value;
+  const body = {
+    tipo_pessoa: g('f-tipo-pessoa'),
+    nome_completo: g('f-nome').trim(),
+    cpf: g('f-cpf') || undefined,
+    cnpj: g('f-cnpj') || undefined,
+    nome_fantasia: g('f-nome-fantasia') || undefined,
+    rg: g('f-rg') || undefined,
+    data_nascimento: g('f-nascimento') || undefined,
+    estado_civil: g('f-estado-civil') || undefined,
+    profissao: g('f-profissao') || undefined,
+    dap_caf: g('f-dap') || undefined,
+    inscricao_estadual: g('f-ie') || undefined,
+    nirf: g('f-nirf') || undefined,
+    cep: g('f-cep') || undefined,
+    logradouro: g('f-logradouro') || undefined,
+    numero: g('f-numero') || undefined,
+    complemento: g('f-complemento') || undefined,
+    bairro: g('f-bairro') || undefined,
+    municipio: g('f-municipio') || undefined,
+    uf: g('f-uf') || undefined,
+    endereco_rural: g('f-endereco-rural') || undefined,
+    celular: g('f-celular').trim(),
+    celular2: g('f-celular2') || undefined,
+    telefone_fixo: g('f-telefone') || undefined,
+    email: g('f-email') || undefined,
+    email2: g('f-email2') || undefined,
+    contato_referencia_nome: g('f-ref-nome') || undefined,
+    contato_referencia_telefone: g('f-ref-tel') || undefined,
+  };
+  if (!body.nome_completo || !body.celular) { alert('Nome e celular são obrigatórios.'); return; }
+  const btn = document.getElementById('btn-salvar-dados');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+  try {
+    await API.put(`/api/clientes/${_id}`, body);
+    _cliente = { ..._cliente, ...body };
+    renderHeader();
+    alert('Dados salvos com sucesso!');
+  } catch (err) { alert(err.message || 'Erro ao salvar.'); }
+  finally { btn.disabled = false; btn.textContent = 'Salvar alterações'; }
+}
+
+/* ── Eventos ──────────────────────────────────────────────── */
+function bindEventos() {
+  document.querySelectorAll('.ficha-tab').forEach(t =>
+    t.addEventListener('click', () => ativarAba(t.dataset.tab)));
+
+  document.getElementById('btn-tipo-pf')?.addEventListener('click', () => setTipo('PF'));
+  document.getElementById('btn-tipo-pj')?.addEventListener('click', () => setTipo('PJ'));
+
+  // CEP via ViaCEP
+  document.getElementById('f-cep')?.addEventListener('blur', async e => {
+    const cep = e.target.value.replace(/\D/g, '');
+    if (cep.length !== 8) return;
+    try {
+      const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const d = await r.json();
+      if (!d.erro) {
+        document.getElementById('f-logradouro').value = d.logradouro || '';
+        document.getElementById('f-bairro').value     = d.bairro || '';
+        document.getElementById('f-municipio').value  = d.localidade || '';
+        document.getElementById('f-uf').value         = d.uf || '';
+      }
+    } catch {}
+  });
+
+  // Idade automática
+  document.getElementById('f-nascimento')?.addEventListener('change', e => {
+    if (!e.target.value) return;
+    const anos = Math.floor((new Date() - new Date(e.target.value + 'T12:00:00')) / (365.25 * 24 * 3600 * 1000));
+    document.getElementById('f-idade').textContent = `(${anos} anos)`;
+  });
+
+  document.getElementById('btn-salvar-dados')?.addEventListener('click', salvarDados);
+
+  // Cônjuge
+  document.getElementById('btn-salvar-conjuge')?.addEventListener('click', async () => {
+    const nome = document.getElementById('c-nome').value.trim();
+    if (!nome) { alert('Nome é obrigatório.'); return; }
+    const g = id => document.getElementById(id)?.value;
+    const body = { nome_completo: nome, cpf: g('c-cpf')||undefined, rg: g('c-rg')||undefined,
+      data_nascimento: g('c-nascimento')||undefined, profissao: g('c-profissao')||undefined,
+      telefone: g('c-telefone')||undefined, email: g('c-email')||undefined,
+      regime_bens: g('c-regime')||undefined, dap_caf: g('c-dap')||undefined };
+    try { await API.put(`/api/clientes/${_id}/conjuge`, body); alert('Cônjuge salvo!'); }
+    catch (err) { alert(err.message || 'Erro.'); }
+  });
+
+  // Contas
+  document.getElementById('btn-nova-conta')?.addEventListener('click', () => abrirModalConta());
+  document.getElementById('btn-fechar-conta')?.addEventListener('click', () => fecharModal('modal-conta'));
+  document.getElementById('btn-cancelar-conta')?.addEventListener('click', () => fecharModal('modal-conta'));
+  document.getElementById('modal-conta')?.addEventListener('click', e => { if (e.target.id === 'modal-conta') fecharModal('modal-conta'); });
+  document.getElementById('btn-salvar-conta')?.addEventListener('click', async () => {
+    const g = id => document.getElementById(id)?.value;
+    const banco = g('mc-banco').trim(); const agencia = g('mc-agencia').trim();
+    const numero = g('mc-numero').trim(); const tipo = g('mc-tipo');
+    if (!banco || !agencia || !numero || !tipo) { alert('Banco, agência, número e tipo são obrigatórios.'); return; }
+    const body = { banco, agencia, numero_conta: numero, tipo_conta: tipo,
+      titular: g('mc-titular')||undefined, cpf_cnpj_titular: g('mc-doc')||undefined,
+      chave_pix: g('mc-pix')||undefined, tipo_chave_pix: g('mc-tipo-pix')||undefined,
+      observacao: g('mc-obs')||undefined };
+    try {
+      if (_editandoConta) await API.put(`/api/clientes/${_id}/contas/${_editandoConta}`, body);
+      else await API.post(`/api/clientes/${_id}/contas`, body);
+      fecharModal('modal-conta');
+      carregarContas();
+    } catch (err) { alert(err.message || 'Erro.'); }
+  });
+
+  // Cofre
+  document.getElementById('btn-nova-credencial')?.addEventListener('click', () => abrirModalCofre());
+  document.getElementById('btn-fechar-cofre')?.addEventListener('click', () => fecharModal('modal-cofre'));
+  document.getElementById('btn-cancelar-cofre')?.addEventListener('click', () => fecharModal('modal-cofre'));
+  document.getElementById('modal-cofre')?.addEventListener('click', e => { if (e.target.id === 'modal-cofre') fecharModal('modal-cofre'); });
+  document.getElementById('btn-salvar-cofre')?.addEventListener('click', async () => {
+    const g = id => document.getElementById(id)?.value;
+    const sistema = g('cf-sistema').trim(); const login = g('cf-login').trim(); const senha = g('cf-senha');
+    if (!sistema || !login) { alert('Sistema e login são obrigatórios.'); return; }
+    if (!_editandoCofre && !senha) { alert('Senha é obrigatória.'); return; }
+    const body = { sistema, login, url: g('cf-url')||undefined, observacao: g('cf-obs')||undefined };
+    if (senha) body.senha = senha;
+    try {
+      if (_editandoCofre) await API.put(`/api/clientes/${_id}/cofre/${_editandoCofre}`, body);
+      else await API.post(`/api/clientes/${_id}/cofre`, body);
+      fecharModal('modal-cofre');
+      carregarCofre();
+    } catch (err) { alert(err.message || 'Erro.'); }
+  });
+
+  // Timeline
+  document.getElementById('btn-tl-enviar')?.addEventListener('click', () => enviarTimeline());
+  document.getElementById('tl-texto')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarTimeline(); }
+  });
+  document.querySelectorAll('.tl-filtro-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tl-filtro-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _tlFiltro = btn.dataset.tipo;
+      carregarTimeline();
+    })
+  );
+  document.getElementById('btn-tl-lembrete')?.addEventListener('click', () =>
+    document.getElementById('modal-lembrete').classList.add('open'));
+  document.getElementById('btn-fechar-lembrete')?.addEventListener('click', () => fecharModal('modal-lembrete'));
+  document.getElementById('btn-cancelar-lembrete')?.addEventListener('click', () => fecharModal('modal-lembrete'));
+  document.getElementById('btn-salvar-lembrete')?.addEventListener('click', async () => {
+    const texto = document.getElementById('lem-texto').value.trim();
+    const data  = document.getElementById('lem-data').value;
+    if (!texto || !data) { alert('Texto e data são obrigatórios.'); return; }
+    await enviarTimeline('lembrete', texto, data);
+    fecharModal('modal-lembrete');
+    document.getElementById('lem-texto').value = '';
+    document.getElementById('lem-data').value = '';
+  });
+}
+
+function setTipo(tipo) {
+  document.getElementById('f-tipo-pessoa').value = tipo;
+  document.getElementById('btn-tipo-pf').classList.toggle('active', tipo === 'PF');
+  document.getElementById('btn-tipo-pj').classList.toggle('active', tipo === 'PJ');
+  document.getElementById('g-cpf').style.display          = tipo === 'PF' ? '' : 'none';
+  document.getElementById('g-cnpj').style.display         = tipo === 'PJ' ? '' : 'none';
+  document.getElementById('g-nome-fantasia').style.display = tipo === 'PJ' ? '' : 'none';
+  document.getElementById('g-rg').style.display           = tipo === 'PF' ? '' : 'none';
+  document.getElementById('g-nascimento').style.display   = tipo === 'PF' ? '' : 'none';
+}
+
+function fecharModal(id) { document.getElementById(id)?.classList.remove('open'); }
+
+function _esc(str = '') {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }

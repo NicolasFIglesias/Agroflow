@@ -199,59 +199,6 @@
       btn.addEventListener('click', () => _abrirModalEditarUsuario(btn));
     });
 
-    main.querySelectorAll('.dev-btn-cofre').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const cid = btn.dataset.cid;
-        const row = btn.closest('tr');
-        btn.textContent = '...';
-        btn.disabled = true;
-        try {
-          const cofre = await devGet(`/api/dev/clientes/${cid}/cofre`);
-          const panel = row.nextElementSibling;
-          if (panel && panel.classList.contains('dev-cofre-expand')) {
-            panel.remove();
-            btn.textContent = 'Cofre';
-            btn.disabled = false;
-            return;
-          }
-          const tr = document.createElement('tr');
-          tr.className = 'dev-cofre-expand';
-          tr.innerHTML = `<td colspan="6" style="padding:0">
-            <div style="padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border)">
-              ${cofre.length === 0
-                ? '<span style="color:var(--muted);font-size:.8rem">Cofre vazio</span>'
-                : `<table class="dev-table">
-                    <thead><tr><th>Sistema</th><th>Login</th><th>Senha</th><th>URL</th></tr></thead>
-                    <tbody>${cofre.map(s => `
-                      <tr>
-                        <td>${_esc(s.sistema || '—')}</td>
-                        <td>${_esc(s.login || '—')}</td>
-                        <td>
-                          <span class="dev-senha-reveal oculta" data-senha="${_esc(s.senha_dec || '')}">••••••••</span>
-                        </td>
-                        <td>${s.url ? `<a href="${_esc(s.url)}" target="_blank" style="color:var(--blue)">${_esc(s.url)}</a>` : '—'}</td>
-                      </tr>
-                    `).join('')}
-                    </tbody>
-                   </table>`
-              }
-            </div>
-          </td>`;
-          row.after(tr);
-
-          tr.querySelectorAll('.dev-senha-reveal').forEach(el => {
-            el.addEventListener('click', () => {
-              const oculta = el.classList.toggle('oculta');
-              el.textContent = oculta ? '••••••••' : el.dataset.senha;
-            });
-          });
-        } catch (err) {
-          alert('Erro ao carregar cofre: ' + err.message);
-        }
-        btn.textContent = 'Cofre';
-        btn.disabled = false;
-      });
-    });
   }
 
   function renderTabUsuarios(usuarios) {
@@ -284,7 +231,7 @@
   function renderTabClientes(clientes) {
     if (!clientes.length) return '<div class="dev-loading" style="color:var(--muted)">Nenhum cliente</div>';
     return `<table class="dev-table">
-      <thead><tr><th>Nome</th><th>Tipo</th><th>CPF/CNPJ</th><th>Celular</th><th>Município/UF</th><th>Cofre</th></tr></thead>
+      <thead><tr><th>Nome</th><th>Tipo</th><th>CPF/CNPJ</th><th>Celular</th><th>Município/UF</th></tr></thead>
       <tbody>${clientes.map(c => `
         <tr>
           <td>${_esc(c.nome_completo)}</td>
@@ -292,7 +239,6 @@
           <td style="color:var(--muted)">${_esc(c.cpf || c.cnpj || '—')}</td>
           <td>${_esc(c.celular || '—')}</td>
           <td>${_esc([c.municipio, c.uf].filter(Boolean).join('/') || '—')}</td>
-          <td><button class="dev-btn-sm dev-btn-reset dev-btn-cofre" data-cid="${c.id}">Cofre</button></td>
         </tr>
       `).join('')}</tbody>
     </table>`;

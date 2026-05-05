@@ -217,10 +217,33 @@ exports.vincularProprietario = async (req, res) => {
 // DELETE /api/imoveis/:id/proprietarios/:vinculoId
 exports.desvincularProprietario = async (req, res) => {
   try {
-    await db.query(`DELETE FROM cliente_imovel WHERE id=$1`, [req.params.vinculoId]);
+    const { rowCount } = await db.query(
+      `DELETE FROM cliente_imovel WHERE id=$1 AND imovel_id=$2`,
+      [req.params.vinculoId, req.params.id]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Vínculo não encontrado' });
     res.json({ ok: true });
   } catch (err) {
     console.error('Erro ao desvincular proprietário:', err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+};
+
+// PUT /api/imoveis/:id/proprietarios/:vinculoId
+exports.editarVinculo = async (req, res) => {
+  try {
+    const { percentual_participacao, tipo_vinculo } = req.body;
+    const { rows } = await db.query(
+      `UPDATE cliente_imovel
+       SET percentual_participacao=$1, tipo_vinculo=$2
+       WHERE id=$3 AND imovel_id=$4
+       RETURNING *`,
+      [percentual_participacao, tipo_vinculo, req.params.vinculoId, req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Vínculo não encontrado' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Erro ao editar vínculo:', err);
     res.status(500).json({ error: 'Erro interno' });
   }
 };

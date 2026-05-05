@@ -12,14 +12,8 @@
   <link rel="stylesheet" href="../css/visao-geral.css">
 </head>
 <body>
-
-<!-- ── Toggle mobile ──────────────────────────────────────── -->
 <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">☰</button>
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-<!-- ═══════════════════════════════════════════════════════ -->
-<!--  SIDEBAR                                               -->
-<!-- ═══════════════════════════════════════════════════════ -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="sidebar-logo-icon">🌿</div>
@@ -28,63 +22,31 @@
       <div class="sidebar-logo-sub">Crédito Rural</div>
     </div>
   </div>
-
   <nav class="sidebar-nav">
     <div class="sidebar-section-label">Principal</div>
-
-    <a href="/pages/visao-geral.html" class="sidebar-item" data-page="visao-geral">
-      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/>
-        <rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/>
-        <rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/>
-        <rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/>
-      </svg>
+    <a href="/pages/visao-geral.html" class="sidebar-item active" data-page="visao-geral">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
       Visão Geral
     </a>
-
-    <a href="/pages/calendario.html" class="sidebar-item" data-page="calendario">
-      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/>
-        <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/>
-        <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/>
-        <line x1="3" y1="10" x2="21" y2="10" stroke-width="2"/>
-      </svg>
-      Calendário
-    </a>
-
-    <div class="sidebar-section-label">Carteira</div>
-
     <a href="/pages/clientes.html" class="sidebar-item" data-page="clientes">
-      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <circle cx="9" cy="7" r="4" stroke-width="2"/>
-        <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke-width="2" stroke-linecap="round"/>
-        <path d="M16 3.13a4 4 0 010 7.75" stroke-width="2" stroke-linecap="round"/>
-        <path d="M21 21v-2a4 4 0 00-3-3.87" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke-width="2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-width="2" stroke-linecap="round"/></svg>
       Clientes
     </a>
-
     <a href="/pages/imoveis.html" class="sidebar-item" data-page="imoveis">
-      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M9 22V12h6v10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9.5L12 4l9 5.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21V12h6v9" stroke-width="2" stroke-linecap="round"/></svg>
       Imóveis
     </a>
-
-    <div class="sidebar-section-label sidebar-item-admin" style="display:none">Equipe</div>
-
+    <a href="/pages/calendario.html" class="sidebar-item" data-page="calendario">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="2"/></svg>
+      Calendário
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label sidebar-item-admin" style="display:none">Administração</div>
     <a href="/pages/colaboradores.html" class="sidebar-item sidebar-item-admin" data-page="colaboradores" style="display:none">
-      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="9" cy="7" r="4" stroke-width="2"/>
-        <path d="M23 21v-2a4 4 0 00-3-3.87" stroke-width="2" stroke-linecap="round"/>
-        <path d="M16 3.13a4 4 0 010 7.75" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke-width="2"/><line x1="19" y1="8" x2="19" y2="14" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="11" x2="16" y2="11" stroke-width="2" stroke-linecap="round"/></svg>
       Colaboradores
     </a>
   </nav>
-
   <div class="sidebar-user">
     <div class="sidebar-avatar" id="sidebar-avatar">?</div>
     <div class="sidebar-user-info">
@@ -93,145 +55,83 @@
     </div>
   </div>
   <button class="sidebar-logout-btn" id="btn-logout">
-    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path d="M17 16l4-4m0 0l-4-4m4 4H7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M3 12V5a2 2 0 012-2h7" stroke-width="2" stroke-linecap="round"/>
-    </svg>
+    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12V5a2 2 0 012-2h7" stroke-width="2" stroke-linecap="round"/></svg>
     Sair da conta
   </button>
 </aside>
 
-<!-- ═══════════════════════════════════════════════════════ -->
-<!--  CONTEÚDO PRINCIPAL                                    -->
-<!-- ═══════════════════════════════════════════════════════ -->
 <main class="app-main">
   <div class="app-content">
 
-    <!-- ── Cabeçalho ─────────────────────────────────────── -->
     <div class="vg-header">
-      <div class="vg-header-text">
-        <h1 id="vg-empresa-nome">Carregando...</h1>
-        <p id="vg-welcome">Bem-vindo de volta</p>
+      <div>
+        <h1 id="vg-saudacao">—</h1>
+        <p id="vg-data" class="text-muted" style="margin-top:4px"></p>
       </div>
-      <button class="btn btn-primary" id="btn-gerar-convite">
-        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="9" cy="7" r="4" stroke-width="2"/>
-          <line x1="19" y1="8" x2="19" y2="14" stroke-width="2" stroke-linecap="round"/>
-          <line x1="22" y1="11" x2="16" y2="11" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        Convidar colaborador
-      </button>
-    </div>
-
-    <!-- ── Caixa de convite (aparece ao clicar) ──────────── -->
-    <div class="vg-invite-box" id="vg-invite-box" style="display:none">
-      <div class="vg-invite-box-header">
-        <span>🔗 Link de convite gerado</span>
-        <button class="vg-invite-close" id="vg-invite-close">✕</button>
-      </div>
-      <p class="vg-invite-desc">Compartilhe este link com o colaborador. Ele expira em 7 dias.</p>
-      <div class="vg-invite-link-row">
-        <input type="text" class="vg-invite-input" id="vg-invite-link" readonly>
-        <button class="btn btn-secondary" id="btn-copiar-link">Copiar</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="/pages/clientes.html" class="btn btn-secondary btn-lg">+ Novo cliente</a>
+        <a href="/pages/imoveis.html"  class="btn btn-primary btn-lg">+ Novo imóvel</a>
       </div>
     </div>
 
-    <!-- ── Cards de estatísticas ─────────────────────────── -->
-    <div class="vg-stats">
-      <div class="vg-stat-card vg-stat-verde">
-        <div class="vg-stat-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="vg-stat-info">
-          <div class="vg-stat-num" id="stat-projetos">—</div>
-          <div class="vg-stat-label">Projetos ativos</div>
-        </div>
+    <!-- KPIs -->
+    <div class="vg-kpis">
+      <div class="vg-kpi vg-kpi-green">
+        <div class="vg-kpi-num" id="kpi-clientes">—</div>
+        <div class="vg-kpi-label">Clientes ativos</div>
       </div>
-
-      <div class="vg-stat-card vg-stat-azul">
-        <div class="vg-stat-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <polyline points="20 6 9 17 4 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="vg-stat-info">
-          <div class="vg-stat-num" id="stat-tarefas">—</div>
-          <div class="vg-stat-label">Tarefas concluídas</div>
-          <div class="vg-stat-sub" id="stat-tarefas-sub"></div>
-        </div>
+      <div class="vg-kpi vg-kpi-blue">
+        <div class="vg-kpi-num" id="kpi-imoveis">—</div>
+        <div class="vg-kpi-label">Imóveis cadastrados</div>
       </div>
-
-      <div class="vg-stat-card vg-stat-roxo">
-        <div class="vg-stat-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="9" cy="7" r="4" stroke-width="2"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="vg-stat-info">
-          <div class="vg-stat-num" id="stat-colaboradores">—</div>
-          <div class="vg-stat-label">Colaboradores</div>
-        </div>
-      </div>
-
-      <div class="vg-stat-card vg-stat-vermelho">
-        <div class="vg-stat-icon">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke-width="2" stroke-linecap="round"/>
-            <line x1="12" y1="9" x2="12" y2="13" stroke-width="2" stroke-linecap="round"/>
-            <line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="vg-stat-info">
-          <div class="vg-stat-num" id="stat-atrasadas">—</div>
-          <div class="vg-stat-label">Tarefas atrasadas</div>
-        </div>
+      <div class="vg-kpi vg-kpi-amber">
+        <div class="vg-kpi-num" id="kpi-tarefas">—</div>
+        <div class="vg-kpi-label">Tarefas ativas</div>
       </div>
     </div>
 
-    <!-- ── Grid de dois painéis ───────────────────────────── -->
+    <!-- Grid 2 colunas -->
     <div class="vg-grid">
 
-      <!-- Projetos ativos -->
-      <div class="vg-panel">
-        <div class="vg-panel-header">
-          <h3>Projetos ativos</h3>
-          <a href="/pages/calendario.html" class="vg-panel-link">Ver calendário →</a>
+      <div class="vg-card">
+        <div class="vg-card-header">
+          <span class="vg-card-title">⚠️ Alertas e prazos</span>
+          <a href="/pages/imoveis.html" class="btn btn-ghost btn-sm">Ver imóveis →</a>
         </div>
-        <div class="vg-panel-body" id="vg-projetos-lista">
-          <div class="loading-state"><span class="spinner"></span></div>
-        </div>
+        <div id="vg-alertas"><div class="vg-empty">Carregando...</div></div>
       </div>
 
-      <!-- Equipe -->
-      <div class="vg-panel">
-        <div class="vg-panel-header">
-          <h3>Equipe</h3>
-          <span class="vg-equipe-count" id="vg-equipe-count">0 membros</span>
+      <div class="vg-card">
+        <div class="vg-card-header">
+          <span class="vg-card-title">📝 Atividade recente</span>
         </div>
-        <div class="vg-panel-body" id="vg-equipe-lista">
-          <div class="loading-state"><span class="spinner"></span></div>
-        </div>
+        <div id="vg-atividade"><div class="vg-empty">Carregando...</div></div>
       </div>
 
-    </div><!-- /vg-grid -->
+      <div class="vg-card">
+        <div class="vg-card-header">
+          <span class="vg-card-title">👥 Clientes recentes</span>
+          <a href="/pages/clientes.html" class="btn btn-ghost btn-sm">Ver todos →</a>
+        </div>
+        <div id="vg-clientes"><div class="vg-empty">Carregando...</div></div>
+      </div>
 
-  </div><!-- /app-content -->
+      <div class="vg-card">
+        <div class="vg-card-header">
+          <span class="vg-card-title">📅 Próximas obrigações</span>
+          <a href="/pages/calendario.html" class="btn btn-ghost btn-sm">Calendário →</a>
+        </div>
+        <div id="vg-tarefas"><div class="vg-empty">Carregando...</div></div>
+      </div>
+
+    </div>
+  </div>
 </main>
 
-<!-- Toast container -->
-<div class="toast-container" id="toast-container"></div>
-
-<!-- Scripts -->
 <script src="../js/config.js"></script>
 <script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/components/sidebar.js"></script>
 <script src="../js/pages/visao-geral.js"></script>
-
 </body>
 </html>
