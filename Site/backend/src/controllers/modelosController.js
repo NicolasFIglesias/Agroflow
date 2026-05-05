@@ -1,6 +1,5 @@
 const db      = require('../db');
 const multer  = require('multer');
-const { detectarTags } = require('../services/tagEngine');
 
 exports.uploadMiddleware = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }).single('arquivo');
 
@@ -26,7 +25,9 @@ exports.upload = async (req, res) => {
     if (!ext.endsWith('.docx')) return res.status(400).json({ error: 'Apenas arquivos .docx são aceitos' });
 
     const base64 = req.file.buffer.toString('base64');
-    const tags   = detectarTags(base64);
+    let tags = [];
+    try { const { detectarTags } = require('../services/tagEngine'); tags = detectarTags(base64); } catch {}
+
 
     const { rows: [m] } = await db.query(
       `INSERT INTO modelos_documento (empresa_id, tipo_contrato, nome, descricao, arquivo_nome, arquivo_conteudo, tags_detectadas, criado_por)

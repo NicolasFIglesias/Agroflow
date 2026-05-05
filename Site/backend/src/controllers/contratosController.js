@@ -1,5 +1,6 @@
 const db = require('../db');
-const { gerarDocx, buildTags } = require('../services/tagEngine');
+// tagEngine (docxtemplater/pizzip) carregado lazy só no endpoint de download
+// para não quebrar o resto do controller se os pacotes não estiverem instalados
 
 const PREFIXOS = { arrendamento:'ARR', compra_venda:'CV', comodato:'COM', permuta:'PER', aluguel:'ALG', recibo:'REC', nota_promissoria:'NP' };
 const TIPO_LABEL = { arrendamento:'Arrendamento Rural', compra_venda:'Compra e Venda', comodato:'Comodato', permuta:'Permuta', aluguel:'Aluguel', recibo:'Recibo', nota_promissoria:'Nota Promissória' };
@@ -136,6 +137,7 @@ exports.buscarPorId = async (req, res) => {
 
 exports.download = async (req, res) => {
   try {
+    const { gerarDocx, buildTags } = require('../services/tagEngine');
     const { rows: [ct] } = await db.query(`SELECT * FROM contratos WHERE id=$1 AND empresa_id=$2`, [req.params.id, req.usuario.empresa_id]);
     if (!ct) return res.status(404).json({ error: 'Contrato não encontrado' });
 
