@@ -127,18 +127,21 @@ async function enviarUpload() {
   btn.disabled = true; btn.textContent = 'Enviando...';
 
   try {
-    const form = new FormData();
-    form.append('tipo_contrato', tipo);
-    form.append('nome', nome);
-    form.append('arquivo', arq);
-
-    const r = await fetch(`${CONFIG.API_URL}/api/modelos`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${Auth.token()}` },
-      body: form,
+    // Ler arquivo como base64 e enviar como JSON (sem multer no backend)
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload  = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(arq);
     });
-    const data = await r.json();
-    if (!r.ok) { alert(data.error || 'Erro ao enviar.'); return; }
+
+    const data = await API.post('/api/modelos', {
+      tipo_contrato:  tipo,
+      nome,
+      arquivo_nome:   arq.name,
+      arquivo_base64: base64,
+    });
+    if (!data) { alert('Erro ao enviar.'); return; }
 
     const tags = data.tags_detectadas || [];
     document.getElementById('modal-upload-titulo').textContent = 'Modelo enviado!';

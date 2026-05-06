@@ -1,7 +1,4 @@
-const db      = require('../db');
-const multer  = require('multer');
-
-exports.uploadMiddleware = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }).single('arquivo');
+const db = require('../db');
 
 exports.listar = async (req, res) => {
   try {
@@ -16,23 +13,22 @@ exports.listar = async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 };
 
+// Accepts: { tipo_contrato, nome, descricao?, arquivo_nome, arquivo_base64 }
 exports.upload = async (req, res) => {
   try {
-    const { tipo_contrato, nome, descricao } = req.body;
-    if (!tipo_contrato || !nome) return res.status(400).json({ error: 'tipo_contrato e nome são obrigatórios' });
-    if (!req.file) return res.status(400).json({ error: 'Arquivo .docx é obrigatório' });
-    const ext = req.file.originalname.toLowerCase();
-    if (!ext.endsWith('.docx')) return res.status(400).json({ error: 'Apenas arquivos .docx são aceitos' });
+    const { tipo_contrato, nome, descricao, arquivo_nome, arquivo_base64 } = req.body;
+    if (!tipo_contrato || !nome)          return res.status(400).json({ error: 'tipo_contrato e nome são obrigatórios' });
+    if (!arquivo_base64)                  return res.status(400).json({ error: 'arquivo_base64 é obrigatório' });
+    if (arquivo_nome && !arquivo_nome.toLowerCase().endsWith('.docx'))
+                                          return res.status(400).json({ error: 'Apenas arquivos .docx são aceitos' });
 
-    const base64 = req.file.buffer.toString('base64');
     let tags = [];
-    try { const { detectarTags } = require('../services/tagEngine'); tags = detectarTags(base64); } catch {}
-
+    try { const { detectarTags } = require('../services/tagEngine'); tags = detectarTags(arquivo_base64); } catch {}
 
     const { rows: [m] } = await db.query(
       `INSERT INTO modelos_documento (empresa_id, tipo_contrato, nome, descricao, arquivo_nome, arquivo_conteudo, tags_detectadas, criado_por)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id, tipo_contrato, nome, tags_detectadas, is_padrao`,
-      [req.usuario.empresa_id, tipo_contrato, nome, descricao || null, req.file.originalname, base64, JSON.stringify(tags), req.usuario.id]
+      [req.usuario.empresa_id, tipo_contrato, nome, descricao || null, arquivo_nome || 'modelo.docx', arquivo_base64, JSON.stringify(tags), req.usuario.id]
     );
     res.status(201).json({ ...m, tags_detectadas: tags });
   } catch (err) { res.status(500).json({ error: err.message }); }

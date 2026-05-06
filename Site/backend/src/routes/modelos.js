@@ -5,7 +5,7 @@ const auth   = require('../middleware/auth');
 router.use(auth);
 
 router.get('/',              ctrl.listar);
-router.post('/',             [ctrl.uploadMiddleware, ctrl.upload]);
+router.post('/',             ctrl.upload);
 router.get('/:id/download',  ctrl.download);
 router.put('/:id',           ctrl.atualizar);
 router.put('/:id/desativar', ctrl.desativar);
