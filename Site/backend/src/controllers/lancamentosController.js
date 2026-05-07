@@ -71,6 +71,8 @@ exports.listar = async (req, res) => {
     if (colaborador_id) { q += ` AND l.colaborador_id=$${idx++}`;     vals.push(colaborador_id); }
     if (data_inicio)    { q += ` AND l.data_lancamento>=$${idx++}`;   vals.push(data_inicio); }
     if (data_fim)       { q += ` AND l.data_lancamento<=$${idx++}`;   vals.push(data_fim); }
+    if (req.query.busca) { q += ` AND (l.cliente_nome ILIKE $${idx} OR l.produto ILIKE $${idx} OR l.descricao_despesa ILIKE $${idx} OR l.pago_para ILIKE $${idx})`; vals.push(`%${req.query.busca.trim()}%`); idx++; }
+    if (req.query.status_pagamento) { q += ` AND l.status_pagamento=$${idx++}`; vals.push(req.query.status_pagamento); }
     if (req.usuario.role !== 'admin') { q += ` AND l.criado_por=$${idx++}`; vals.push(req.usuario.id); }
 
     const countQ = `SELECT COUNT(*) FROM (${q}) sub`;
@@ -82,10 +84,31 @@ exports.listar = async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 };
 
+// GET /api/lancamentos/mensal — comparativo mensal para gráficos
+exports.mensal = async (req, res) => {
+  try {
+    if (req.usuario.role !== 'admin' && req.usuario.role !== 'superdev')
+      return res.status(403).json({ error: 'Acesso restrito a administradores' });
+    const meses = parseInt(req.query.meses || 6);
+    const [mensal, produtos] = await Promise.all([
+      db.query(`SELECT TO_CHAR(data_lancamento,'YYYY-MM') AS mes,
+          SUM(CASE WHEN tipo='venda' THEN valor ELSE 0 END) AS vendas,
+          SUM(CASE WHEN tipo='despesa' THEN valor ELSE 0 END) AS despesas
+         FROM lancamentos WHERE empresa_id=$1 AND data_lancamento >= CURRENT_DATE - INTERVAL '1 month' * $2
+         GROUP BY mes ORDER BY mes`, [req.usuario.empresa_id, meses]),
+      db.query(`SELECT COALESCE(produto,'Sem produto') AS produto, SUM(valor) AS total, COUNT(*) AS qtd
+         FROM lancamentos WHERE empresa_id=$1 AND tipo='venda' AND data_lancamento >= CURRENT_DATE - INTERVAL '1 month' * $2
+         GROUP BY produto ORDER BY total DESC LIMIT 8`, [req.usuario.empresa_id, meses]),
+    ]);
+    res.json({ mensal: mensal.rows, produtos: produtos.rows });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
 // POST /api/lancamentos
 exports.criar = async (req, res) => {
   try {
-    const { tipo, cliente_id, cliente_nome, colaborador_id, produto, valor, forma_pagamento, observacao, data_lancamento } = req.body;
+    const { tipo, cliente_id, cliente_nome, colaborador_id, produto, valor, forma_pagamento, observacao, data_lancamento,
+            data_vencimento, status_pagamento, parcelas, status_venda, descricao_despesa, pago_para } = req.body;
     if (!tipo || !valor) return res.status(400).json({ error: 'tipo e valor são obrigatórios' });
 
     let colabNome = null;
@@ -101,12 +124,24 @@ exports.criar = async (req, res) => {
       cliNome = rows[0]?.nome_completo || null;
     }
 
+    // Auto data_vencimento for cartão
+    let dvenc = data_vencimento || null;
+    if (!dvenc && forma_pagamento && forma_pagamento.toLowerCase().includes('cartão')) {
+      const base = new Date((data_lancamento || new Date().toISOString().slice(0,10)) + 'T12:00:00');
+      base.setDate(base.getDate() + 30);
+      dvenc = base.toISOString().slice(0,10);
+    }
+
     const { rows: [l] } = await db.query(
-      `INSERT INTO lancamentos (empresa_id, tipo, cliente_id, cliente_nome, colaborador_id, colaborador_nome, produto, valor, forma_pagamento, observacao, data_lancamento, criado_por)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+      `INSERT INTO lancamentos (empresa_id, tipo, cliente_id, cliente_nome, colaborador_id, colaborador_nome,
+         produto, valor, forma_pagamento, observacao, data_lancamento, data_vencimento,
+         status_pagamento, parcelas, status_venda, descricao_despesa, pago_para, criado_por)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING *`,
       [req.usuario.empresa_id, tipo, cliente_id||null, cliNome, colaborador_id||null, colabNome,
        produto||null, FMT(valor), forma_pagamento||null, observacao||null,
-       data_lancamento || new Date().toISOString().slice(0,10), req.usuario.id]
+       data_lancamento || new Date().toISOString().slice(0,10), dvenc,
+       status_pagamento||'pendente', parseInt(parcelas)||1, status_venda||'finalizada',
+       descricao_despesa||null, pago_para||null, req.usuario.id]
     );
     res.status(201).json(l);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -129,6 +164,19 @@ exports.editar = async (req, res) => {
       [produto||null, FMT(valor), forma_pagamento||null, observacao||null,
        data_lancamento||null, cliente_nome||null, colaborador_id||null, colabNome,
        req.params.id, req.usuario.empresa_id]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Lançamento não encontrado' });
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
+// PATCH /api/lancamentos/:id/pago
+exports.marcarPago = async (req, res) => {
+  try {
+    const hoje = new Date().toISOString().slice(0,10);
+    const { rowCount } = await db.query(
+      `UPDATE lancamentos SET status_pagamento='pago', data_vencimento=COALESCE(data_vencimento,$1) WHERE id=$2 AND empresa_id=$3`,
+      [hoje, req.params.id, req.usuario.empresa_id]
     );
     if (!rowCount) return res.status(404).json({ error: 'Lançamento não encontrado' });
     res.json({ ok: true });

@@ -4,10 +4,12 @@ const auth   = require('../middleware/auth');
 
 router.use(auth);
 
-router.get('/resumo',  ctrl.resumo);   // deve vir antes de /:id
-router.get('/',        ctrl.listar);
-router.post('/',       ctrl.criar);
-router.put('/:id',     ctrl.editar);
-router.delete('/:id',  ctrl.excluir);
+router.get('/resumo',       ctrl.resumo);    // antes de /:id
+router.get('/mensal',       ctrl.mensal);
+router.get('/',             ctrl.listar);
+router.post('/',            ctrl.criar);
+router.put('/:id',          ctrl.editar);
+router.patch('/:id/pago',   ctrl.marcarPago);
+router.delete('/:id',       ctrl.excluir);
 
 module.exports = router;

@@ -11,6 +11,7 @@ let _timer  = null;
 
 carregarLista();
 bindEventos();
+_bindModelos();
 
 function bindEventos() {
   document.getElementById('ct-busca').addEventListener('input', e => {
@@ -165,3 +166,94 @@ async function handleAction(action, id, numero, tipo) {
 }
 
 function _esc(s = '') { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Abas contratos/modelos ─────────────────────────────────
+function _bindModelos() {
+  // Tab switching
+  document.querySelectorAll('[data-ct-tab]').forEach(tab =>
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('[data-ct-tab]').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const isModelos = tab.dataset.ctTab === 'modelos';
+      document.getElementById('ct-panel-contratos').style.display = isModelos ? 'none' : '';
+      document.getElementById('ct-panel-modelos').style.display   = isModelos ? ''     : 'none';
+      document.getElementById('ct-aba-btns').style.display        = isModelos ? 'none' : '';
+      if (isModelos) _carregarModelos();
+    })
+  );
+
+  // Help modal
+  document.getElementById('btn-tags-help')?.addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('modal-tags-help').classList.add('open');
+  });
+  document.getElementById('btn-fechar-tags-help')?.addEventListener('click',  () => document.getElementById('modal-tags-help').classList.remove('open'));
+  document.getElementById('btn-fechar-tags-help2')?.addEventListener('click', () => document.getElementById('modal-tags-help').classList.remove('open'));
+  document.getElementById('modal-tags-help')?.addEventListener('click', e => { if (e.target.id === 'modal-tags-help') document.getElementById('modal-tags-help').classList.remove('open'); });
+
+  // Upload modal
+  document.getElementById('btn-upload-modelo')?.addEventListener('click', () => document.getElementById('modal-upload-ct').classList.add('open'));
+  document.getElementById('btn-fechar-upload-ct')?.addEventListener('click', () => document.getElementById('modal-upload-ct').classList.remove('open'));
+  document.getElementById('btn-cancelar-upload-ct')?.addEventListener('click', () => document.getElementById('modal-upload-ct').classList.remove('open'));
+  document.getElementById('btn-enviar-upload-ct')?.addEventListener('click', _enviarUpload);
+}
+
+const TIPO_LABEL_MD = { arrendamento:'Arrendamento Rural', compra_venda:'Compra e Venda', comodato:'Comodato', permuta:'Permuta', aluguel:'Aluguel', recibo:'Recibo', nota_promissoria:'Nota Promissória' };
+
+async function _carregarModelos() {
+  const el = document.getElementById('md-lista-contratos');
+  el.innerHTML = '<div class="ct-loading">Carregando...</div>';
+  try {
+    const mods = await API.get('/api/modelos');
+    if (!mods.length) { el.innerHTML = '<div class="ct-loading">Nenhum modelo cadastrado. Faça upload de um .docx.</div>'; return; }
+    const grupos = {};
+    mods.forEach(m => { if (!grupos[m.tipo_contrato]) grupos[m.tipo_contrato] = []; grupos[m.tipo_contrato].push(m); });
+    el.innerHTML = Object.entries(grupos).map(([tipo, lista]) => `
+      <div style="margin-bottom:20px">
+        <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--md-on-surface-variant);margin-bottom:10px">${TIPO_LABEL_MD[tipo]||tipo}</div>
+        ${lista.map(m => `
+          <div style="background:var(--md-surface-container-low);border-radius:12px;padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div>
+              <div style="font-weight:700;font-size:.9rem">${m.is_padrao?'★ ':''} ${_esc(m.nome)} ${m.is_sistema?'<span style="font-size:.7rem;opacity:.6">(sistema)</span>':''}</div>
+              <div style="font-size:.75rem;color:var(--md-on-surface-variant)">${Array.isArray(m.tags_detectadas)?m.tags_detectadas.length:0} tags · ${new Date(m.created_at).toLocaleDateString('pt-BR')}</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <a href="${CONFIG.API_URL}/api/modelos/${m.id}/download" class="btn btn-secondary btn-sm" target="_blank">📥 Baixar</a>
+              ${!m.is_sistema&&!m.is_padrao?`<button class="btn btn-secondary btn-sm" onclick="padrao_modelo('${m.id}','${tipo}')">★ Padrão</button>`:''}
+              ${!m.is_sistema?`<button class="btn btn-danger btn-sm" onclick="del_modelo('${m.id}')">×</button>`:''}
+            </div>
+          </div>`).join('')}
+      </div>`).join('');
+  } catch (err) { el.innerHTML = `<div class="ct-loading" style="color:var(--md-error)">Erro: ${err.message}</div>`; }
+}
+
+window.padrao_modelo = async (id, tipo) => {
+  try { await API.put(`/api/modelos/${id}`, { is_padrao: true }); _carregarModelos(); }
+  catch (err) { alert(err.message); }
+};
+window.del_modelo = async (id) => {
+  if (!confirm('Desativar este modelo?')) return;
+  try { await API.put(`/api/modelos/${id}/desativar`, {}); _carregarModelos(); }
+  catch (err) { alert(err.message); }
+};
+
+async function _enviarUpload() {
+  const tipo = document.getElementById('up-ct-tipo').value;
+  const nome = document.getElementById('up-ct-nome').value.trim();
+  const arq  = document.getElementById('up-ct-arquivo').files?.[0];
+  if (!tipo || !nome || !arq) { alert('Preencha todos os campos.'); return; }
+  const btn = document.getElementById('btn-enviar-upload-ct');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  try {
+    const base64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(arq); });
+    const data = await API.post('/api/modelos', { tipo_contrato: tipo, nome, arquivo_nome: arq.name, arquivo_base64: base64 });
+    const tags = data.tags_detectadas || [];
+    document.getElementById('up-ct-tags').style.display = '';
+    document.getElementById('up-ct-tags').innerHTML = `<div style="font-size:.78rem;font-weight:700;color:var(--md-on-surface-variant);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">✅ ${tags.length} tags detectadas</div><div style="display:flex;flex-wrap:wrap;gap:4px">${tags.map(t=>`<span style="font-size:.7rem;font-family:monospace;background:var(--md-surface-container-high);padding:2px 6px;border-radius:4px">{{${t}}}</span>`).join('')}</div>`;
+    btn.textContent = 'Fechar';
+    btn.onclick = () => { document.getElementById('modal-upload-ct').classList.remove('open'); _carregarModelos(); btn.textContent = 'Enviar e validar →'; btn.onclick = _enviarUpload; btn.disabled = false; document.getElementById('up-ct-tags').style.display = 'none'; };
+  } catch (err) {
+    alert('Erro: ' + err.message);
+    btn.disabled = false; btn.textContent = 'Enviar e validar →';
+  }
+}

@@ -63,16 +63,25 @@
 <main class="app-main">
   <div class="app-content">
 
-    <div class="ct-header">
-      <div>
-        <h1>Contratos</h1>
-        <p>Documentos gerados e assinados</p>
+    <!-- Abas -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--md-outline-variant)">
+        <button class="ficha-tab active" data-ct-tab="contratos" style="font-size:.875rem;padding:8px 18px">📄 Contratos</button>
+        <button class="ficha-tab" data-ct-tab="modelos" style="font-size:.875rem;padding:8px 18px">
+          📋 Modelos
+          <span title="Como usar tags nos modelos" id="btn-tags-help" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--md-outline-variant);color:var(--md-on-surface-variant);font-size:.65rem;font-weight:700;margin-left:6px;cursor:pointer">?</span>
+        </button>
       </div>
-      <a href="/pages/contrato-novo.html" class="btn btn-primary btn-lg">
-        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke-width="2" stroke-linecap="round"/></svg>
-        Novo contrato
-      </a>
+      <div id="ct-aba-btns">
+        <a href="/pages/contrato-novo.html" class="btn btn-primary btn-lg">
+          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke-width="2" stroke-linecap="round"/></svg>
+          Novo contrato
+        </a>
+      </div>
     </div>
+
+    <!-- Aba Contratos -->
+    <div id="ct-panel-contratos">
 
     <div class="ct-filtros">
       <div class="ct-busca">
@@ -114,6 +123,122 @@
       <button class="btn btn-secondary btn-sm" id="btn-ct-ant">← Anterior</button>
       <span id="ct-pag-info" class="ct-pag-info"></span>
       <button class="btn btn-secondary btn-sm" id="btn-ct-prox">Próxima →</button>
+    </div>
+    </div><!-- /ct-panel-contratos -->
+
+    <!-- Aba Modelos -->
+    <div id="ct-panel-modelos" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <p style="font-size:.875rem;color:var(--md-on-surface-variant)">Faça upload de templates .docx com tags <code style="background:var(--md-surface-container);padding:2px 6px;border-radius:4px">{{TAG}}</code> para gerar contratos automaticamente.</p>
+        <button class="btn btn-primary" id="btn-upload-modelo">+ Upload modelo</button>
+      </div>
+      <div id="md-lista-contratos"><div class="ct-loading">Carregando...</div></div>
+    </div>
+
+    <!-- Modal upload modelo -->
+    <div class="modal-overlay" id="modal-upload-ct">
+      <div class="modal-box" style="max-width:520px">
+        <div class="modal-header">
+          <h2>Upload de modelo</h2>
+          <button class="modal-close" id="btn-fechar-upload-ct">✕</button>
+        </div>
+        <div class="modal-body" id="modal-upload-ct-body">
+          <div class="form-group">
+            <label class="form-label">Tipo de contrato *</label>
+            <select id="up-ct-tipo" class="form-select">
+              <option value="">Selecione...</option>
+              <option value="arrendamento">Arrendamento Rural</option>
+              <option value="compra_venda">Compra e Venda</option>
+              <option value="comodato">Comodato</option>
+              <option value="permuta">Permuta</option>
+              <option value="aluguel">Aluguel / Locação</option>
+              <option value="recibo">Recibo</option>
+              <option value="nota_promissoria">Nota Promissória</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nome do modelo *</label>
+            <input type="text" id="up-ct-nome" class="form-input" placeholder="Ex: Arrendamento — Modelo padrão">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Arquivo .docx *</label>
+            <input type="file" id="up-ct-arquivo" class="form-input" accept=".docx">
+          </div>
+          <div id="up-ct-tags" style="display:none;margin-top:8px"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="btn-cancelar-upload-ct">Cancelar</button>
+          <button class="btn btn-primary" id="btn-enviar-upload-ct">Enviar e validar →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Ajuda com tags -->
+    <div class="modal-overlay" id="modal-tags-help">
+      <div class="modal-box" style="max-width:680px;max-height:85vh">
+        <div class="modal-header">
+          <h2>❓ Como usar tags nos modelos</h2>
+          <button class="modal-close" id="btn-fechar-tags-help">✕</button>
+        </div>
+        <div class="modal-body" style="font-size:.875rem;line-height:1.7">
+          <h3 style="margin-bottom:8px">O que são tags?</h3>
+          <p>Tags são marcadores no formato <code style="background:var(--md-surface-container);padding:2px 6px;border-radius:4px">{{NOME_DA_TAG}}</code> que você coloca no seu arquivo Word. Quando gerar o contrato, o sistema substitui cada tag pelo valor real automaticamente.</p>
+
+          <h3 style="margin:16px 0 8px">Como criar o template</h3>
+          <ol style="margin-left:20px">
+            <li>Abra o Word e crie seu contrato normalmente</li>
+            <li>Onde quiser inserir um valor dinâmico, escreva <code style="background:var(--md-surface-container);padding:1px 5px;border-radius:3px">{{NOME_DA_TAG}}</code></li>
+            <li><strong>Importante:</strong> Selecione toda a tag e aplique um único estilo. Não troque a formatação no meio da tag (ex: parte em negrito, parte normal) — isso quebra o reconhecimento</li>
+            <li>Salve como .docx e faça upload aqui</li>
+          </ol>
+
+          <h3 style="margin:16px 0 8px">Tags disponíveis</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:.78rem">
+            ${[
+              ['{{VENDEDOR_NOME}}','Nome da parte 1 (vendedor)'],
+              ['{{VENDEDOR_QUALIFICACAO}}','Qualificação jurídica completa da parte 1'],
+              ['{{COMPRADOR_NOME}}','Nome da parte 2 (comprador)'],
+              ['{{COMPRADOR_QUALIFICACAO}}','Qualificação jurídica completa da parte 2'],
+              ['{{CLIENTE1_CPF}}','CPF/CNPJ da parte 1'],
+              ['{{CLIENTE2_CPF}}','CPF/CNPJ da parte 2'],
+              ['{{IMOVEL_NOME}}','Denominação do imóvel'],
+              ['{{IMOVEL_MATRICULA}}','Número da matrícula'],
+              ['{{IMOVEL_AREA}}','Área em ha (ex: 250,50)'],
+              ['{{IMOVEL_MUNICIPIO}}','Município - UF'],
+              ['{{IMOVEL_CARTORIO}}','Cartório de registro'],
+              ['{{IMOVEL_CCIR}}','Número do CCIR'],
+              ['{{IMOVEL_CAR}}','Inscrição CAR'],
+              ['{{IMOVEL_CONFRONTANTES}}','Norte/Sul/Leste/Oeste'],
+              ['{{VALOR}}','Valor numérico'],
+              ['{{VALOR_EXTENSO}}','Valor por extenso (auto)'],
+              ['{{DATA_HOJE}}','Data atual por extenso'],
+              ['{{DATA_INICIO}}','Data de início por extenso'],
+              ['{{DATA_TERMINO}}','Data de término por extenso'],
+              ['{{PRAZO_EXTENSO}}','Prazo calculado (ex: 3 anos)'],
+              ['{{DATA_ASSINATURA}}','Data de assinatura por extenso'],
+              ['{{LOCAL_ASSINATURA}}','Cidade de assinatura'],
+              ['{{FORO}}','Foro da comarca'],
+              ['{{TESTEMUNHA1_NOME}}','Nome da 1ª testemunha'],
+              ['{{TESTEMUNHA1_CPF}}','CPF da 1ª testemunha'],
+              ['{{TESTEMUNHA2_NOME}}','Nome da 2ª testemunha'],
+              ['{{TESTEMUNHA2_CPF}}','CPF da 2ª testemunha'],
+              ['{{CLAUSULAS_ADICIONAIS}}','Cláusulas extras do formulário'],
+            ].map(([tag,desc]) => `<div style="font-family:monospace;color:var(--md-primary)">${tag}</div><div style="color:var(--md-on-surface-variant)">${desc}</div>`).join('')}
+          </div>
+
+          <h3 style="margin:16px 0 8px">Erro "Multi error" ao baixar?</h3>
+          <p>Isso ocorre quando uma tag está com formatação diferente dentro do Word. Para corrigir:</p>
+          <ol style="margin-left:20px">
+            <li>No Word, selecione toda a tag (ex: <code>{{VENDEDOR_NOME}}</code>)</li>
+            <li>Apague e redigite manualmente — não copie e cole</li>
+            <li>Certifique-se de que toda a tag tem a mesma fonte e tamanho</li>
+            <li>Salve e faça upload novamente</li>
+          </ol>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="btn-fechar-tags-help2">Entendido</button>
+        </div>
+      </div>
     </div>
 
   </div>

@@ -75,6 +75,14 @@
       </div>
     </div>
 
+    <!-- Barra de pesquisa -->
+    <div style="margin-bottom:12px">
+      <div style="position:relative;max-width:400px">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--md-on-surface-variant);pointer-events:none"><circle cx="11" cy="11" r="8" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="text" id="vnd-busca" placeholder="Buscar por cliente, produto, descrição..." style="width:100%;padding:10px 12px 10px 38px;border:1px solid var(--md-outline);border-radius:var(--radius-full);font-size:.875rem;background:var(--md-surface);color:var(--md-on-surface);outline:none">
+      </div>
+    </div>
+
     <!-- Filtros de período -->
     <div class="vnd-filtros">
       <button class="vnd-periodo-btn" data-periodo="hoje">Hoje</button>
@@ -122,33 +130,45 @@
       <input type="hidden" id="lanc-tipo" value="venda">
       <input type="hidden" id="lanc-id">
 
-      <!-- Cliente -->
-      <div class="form-group">
-        <label class="form-label">Cliente</label>
-        <div class="vnd-cli-wrap">
-          <input type="text" id="lanc-cli-busca" class="form-input" placeholder="Buscar cliente por nome ou telefone..." autocomplete="off">
-          <div class="vnd-cli-results" id="lanc-cli-results"></div>
+      <!-- ── SEÇÃO VENDA ─────────────────────────────── -->
+      <div id="secao-venda">
+        <div class="form-group">
+          <label class="form-label">Cliente</label>
+          <div class="vnd-cli-wrap">
+            <input type="text" id="lanc-cli-busca" class="form-input" placeholder="Buscar por nome ou telefone..." autocomplete="off">
+            <div class="vnd-cli-results" id="lanc-cli-results"></div>
+          </div>
+          <div id="lanc-cli-chip" style="display:none"></div>
+          <input type="hidden" id="lanc-cliente-id">
+          <input type="hidden" id="lanc-cliente-nome">
         </div>
-        <div id="lanc-cli-chip" style="display:none"></div>
-        <input type="hidden" id="lanc-cliente-id">
-        <input type="hidden" id="lanc-cliente-nome">
+        <div class="form-group">
+          <label class="form-label">Produto / Serviço</label>
+          <input type="text" id="lanc-produto" class="form-input" placeholder="Ex: Contrato de Arrendamento, Consultoria...">
+        </div>
       </div>
 
-      <!-- Colaborador -->
+      <!-- ── SEÇÃO DESPESA ──────────────────────────── -->
+      <div id="secao-despesa" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Descrição da despesa *</label>
+          <input type="text" id="lanc-descricao" class="form-input" placeholder="Ex: Aluguel do escritório, material de escritório...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Para quem foi pago</label>
+          <input type="text" id="lanc-pago-para" class="form-input" placeholder="Ex: João da Silva, Empresa XYZ...">
+        </div>
+      </div>
+
+      <!-- ── COLABORADOR (ambos) ─────────────────── -->
       <div class="form-group">
         <label class="form-label">Colaborador responsável</label>
         <select id="lanc-colaborador" class="form-select">
-          <option value="">— Selecionar colaborador</option>
+          <option value="">— Selecionar</option>
         </select>
       </div>
 
-      <!-- Produto/Serviço -->
-      <div class="form-group">
-        <label class="form-label">Produto / Serviço</label>
-        <input type="text" id="lanc-produto" class="form-input" placeholder="Ex: Contrato de Arrendamento, Consultoria, ...">
-      </div>
-
-      <!-- Valor + Forma -->
+      <!-- ── VALOR + FORMA ──────────────────────────── -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group">
           <label class="form-label">Valor (R$) *</label>
@@ -158,28 +178,66 @@
           <label class="form-label">Forma de pagamento</label>
           <select id="lanc-forma" class="form-select">
             <option value="">—</option>
-            <option>Dinheiro</option>
-            <option>PIX</option>
-            <option>Cartão de crédito</option>
-            <option>Cartão de débito</option>
-            <option>Boleto</option>
-            <option>Transferência / TED</option>
-            <option>Cheque</option>
-            <option>A prazo</option>
+            <option>Dinheiro</option><option>PIX</option>
+            <option>Cartão de crédito</option><option>Cartão de débito</option>
+            <option>Boleto</option><option>Transferência / TED</option>
+            <option>Cheque</option><option>A prazo</option>
           </select>
         </div>
       </div>
 
-      <!-- Data -->
-      <div class="form-group">
-        <label class="form-label">Data</label>
-        <input type="date" id="lanc-data" class="form-input">
+      <!-- ── PARCELAMENTO (só venda) ───────────────── -->
+      <div id="secao-parcelas">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label class="form-label">Parcelas</label>
+            <select id="lanc-parcelas" class="form-select">
+              <option value="1">À vista</option>
+              <option value="2">2x</option><option value="3">3x</option>
+              <option value="4">4x</option><option value="5">5x</option>
+              <option value="6">6x</option><option value="10">10x</option>
+              <option value="12">12x</option><option value="18">18x</option>
+              <option value="24">24x</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status de pagamento</label>
+            <select id="lanc-status-pag" class="form-select">
+              <option value="pendente">Pendente</option>
+              <option value="pago">Pago</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <!-- Observação -->
+      <!-- ── DATAS ──────────────────────────────────── -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">Data do lançamento</label>
+          <input type="date" id="lanc-data" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data de vencimento / recebimento</label>
+          <input type="date" id="lanc-data-venc" class="form-input">
+          <div style="font-size:.7rem;color:var(--md-on-surface-variant);margin-top:2px">Cartão de crédito: preenchido automaticamente (+30 dias)</div>
+        </div>
+      </div>
+
+      <!-- ── STATUS DA VENDA (só venda) ────────────── -->
+      <div id="secao-status">
+        <div class="form-group">
+          <label class="form-label">Status da venda</label>
+          <select id="lanc-status-venda" class="form-select">
+            <option value="finalizada">✅ Finalizada</option>
+            <option value="em_execucao">⏳ Em execução</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ── OBSERVAÇÃO ─────────────────────────────── -->
       <div class="form-group">
         <label class="form-label">Observação</label>
-        <textarea id="lanc-obs" class="form-textarea" placeholder="Informações adicionais..."></textarea>
+        <textarea id="lanc-obs" class="form-textarea" placeholder="Informações adicionais..." rows="2"></textarea>
       </div>
     </div>
     <div class="modal-footer">

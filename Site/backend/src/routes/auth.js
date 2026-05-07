@@ -6,6 +6,7 @@ router.post('/login',                 ctrl.login);
 router.post('/register',              ctrl.register);
 router.get('/me',                     authmw, ctrl.me);
 router.post('/convite',               authmw, ctrl.gerarConvite);
+router.get('/convite/:token',         ctrl.verificarConviteGet);
 router.post('/verificar-convite',     ctrl.verificarConvite);
 router.post('/registrar-colaborador', ctrl.registrarColaborador);
 

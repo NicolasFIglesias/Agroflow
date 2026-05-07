@@ -60,8 +60,46 @@ exports.login = async (req, res) => {
   }
 };
 
-// POST /api/auth/register — cria empresa + primeiro usuário admin
+// GET /api/auth/convite/:token — verifica token (chamado pelo login.js do colaborador)
+exports.verificarConviteGet = async (req, res) => {
+  try {
+    const decoded = jwt.verify(req.params.token, process.env.JWT_SECRET);
+    if (decoded.tipo !== 'convite') return res.status(400).json({ error: 'Token inválido' });
+    const { rows } = await db.query('SELECT nome FROM empresas WHERE id=$1', [decoded.empresa_id]);
+    if (!rows.length) return res.status(404).json({ error: 'Empresa não encontrada' });
+    res.json({ empresa_id: decoded.empresa_id, empresa_nome: rows[0].nome });
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') return res.status(401).json({ error: 'Convite expirado' });
+    res.status(400).json({ error: 'Link de convite inválido' });
+  }
+};
+
+// POST /api/auth/register — cria empresa + admin, OU colaborador via convite
 exports.register = async (req, res) => {
+  // Colaborador via convite
+  if (req.body.tipo === 'colaborador') {
+    try {
+      const { convite_token, email, senha, cargo } = req.body;
+      if (!convite_token || !email || !senha) return res.status(400).json({ error: 'Dados incompletos' });
+      const decoded = jwt.verify(convite_token, process.env.JWT_SECRET);
+      if (decoded.tipo !== 'convite') return res.status(400).json({ error: 'Token de convite inválido' });
+      const { rows: existe } = await db.query('SELECT id FROM usuarios WHERE email=$1', [email.toLowerCase().trim()]);
+      if (existe.length > 0) return res.status(409).json({ error: 'E-mail já cadastrado' });
+      const senhaHash = await bcrypt.hash(senha, 10);
+      const nomePadrao = email.split('@')[0];
+      const { rows: [u] } = await db.query(
+        `INSERT INTO usuarios (empresa_id, nome, email, senha_hash, cargo, role) VALUES ($1,$2,$3,$4,$5,'colaborador') RETURNING id, nome, email, cargo, role, empresa_id`,
+        [decoded.empresa_id, nomePadrao, email.toLowerCase().trim(), senhaHash, cargo?.trim() || null]
+      );
+      const { rows: [e] } = await db.query('SELECT nome FROM empresas WHERE id=$1', [decoded.empresa_id]);
+      const token = jwt.sign({ id: u.id, empresa_id: u.empresa_id, nome: u.nome, email: u.email, role: u.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+      return res.status(201).json({ token, usuario: { ...u, empresa_nome: e?.nome || '' } });
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') return res.status(401).json({ error: 'Convite expirado' });
+      return res.status(400).json({ error: err.message });
+    }
+  }
+
   const client = await db.pool.connect();
   try {
     await client.query('BEGIN');

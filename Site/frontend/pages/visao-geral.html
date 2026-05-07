@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="../css/global.css">
   <link rel="stylesheet" href="../css/components/sidebar.css">
   <link rel="stylesheet" href="../css/visao-geral.css">
+  <link rel="stylesheet" href="../css/vendas.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">☰</button>
@@ -129,6 +131,52 @@
       </div>
 
     </div>
+
+    <!-- ── FATURAMENTO (admin only) ────────────────── -->
+    <div id="vg-fat-section" style="display:none;margin-top:24px">
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px">📊 Faturamento</h2>
+
+      <!-- KPIs faturamento -->
+      <div class="fat-kpis" style="margin-bottom:20px">
+        <div class="fat-kpi fat-kpi-verde">
+          <div class="fat-kpi-label">📈 Vendido este mês</div>
+          <div class="fat-kpi-valor positivo" id="fat-kpi-vendas">—</div>
+          <div class="fat-kpi-sub" id="fat-kpi-vendas-qtd"></div>
+        </div>
+        <div class="fat-kpi fat-kpi-red">
+          <div class="fat-kpi-label">📉 Despesas este mês</div>
+          <div class="fat-kpi-valor negativo" id="fat-kpi-desp">—</div>
+          <div class="fat-kpi-sub" id="fat-kpi-desp-qtd"></div>
+        </div>
+        <div class="fat-kpi fat-kpi-blue">
+          <div class="fat-kpi-label">💡 Lucro líquido</div>
+          <div class="fat-kpi-valor" id="fat-kpi-lucro">—</div>
+          <div class="fat-kpi-sub">vendas − despesas</div>
+        </div>
+      </div>
+
+      <!-- Gráficos -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="fat-card" style="border-radius:20px;padding:20px">
+          <div style="font-size:.9rem;font-weight:700;margin-bottom:16px">Comparativo mensal (6 meses)</div>
+          <canvas id="chart-mensal" height="200"></canvas>
+        </div>
+        <div class="fat-card" style="border-radius:20px;padding:20px">
+          <div style="font-size:.9rem;font-weight:700;margin-bottom:16px">Produtos mais vendidos</div>
+          <canvas id="chart-produtos" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- Ranking mini -->
+      <div class="fat-card" style="border-radius:20px;margin-top:16px">
+        <div class="fat-card-header">
+          <span class="fat-card-title">🏆 Ranking de colaboradores (mês)</span>
+          <a href="/pages/faturamento.html" class="btn btn-ghost btn-sm">Ver detalhes →</a>
+        </div>
+        <div id="vg-ranking"><div class="vnd-empty">Carregando...</div></div>
+      </div>
+    </div>
+
   </div>
 </main>
 

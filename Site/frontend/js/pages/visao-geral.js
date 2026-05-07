@@ -34,7 +34,82 @@ initSidebar();
   } catch (err) {
     console.error('Dashboard:', err);
   }
+
+  // ── Faturamento (só admin) ─────────────────────────────
+  if (u?.role === 'admin') {
+    document.getElementById('vg-fat-section').style.display = '';
+    _carregarFaturamento();
+  }
 })();
+
+async function _carregarFaturamento() {
+  const hoje = new Date().toISOString().slice(0,10);
+  const inicio = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0,10);
+  try {
+    const [resumo, mensal] = await Promise.all([
+      API.get(`/api/lancamentos/resumo?data_inicio=${inicio}&data_fim=${hoje}`),
+      API.get('/api/lancamentos/mensal?meses=6'),
+    ]);
+
+    const _fmtBRL = v => `R$ ${parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+    document.getElementById('fat-kpi-vendas').textContent = _fmtBRL(resumo.total_vendas);
+    document.getElementById('fat-kpi-vendas-qtd').textContent = `${resumo.qtd_vendas} venda${resumo.qtd_vendas!==1?'s':''}`;
+    document.getElementById('fat-kpi-desp').textContent = _fmtBRL(resumo.total_despesas);
+    document.getElementById('fat-kpi-desp-qtd').textContent = `${resumo.qtd_despesas} despesa${resumo.qtd_despesas!==1?'s':''}`;
+    const lucroEl = document.getElementById('fat-kpi-lucro');
+    lucroEl.textContent = _fmtBRL(Math.abs(resumo.lucro));
+    lucroEl.className = `fat-kpi-valor ${resumo.lucro >= 0 ? 'positivo' : 'negativo'}`;
+
+    // Ranking mini
+    const rankEl = document.getElementById('vg-ranking');
+    if (!resumo.ranking?.length) {
+      rankEl.innerHTML = '<div class="vnd-empty">Sem vendas registradas este mês.</div>';
+    } else {
+      const MEDALHAS = ['🥇','🥈','🥉'];
+      rankEl.innerHTML = resumo.ranking.slice(0,5).map((r, i) => {
+        const ini = (r.colaborador_nome||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+        return `<div class="fat-rank-item">
+          <div class="fat-rank-pos">${MEDALHAS[i]||i+1+'º'}</div>
+          <div class="fat-rank-avatar">${ini}</div>
+          <div class="fat-rank-info"><div class="fat-rank-nome">${_esc(r.colaborador_nome)}</div><div class="fat-rank-qtd">${r.qtd} venda${r.qtd!='1'?'s':''}</div></div>
+          <div class="fat-rank-valor">${_fmtBRL(r.total)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // Chart: mensal
+    if (mensal.mensal?.length) {
+      const meses = mensal.mensal.map(m => {
+        const [ano, mes] = m.mes.split('-');
+        return new Date(parseInt(ano), parseInt(mes)-1).toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+      });
+      new Chart(document.getElementById('chart-mensal'), {
+        type: 'bar',
+        data: {
+          labels: meses,
+          datasets: [
+            { label:'Vendas',   data: mensal.mensal.map(m => parseFloat(m.vendas||0)),   backgroundColor:'rgba(56,106,32,.7)' },
+            { label:'Despesas', data: mensal.mensal.map(m => parseFloat(m.despesas||0)), backgroundColor:'rgba(186,26,26,.5)' },
+          ]
+        },
+        options: { responsive:true, plugins:{ legend:{ position:'bottom' } }, scales:{ y:{ ticks:{ callback: v => 'R$'+v.toLocaleString('pt-BR') } } } }
+      });
+    }
+
+    // Chart: produtos
+    if (mensal.produtos?.length) {
+      const cores = ['#386A20','#55624C','#2a6fa8','#9a6010','#c03030','#5040A0','#38663c','#a86010'];
+      new Chart(document.getElementById('chart-produtos'), {
+        type: 'doughnut',
+        data: {
+          labels: mensal.produtos.map(p => p.produto || 'Sem produto'),
+          datasets: [{ data: mensal.produtos.map(p => parseFloat(p.total)), backgroundColor: cores }]
+        },
+        options: { responsive:true, plugins:{ legend:{ position:'right', labels:{ font:{ size:11 } } } } }
+      });
+    }
+  } catch (err) { console.error('Faturamento:', err); }
+}
 
 const CCIR_LABEL = { em_dia: 'Em dia', vencido: 'Vencido', em_renovacao: 'Em renov.' };
 const CAR_LABEL  = { ativo: 'Ativo', pendente_analise: 'Pendente', cancelado: 'Cancelado', suspenso: 'Suspenso' };
