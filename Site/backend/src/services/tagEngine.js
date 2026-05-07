@@ -50,7 +50,8 @@ function buildTags(dados, cliente1, cliente2, imovel, conjuge1) {
       CLIENTE1_NOME: cliente1.nome_completo || '', CLIENTE1_CPF: cliente1.cpf || '', CLIENTE1_CNPJ: cliente1.cnpj || '',
       CLIENTE1_QUALIFICACAO: q1,
       ARRENDADOR_NOME: cliente1.nome_completo || '', ARRENDADOR_CPF: cliente1.cpf || '', ARRENDADOR_QUALIFICACAO: q1,
-      VENDEDOR_NOME: cliente1.nome_completo || '', VENDEDOR_CPF: cliente1.cpf || '',
+      VENDEDOR_NOME: cliente1.nome_completo || '', VENDEDOR_CPF: cliente1.cpf || '', VENDEDOR_QUALIFICACAO: q1,
+      COMPRADOR_NOME: '', COMPRADOR_CPF: '', COMPRADOR_QUALIFICACAO: '',
       COMODANTE_NOME: cliente1.nome_completo || '', PARTE_A_NOME: cliente1.nome_completo || '',
       LOCADOR_NOME: cliente1.nome_completo || '',
       RECEBEDOR_NOME: cliente1.nome_completo || '', RECEBEDOR_CPF: cliente1.cpf || '',
@@ -66,7 +67,7 @@ function buildTags(dados, cliente1, cliente2, imovel, conjuge1) {
     Object.assign(tags, {
       CLIENTE2_NOME: nome2, CLIENTE2_CPF: cpf2, CLIENTE2_QUALIFICACAO: q2,
       ARRENDATARIO_NOME: nome2, ARRENDATARIO_CPF: cpf2, ARRENDATARIO_QUALIFICACAO: q2,
-      COMPRADOR_NOME: nome2, COMPRADOR_CPF: cpf2,
+      COMPRADOR_NOME: nome2, COMPRADOR_CPF: cpf2, COMPRADOR_QUALIFICACAO: q2,
       COMODATARIO_NOME: nome2, PARTE_B_NOME: nome2,
       LOCATARIO_NOME: nome2,
       PAGADOR_NOME: nome2, PAGADOR_CPF: cpf2,
