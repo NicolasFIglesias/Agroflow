@@ -121,6 +121,59 @@ exports.register = async (req, res) => {
   }
 };
 
+// POST /api/auth/convite — admin gera link de convite para colaborador
+exports.gerarConvite = async (req, res) => {
+  try {
+    const token = jwt.sign(
+      { empresa_id: req.usuario.empresa_id, empresa_nome: req.usuario.empresa_nome, tipo: 'convite' },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    const base = process.env.FRONTEND_URL || 'https://frontend-peach-beta-chh2ammsv3.vercel.app';
+    res.json({ token, link: `${base}/pages/login.html?convite=${token}` });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
+// POST /api/auth/verificar-convite — verifica token e retorna empresa
+exports.verificarConvite = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ error: 'Token é obrigatório' });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.tipo !== 'convite') return res.status(400).json({ error: 'Token inválido' });
+    const { rows } = await db.query('SELECT nome FROM empresas WHERE id=$1', [decoded.empresa_id]);
+    if (!rows.length) return res.status(404).json({ error: 'Empresa não encontrada' });
+    res.json({ empresa_id: decoded.empresa_id, empresa_nome: rows[0].nome });
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') return res.status(401).json({ error: 'Convite expirado' });
+    res.status(400).json({ error: 'Token inválido' });
+  }
+};
+
+// POST /api/auth/registrar-colaborador — cria usuário a partir de convite
+exports.registrarColaborador = async (req, res) => {
+  try {
+    const { token, nome, email, senha, cargo } = req.body;
+    if (!token || !nome || !email || !senha) return res.status(400).json({ error: 'Campos obrigatórios incompletos' });
+    if (senha.length < 6) return res.status(400).json({ error: 'Senha deve ter ao menos 6 caracteres' });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.tipo !== 'convite') return res.status(400).json({ error: 'Token inválido' });
+    const { rows: existe } = await db.query('SELECT id FROM usuarios WHERE email=$1', [email.toLowerCase().trim()]);
+    if (existe.length > 0) return res.status(409).json({ error: 'E-mail já cadastrado' });
+    const senhaHash = await bcrypt.hash(senha, 10);
+    const { rows: [u] } = await db.query(
+      `INSERT INTO usuarios (empresa_id, nome, email, senha_hash, cargo, role) VALUES ($1,$2,$3,$4,$5,'colaborador') RETURNING id, nome, email, cargo, role, empresa_id`,
+      [decoded.empresa_id, nome.trim(), email.toLowerCase().trim(), senhaHash, cargo?.trim() || null]
+    );
+    const { rows: [e] } = await db.query('SELECT nome FROM empresas WHERE id=$1', [decoded.empresa_id]);
+    const novoToken = jwt.sign({ id: u.id, empresa_id: u.empresa_id, nome: u.nome, email: u.email, role: u.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ token: novoToken, usuario: { ...u, empresa_nome: e?.nome || '' } });
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') return res.status(401).json({ error: 'Convite expirado' });
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // GET /api/auth/me
 exports.me = async (req, res) => {
   try {

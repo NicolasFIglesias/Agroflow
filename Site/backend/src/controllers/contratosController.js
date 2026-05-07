@@ -180,6 +180,34 @@ exports.duplicar = async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 };
 
+exports.atualizar = async (req, res) => {
+  try {
+    const { dados_formulario, data_inicio, data_termino, data_assinatura, valor, parte1_nome, parte2_nome, imovel_nome } = req.body;
+    const { rowCount } = await db.query(
+      `UPDATE contratos SET
+         dados_formulario = COALESCE($1, dados_formulario),
+         data_inicio      = COALESCE($2, data_inicio),
+         data_termino     = COALESCE($3, data_termino),
+         data_assinatura  = COALESCE($4, data_assinatura),
+         valor            = COALESCE($5, valor),
+         parte1_nome      = COALESCE($6, parte1_nome),
+         parte2_nome      = COALESCE($7, parte2_nome),
+         imovel_nome      = COALESCE($8, imovel_nome),
+         updated_at       = NOW()
+       WHERE id=$9 AND empresa_id=$10`,
+      [
+        dados_formulario ? JSON.stringify(dados_formulario) : null,
+        data_inicio || null, data_termino || null, data_assinatura || null,
+        valor ? parseFloat(valor) : null,
+        parte1_nome || null, parte2_nome || null, imovel_nome || null,
+        req.params.id, req.usuario.empresa_id
+      ]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Contrato não encontrado' });
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
 exports.alterarStatus = async (req, res) => {
   try {
     const { status } = req.body;

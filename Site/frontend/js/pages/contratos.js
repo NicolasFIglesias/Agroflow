@@ -54,7 +54,7 @@ async function carregarLista() {
     lista.querySelectorAll('.ct-row').forEach(row =>
       row.addEventListener('click', e => {
         if (e.target.closest('.ct-menu-wrap')) return;
-        window.location.href = `/pages/contratos.html?id=${row.dataset.id}`;
+        window.location.href = `/pages/contrato-novo.html?editar=${row.dataset.id}`;
       })
     );
     lista.querySelectorAll('.ct-menu-btn').forEach(btn =>

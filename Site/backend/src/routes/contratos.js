@@ -15,6 +15,7 @@ router.delete('/rascunho/:id', rasc.excluir);
 router.get('/',              ctrl.listar);
 router.post('/',             ctrl.criar);
 router.get('/:id',           ctrl.buscarPorId);
+router.put('/:id',           ctrl.atualizar);
 router.get('/:id/download',  ctrl.download);
 router.post('/:id/duplicar', ctrl.duplicar);
 router.put('/:id/status',    ctrl.alterarStatus);

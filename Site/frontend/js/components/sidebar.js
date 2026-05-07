@@ -6,6 +6,12 @@ function initSidebar() {
   const usuario = Auth.usuario();
   if (!usuario) return;
 
+  // Nome da empresa no logo
+  const logoTextEl = document.querySelector('.sidebar-logo-text');
+  const logoSubEl  = document.querySelector('.sidebar-logo-sub');
+  if (logoTextEl && usuario.empresa_nome) logoTextEl.textContent = usuario.empresa_nome;
+  if (logoSubEl  && usuario.empresa_nome) logoSubEl.textContent  = 'AgriFlow · Crédito Rural';
+
   // Preencher dados do usuário
   const nomeEl   = document.getElementById('sidebar-user-name');
   const roleEl   = document.getElementById('sidebar-user-role');

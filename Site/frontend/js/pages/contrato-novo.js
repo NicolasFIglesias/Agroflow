@@ -20,10 +20,32 @@ let _form     = {};
 let _numero   = '';
 let _rascTimer= null;
 let _contratoGerado = null;
+let _editandoId = null; // ID do contrato sendo editado
 
 const _params = new URLSearchParams(location.search);
 
 (async () => {
+  // Modo editar: ?editar=CONTRACT_ID
+  const editarId = _params.get('editar');
+  if (editarId) {
+    try {
+      const ct  = await API.get(`/api/contratos/${editarId}`);
+      _editandoId = ct.id;
+      _tipo       = ct.tipo_contrato;
+      _numero     = ct.numero;
+      _form       = ct.dados_formulario || {};
+      _modeloId   = ct.modelo_id;
+      document.getElementById('ct-wizard-titulo').textContent = `Editando — ${ct.numero}`;
+      goStep(2);
+      return;
+    } catch (err) {
+      alert('Erro ao carregar contrato: ' + err.message);
+      window.location.href = '/pages/contratos.html';
+      return;
+    }
+  }
+
+  // Modo duplicar: ?duplicar=CONTRACT_ID
   const dupId = _params.get('duplicar');
   if (dupId) {
     try {
@@ -50,7 +72,7 @@ function goStep(n) {
   if (n === 0) { btnA.textContent = 'Avançar →'; btnA.onclick = avancarTipo;    btnA.style.display = ''; }
   else if (n === 1) { btnA.textContent = 'Usar este modelo →'; btnA.onclick = avancarModelo; btnA.style.display = ''; }
   else if (n === 2) { btnA.textContent = 'Revisar →';          btnA.onclick = avancarForm;   btnA.style.display = ''; }
-  else if (n === 3) { btnA.textContent = 'Gerar contrato →';   btnA.onclick = gerarContrato; btnA.style.display = ''; }
+  else if (n === 3) { btnA.textContent = _editandoId ? 'Salvar alterações →' : 'Gerar contrato →'; btnA.onclick = gerarContrato; btnA.style.display = ''; }
   else              { btnA.style.display = 'none'; }
   btnV.onclick = () => goStep(Math.max(0, _step - 1));
 }
@@ -296,6 +318,13 @@ function _secaoAssinatura() {
   </div></div>`;
 }
 
+// Campos que só aceitam dígitos
+function _bindNumerico(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, ''); });
+}
+
 function _bindFormEventos() {
   _bindSearch('busca-c1', 'res-c1', 'chip-c1', 'f-c1-id', _preencherC1, false);
   document.getElementById('btn-c2-buscar')?.addEventListener('click', () => {
@@ -322,6 +351,9 @@ function _bindFormEventos() {
   };
   document.getElementById('f-inicio')?.addEventListener('change', calcPrazo);
   document.getElementById('f-termino')?.addEventListener('change', calcPrazo);
+
+  // Campos de CPF/CNPJ — apenas números
+  ['f-c1-doc','f-c2-doc','f-test1-cpf','f-test2-cpf'].forEach(_bindNumerico);
 }
 
 const _timers = {};
@@ -485,26 +517,46 @@ function renderRevisao() {
 
 async function gerarContrato() {
   const btn = document.getElementById('btn-ct-avancar');
-  btn.disabled = true; btn.textContent = 'Gerando...';
+  btn.disabled = true;
+  btn.textContent = _editandoId ? 'Salvando...' : 'Gerando...';
   try {
-    _contratoGerado = await API.post('/api/contratos', {
-      tipo_contrato:    _tipo,
-      modelo_id:        _modeloId || undefined,
-      cliente_id:       _form.cliente1_id || undefined,
-      cliente2_id:      _form.cliente2_id || undefined,
-      imovel_id:        _form.imovel_id   || undefined,
-      dados_formulario: { ..._form, numero: _numero },
-      numero_custom:    _numero,
-    });
+    const dadosCompletos = { ..._form, numero: _numero };
+
+    if (_editandoId) {
+      // Modo edição: atualiza o contrato existente
+      await API.put(`/api/contratos/${_editandoId}`, {
+        dados_formulario: dadosCompletos,
+        data_inicio:      _form.data_inicio     || null,
+        data_termino:     _form.data_termino    || null,
+        data_assinatura:  _form.data_assinatura || null,
+        valor:            _form.valor           || null,
+        parte1_nome:      _form.parte1_nome     || null,
+        parte2_nome:      _form.parte2_nome     || null,
+        imovel_nome:      _form.imovel_nome     || null,
+      });
+      _contratoGerado = await API.get(`/api/contratos/${_editandoId}`);
+      _contratoGerado.modelo_disponivel = !!_modeloId;
+    } else {
+      // Modo criação
+      _contratoGerado = await API.post('/api/contratos', {
+        tipo_contrato:    _tipo,
+        modelo_id:        _modeloId || undefined,
+        cliente_id:       _form.cliente1_id || undefined,
+        cliente2_id:      _form.cliente2_id || undefined,
+        imovel_id:        _form.imovel_id   || undefined,
+        dados_formulario: dadosCompletos,
+        numero_custom:    _numero,
+      });
+    }
     clearInterval(_rascTimer);
     goStep(4);
   } catch (err) { alert('Erro ao gerar: ' + (err.message || 'Erro interno')); }
-  finally { btn.disabled = false; btn.textContent = 'Gerar contrato →'; }
+  finally { btn.disabled = false; btn.textContent = _editandoId ? 'Salvar alterações' : 'Gerar contrato →'; }
 }
 
 // ── Step 4 ─────────────────────────────────────────────────
 function renderSucesso() {
-  document.getElementById('ct-wizard-titulo').textContent = 'Contrato gerado!';
+  document.getElementById('ct-wizard-titulo').textContent = _editandoId ? 'Alterações salvas!' : 'Contrato gerado!';
   const id = _contratoGerado?.id;
   document.getElementById('ct-wizard-content').innerHTML = `
     <div class="ct-success">

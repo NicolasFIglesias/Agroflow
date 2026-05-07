@@ -17,8 +17,28 @@ function detectarTags(base64) {
 function gerarDocx(base64Modelo, dados) {
   const buf = Buffer.from(base64Modelo, 'base64');
   const zip = new PizZip(buf);
-  const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true, nullGetter: () => '' });
-  doc.render(dados);
+  const doc = new Docxtemplater(zip, {
+    paragraphLoop: true,
+    linebreaks: true,
+    nullGetter: () => '',
+  });
+  try {
+    doc.render(dados);
+  } catch (err) {
+    // Docxtemplater multi_error: tags com formatação quebrada no Word
+    if (err.properties && err.properties.errors && err.properties.errors.length > 0) {
+      const msgs = err.properties.errors
+        .map(e => e.properties?.explanation || e.properties?.tag || e.message || '')
+        .filter(Boolean)
+        .join('; ');
+      throw new Error(
+        `O modelo tem tags com formatação incorreta no Word. ` +
+        `Selecione cada tag como {{TAG}}, aplique um único estilo e tente novamente. ` +
+        `Detalhe: ${msgs}`
+      );
+    }
+    throw err;
+  }
   return doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
 }
 

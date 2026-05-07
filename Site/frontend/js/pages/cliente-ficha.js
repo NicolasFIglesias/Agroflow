@@ -354,12 +354,20 @@ async function salvarDados() {
 }
 
 /* ── Eventos ──────────────────────────────────────────────── */
+function _soDigitos(id) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, ''); });
+}
+
 function bindEventos() {
   document.querySelectorAll('.ficha-tab').forEach(t =>
     t.addEventListener('click', () => ativarAba(t.dataset.tab)));
 
   document.getElementById('btn-tipo-pf')?.addEventListener('click', () => setTipo('PF'));
   document.getElementById('btn-tipo-pj')?.addEventListener('click', () => setTipo('PJ'));
+
+  // Campos de CPF/CNPJ/RG — apenas dígitos
+  ['c-cpf', 'c-rg'].forEach(_soDigitos);
 
   // CEP via ViaCEP
   document.getElementById('f-cep')?.addEventListener('blur', async e => {

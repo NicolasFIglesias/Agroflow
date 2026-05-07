@@ -1,3 +1,47 @@
+/* ── Modal-box (compartilhado com imoveis e modelos) ─────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(26,28,25,.48);
+  z-index: 1000;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 24px 16px; overflow-y: auto;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s ease;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal-box {
+  background: var(--md-surface-container-highest, #E1E4DB);
+  border-radius: 28px; width: 100%; max-width: 560px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.18);
+  display: flex; flex-direction: column;
+  transform: translateY(14px) scale(.97);
+  transition: transform .25s ease;
+}
+.modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+.modal-box.modal-lg { max-width: 780px; }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--md-outline-variant, #C3C8BC);
+  border-radius: 28px 28px 0 0;
+}
+.modal-header h2 { font-size: 1.1rem; font-weight: 700; color: var(--md-on-surface, #1A1C19); margin: 0; }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: none; background: none; font-size: 1rem; cursor: pointer;
+  color: var(--md-on-surface-variant, #434842);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.modal-close:hover { background: rgba(0,0,0,.06); }
+.modal-body { padding: 20px 24px; overflow-y: auto; max-height: calc(90vh - 140px); }
+.modal-footer {
+  display: flex; gap: 8px; justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid var(--md-outline-variant, #C3C8BC);
+  border-radius: 0 0 28px 28px;
+}
+
 /* ── Contratos ───────────────────────────────────────────── */
 
 .ct-header {
