@@ -116,10 +116,32 @@ function renderRow(ct) {
   </div>`;
 }
 
+async function _baixarDocx(id, numero) {
+  try {
+    const r = await fetch(`${CONFIG.API_URL}/api/contratos/${id}/download`, {
+      headers: { 'Authorization': `Bearer ${Auth.token()}` }
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      alert('Erro ao baixar: ' + (err.error || `Erro ${r.status}`));
+      return;
+    }
+    const blob = await r.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `${numero || 'contrato'}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) { alert('Erro ao baixar: ' + err.message); }
+}
+
 async function handleAction(action, id, numero, tipo) {
   document.querySelectorAll('.ct-menu-dropdown.open').forEach(d => d.classList.remove('open'));
   if (action === 'download') {
-    window.location.href = `${CONFIG.API_URL}/api/contratos/${id}/download`;
+    await _baixarDocx(id, numero);
   }
   if (action === 'duplicar') {
     if (!confirm('Duplicar este contrato para criar uma renovação?')) return;

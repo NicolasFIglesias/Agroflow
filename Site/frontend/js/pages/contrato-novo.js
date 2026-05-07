@@ -513,7 +513,7 @@ function renderSucesso() {
       <div class="ct-success-numero">${_esc(_numero)}</div>
       <p style="margin-top:6px">${TIPOS[_tipo]?.label}${_form.parte1_nome ? ' · ' + _esc(_form.parte1_nome) : ''}</p>
       ${_contratoGerado?.modelo_disponivel && id
-        ? `<div class="ct-success-btns"><a href="${CONFIG.API_URL}/api/contratos/${id}/download" class="btn btn-primary" target="_blank">📥 Baixar Word</a></div>`
+        ? `<div class="ct-success-btns"><button class="btn btn-primary" onclick="_baixarDocxSucesso('${id}','${_esc(_numero)}')">📥 Baixar Word</button></div>`
         : '<p style="color:var(--md-error);margin-top:12px;font-size:.875rem">⚠️ Nenhum modelo .docx cadastrado. <a href="/pages/modelos-documentos.html" style="color:var(--md-primary)">Cadastrar modelo →</a></p>'}
       <div class="ct-success-btns" style="margin-top:20px">
         <a href="/pages/contratos.html" class="btn btn-secondary">Ver lista</a>
@@ -521,6 +521,30 @@ function renderSucesso() {
       </div>
     </div>`;
 }
+
+// ── Download com auth ──────────────────────────────────────
+async function _baixarDocxSucesso(id, numero) {
+  try {
+    const r = await fetch(`${CONFIG.API_URL}/api/contratos/${id}/download`, {
+      headers: { 'Authorization': `Bearer ${Auth.token()}` }
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      alert('Erro ao baixar: ' + (err.error || `Erro ${r.status}`));
+      return;
+    }
+    const blob = await r.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `${numero || 'contrato'}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) { alert('Erro ao baixar: ' + err.message); }
+}
+window._baixarDocxSucesso = _baixarDocxSucesso;
 
 // ── Helpers ────────────────────────────────────────────────
 function _valExtenso(v) {
