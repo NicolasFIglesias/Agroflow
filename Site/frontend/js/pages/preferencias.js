@@ -1,21 +1,36 @@
 /* ── Preferências da empresa ──────────────────────────────── */
 verificarAutenticacao();
 
-// Apenas admins
 const _u = Auth.usuario();
-if (!_u || _u.role !== 'admin') {
-  window.location.href = '/pages/visao-geral.html';
-}
+if (!_u) window.location.href = '/pages/login.html';
+const _isAdminPref = _u?.role === 'admin' || _u?.role === 'superdev';
 initSidebar();
 
-// Itens configuráveis do menu (exclui admin-only como colaboradores/preferências)
-const MENU_ITEMS = [
-  { page: 'visao-geral', label: 'Visão Geral',    icon: '📊', adminOnly: true },
-  { page: 'clientes',    label: 'Clientes',        icon: '👥' },
-  { page: 'imoveis',     label: 'Imóveis',         icon: '🌾' },
-  { page: 'contratos',   label: 'Contratos',       icon: '📄' },
-  { page: 'calendario',  label: 'Calendário',      icon: '📅' },
-  { page: 'modelos-documentos', label: 'Modelos de Documentos', icon: '📋' },
+// Colaboradores vêem apenas a seção de menu lateral
+if (!_isAdminPref) {
+  document.querySelectorAll('.pref-section').forEach((sec, i) => {
+    // Índice 0 = identidade, 1 = menu lateral, 2 = dashboard
+    if (i !== 1) sec.style.display = 'none';
+  });
+  document.querySelector('.pref-header p').textContent = 'Personalize a ordem do menu lateral';
+  document.getElementById('btn-salvar').textContent = 'Salvar preferências';
+}
+
+// Itens configuráveis do menu
+const MENU_ITEMS = _isAdminPref ? [
+  { page: 'visao-geral',   label: 'Visão Geral',          icon: '🏠' },
+  { page: 'calendario',    label: 'Calendário',             icon: '📅' },
+  { page: 'vendas',        label: 'Vendas',                icon: '💰' },
+  { page: 'contratos',     label: 'Contratos',             icon: '📄' },
+  { page: 'clientes',      label: 'Clientes',              icon: '👥' },
+  { page: 'imoveis',       label: 'Imóveis',               icon: '🌾' },
+] : [
+  { page: 'visao-geral',   label: 'Início',    icon: '🏠' },
+  { page: 'calendario',    label: 'Calendário', icon: '📅' },
+  { page: 'vendas',        label: 'Vendas',     icon: '💰' },
+  { page: 'contratos',     label: 'Contratos',  icon: '📄' },
+  { page: 'clientes',      label: 'Clientes',   icon: '👥' },
+  { page: 'imoveis',       label: 'Imóveis',    icon: '🌾' },
 ];
 
 let _prefs = null;
@@ -163,13 +178,17 @@ async function _salvar() {
 
   _sincronizarOrder();
 
-  const payload = {
-    logo_base64:          document.getElementById('logo-base64').value || null,
+  // Colaboradores só podem salvar a ordem do menu
+  const payload = _isAdminPref ? {
+    logo_base64:          document.getElementById('logo-base64')?.value || null,
     logo_mime:            document.getElementById('logo-mime').value   || 'image/png',
     sidebar_order:        _order,
     sidebar_hidden:       _hidden,
-    cor_primaria:         document.getElementById('cor-primaria').value || null,
-    mensagem_boas_vindas: document.getElementById('mensagem-boas-vindas').value.trim() || null,
+    cor_primaria:         document.getElementById('cor-primaria')?.value || null,
+    mensagem_boas_vindas: document.getElementById('mensagem-boas-vindas')?.value.trim() || null,
+  } : {
+    sidebar_order:  _order,
+    sidebar_hidden: _hidden,
   };
 
   try {

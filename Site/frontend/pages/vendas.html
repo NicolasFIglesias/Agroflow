@@ -75,25 +75,26 @@
       </div>
     </div>
 
+    <!-- Painéis Vendas / Despesas -->
+    <div style="display:flex;align-items:center;gap:0;border-bottom:2px solid var(--md-outline-variant);margin-bottom:16px">
+      <button class="ficha-tab active" data-vnd-painel="venda"   style="padding:8px 22px;font-size:.875rem">📈 Vendas</button>
+      <button class="ficha-tab"        data-vnd-painel="despesa" style="padding:8px 22px;font-size:.875rem">📉 Despesas</button>
+    </div>
+
     <!-- Barra de pesquisa -->
-    <div style="margin-bottom:12px">
-      <div style="position:relative;max-width:400px">
+    <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div style="position:relative;flex:1;min-width:240px;max-width:480px">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--md-on-surface-variant);pointer-events:none"><circle cx="11" cy="11" r="8" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2" stroke-linecap="round"/></svg>
-        <input type="text" id="vnd-busca" placeholder="Buscar por cliente, produto, descrição..." style="width:100%;padding:10px 12px 10px 38px;border:1px solid var(--md-outline);border-radius:var(--radius-full);font-size:.875rem;background:var(--md-surface);color:var(--md-on-surface);outline:none">
+        <input type="text" id="vnd-busca" placeholder="Buscar por cliente, colaborador, produto..." style="width:100%;padding:10px 12px 10px 38px;border:1px solid var(--md-outline);border-radius:var(--radius-full);font-size:.875rem;background:var(--md-surface);color:var(--md-on-surface);outline:none">
       </div>
     </div>
 
     <!-- Filtros de período -->
-    <div class="vnd-filtros">
+    <div class="vnd-filtros" style="margin-bottom:16px">
       <button class="vnd-periodo-btn" data-periodo="hoje">Hoje</button>
       <button class="vnd-periodo-btn" data-periodo="semana">Esta semana</button>
       <button class="vnd-periodo-btn active" data-periodo="mes">Este mês</button>
       <button class="vnd-periodo-btn" data-periodo="ano">Este ano</button>
-      <select id="vnd-filtro-tipo" class="vnd-periodo-btn" style="cursor:pointer;padding-right:8px">
-        <option value="">Todos</option>
-        <option value="venda">Vendas</option>
-        <option value="despesa">Despesas</option>
-      </select>
     </div>
 
     <!-- Lista -->

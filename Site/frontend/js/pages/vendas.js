@@ -5,7 +5,7 @@ initSidebar();
 const _isAdmin = () => ['admin','superdev'].includes(Auth.usuario()?.role);
 
 let _pagina = 1;
-let _tipo   = '';
+let _tipo   = 'venda'; // default: mostrar vendas
 let _inicio = _periodoInicio('mes');
 let _fim    = new Date().toISOString().slice(0,10);
 let _busca  = '';
@@ -301,7 +301,22 @@ function _bindEventos() {
       _carregarLista();
     })
   );
-  document.getElementById('vnd-filtro-tipo').addEventListener('change', e => { _tipo = e.target.value; _pagina = 1; _carregarLista(); });
+  // Painéis Vendas / Despesas
+  document.querySelectorAll('[data-vnd-painel]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-vnd-painel]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _tipo = btn.dataset.vndPainel;
+      // Trocar botão de ação do header
+      const btnNovaVenda  = document.getElementById('btn-nova-venda');
+      const btnNovaDespesa = document.getElementById('btn-nova-despesa');
+      if (_tipo === 'venda')   { btnNovaVenda.style.display=''; btnNovaDespesa.style.display='none'; }
+      else                     { btnNovaVenda.style.display='none'; btnNovaDespesa.style.display=''; }
+      _pagina = 1; _carregarLista();
+    })
+  );
+  // Esconder botão de despesa inicialmente
+  document.getElementById('btn-nova-despesa').style.display = 'none';
   document.getElementById('btn-vnd-ant').addEventListener('click',  () => { if (_pagina > 1) { _pagina--; _carregarLista(); } });
   document.getElementById('btn-vnd-prox').addEventListener('click', () => { _pagina++; _carregarLista(); });
 

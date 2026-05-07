@@ -71,7 +71,7 @@ exports.listar = async (req, res) => {
     if (colaborador_id) { q += ` AND l.colaborador_id=$${idx++}`;     vals.push(colaborador_id); }
     if (data_inicio)    { q += ` AND l.data_lancamento>=$${idx++}`;   vals.push(data_inicio); }
     if (data_fim)       { q += ` AND l.data_lancamento<=$${idx++}`;   vals.push(data_fim); }
-    if (req.query.busca) { q += ` AND (l.cliente_nome ILIKE $${idx} OR l.produto ILIKE $${idx} OR l.descricao_despesa ILIKE $${idx} OR l.pago_para ILIKE $${idx})`; vals.push(`%${req.query.busca.trim()}%`); idx++; }
+    if (req.query.busca) { q += ` AND (l.cliente_nome ILIKE $${idx} OR l.produto ILIKE $${idx} OR l.descricao_despesa ILIKE $${idx} OR l.pago_para ILIKE $${idx} OR l.colaborador_nome ILIKE $${idx})`; vals.push(`%${req.query.busca.trim()}%`); idx++; }
     if (req.query.status_pagamento) { q += ` AND l.status_pagamento=$${idx++}`; vals.push(req.query.status_pagamento); }
     if (req.usuario.role !== 'admin') { q += ` AND l.criado_por=$${idx++}`; vals.push(req.usuario.id); }
 

@@ -27,7 +27,9 @@ const ModalTarefa = (() => {
     }
 
     _renderProjetos(tarefa?.projeto_id || projetoId);
-    _renderUsuarios(tarefa?.atribuido_a);
+    // Para tarefas pessoais sem atribuição, pré-selecionar o usuário atual
+    const atribuidoDefault = tarefa?.atribuido_a || (tipo === 'pessoal' ? Auth.usuario()?.id : null);
+    _renderUsuarios(atribuidoDefault);
 
     // Preencher campos
     const tipo = tarefa?.tipo || 'equipe';
@@ -94,7 +96,10 @@ const ModalTarefa = (() => {
     });
     const isEquipe = tipo === 'equipe';
     document.getElementById('tarefa-projeto-section').style.display  = isEquipe ? '' : 'none';
-    document.getElementById('tarefa-atribuido-section').style.display = isEquipe ? '' : 'none';
+    document.getElementById('tarefa-atribuido-section').style.display = ''; // sempre visível
+    // Label muda por tipo
+    const label = document.querySelector('#tarefa-atribuido-section .form-label');
+    if (label) label.textContent = isEquipe ? 'Atribuir a *' : 'Atribuir a';
   }
 
   function _renderProjetos(projetoSel) {
@@ -152,12 +157,14 @@ const ModalTarefa = (() => {
       prioridade
     };
 
+    const atribuidoSel = document.getElementById('tarefa-atribuido').value;
     if (tipo === 'equipe') {
-      body.projeto_id   = document.getElementById('tarefa-projeto').value || null;
-      body.atribuido_a  = document.getElementById('tarefa-atribuido').value;
+      body.projeto_id  = document.getElementById('tarefa-projeto').value || null;
+      body.atribuido_a = atribuidoSel;
       if (!body.atribuido_a) { Toast.show('Selecione o responsável', 'error'); return; }
     } else {
-      body.atribuido_a = Auth.usuario().id;
+      // Pessoal: usa o selecionado ou o próprio usuário
+      body.atribuido_a = atribuidoSel || Auth.usuario().id;
     }
 
     const btn = document.getElementById('btn-confirmar-tarefa');

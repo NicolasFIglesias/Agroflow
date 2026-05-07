@@ -80,63 +80,15 @@
       </div>
     </div>
 
-    <!-- KPIs -->
-    <div class="vg-kpis">
-      <div class="vg-kpi vg-kpi-green">
-        <div class="vg-kpi-num" id="kpi-clientes">—</div>
-        <div class="vg-kpi-label">Clientes ativos</div>
-      </div>
-      <div class="vg-kpi vg-kpi-blue">
-        <div class="vg-kpi-num" id="kpi-imoveis">—</div>
-        <div class="vg-kpi-label">Imóveis cadastrados</div>
-      </div>
-      <div class="vg-kpi vg-kpi-amber">
-        <div class="vg-kpi-num" id="kpi-tarefas">—</div>
-        <div class="vg-kpi-label">Tarefas ativas</div>
-      </div>
+    <!-- ── ABAS (admin vê 3; colaborador vê 1) ─────────── -->
+    <div id="vg-tabs-admin" style="display:none;border-bottom:2px solid var(--md-outline-variant);margin-bottom:24px">
+      <button class="ficha-tab" data-vg-tab="faturamento" style="padding:8px 22px;font-size:.9rem">💰 Faturamento</button>
+      <button class="ficha-tab" data-vg-tab="clientes"    style="padding:8px 22px;font-size:.9rem">👥 Clientes</button>
+      <button class="ficha-tab" data-vg-tab="tarefas"     style="padding:8px 22px;font-size:.9rem">📋 Tarefas</button>
     </div>
 
-    <!-- Grid 2 colunas -->
-    <div class="vg-grid">
-
-      <div class="vg-card">
-        <div class="vg-card-header">
-          <span class="vg-card-title">⚠️ Alertas e prazos</span>
-          <a href="/pages/imoveis.html" class="btn btn-ghost btn-sm">Ver imóveis →</a>
-        </div>
-        <div id="vg-alertas"><div class="vg-empty">Carregando...</div></div>
-      </div>
-
-      <div class="vg-card">
-        <div class="vg-card-header">
-          <span class="vg-card-title">📝 Atividade recente</span>
-        </div>
-        <div id="vg-atividade"><div class="vg-empty">Carregando...</div></div>
-      </div>
-
-      <div class="vg-card">
-        <div class="vg-card-header">
-          <span class="vg-card-title">👥 Clientes recentes</span>
-          <a href="/pages/clientes.html" class="btn btn-ghost btn-sm">Ver todos →</a>
-        </div>
-        <div id="vg-clientes"><div class="vg-empty">Carregando...</div></div>
-      </div>
-
-      <div class="vg-card">
-        <div class="vg-card-header">
-          <span class="vg-card-title">📅 Próximas obrigações</span>
-          <a href="/pages/calendario.html" class="btn btn-ghost btn-sm">Calendário →</a>
-        </div>
-        <div id="vg-tarefas"><div class="vg-empty">Carregando...</div></div>
-      </div>
-
-    </div>
-
-    <!-- ── FATURAMENTO (admin only) ────────────────── -->
-    <div id="vg-fat-section" style="display:none;margin-top:24px">
-      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px">📊 Faturamento</h2>
-
-      <!-- KPIs faturamento -->
+    <!-- ── PAINEL FATURAMENTO (admin, default) ────────── -->
+    <div id="vg-panel-faturamento" style="display:none">
       <div class="fat-kpis" style="margin-bottom:20px">
         <div class="fat-kpi fat-kpi-verde">
           <div class="fat-kpi-label">📈 Vendido este mês</div>
@@ -154,9 +106,7 @@
           <div class="fat-kpi-sub">vendas − despesas</div>
         </div>
       </div>
-
-      <!-- Gráficos -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
         <div class="fat-card" style="border-radius:20px;padding:20px">
           <div style="font-size:.9rem;font-weight:700;margin-bottom:16px">Comparativo mensal (6 meses)</div>
           <canvas id="chart-mensal" height="200"></canvas>
@@ -166,14 +116,54 @@
           <canvas id="chart-produtos" height="200"></canvas>
         </div>
       </div>
-
-      <!-- Ranking mini -->
-      <div class="fat-card" style="border-radius:20px;margin-top:16px">
+      <div class="fat-card" style="border-radius:20px">
         <div class="fat-card-header">
-          <span class="fat-card-title">🏆 Ranking de colaboradores (mês)</span>
+          <span class="fat-card-title">🤝 Contribuição dos colaboradores (mês)</span>
           <a href="/pages/faturamento.html" class="btn btn-ghost btn-sm">Ver detalhes →</a>
         </div>
         <div id="vg-ranking"><div class="vnd-empty">Carregando...</div></div>
+      </div>
+    </div>
+
+    <!-- ── PAINEL CLIENTES (admin) ────────────────────── -->
+    <div id="vg-panel-clientes" style="display:none">
+      <div class="vg-kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+        <div class="vg-kpi vg-kpi-green"><div class="vg-kpi-num" id="kpi-clientes">—</div><div class="vg-kpi-label">Clientes ativos</div></div>
+        <div class="vg-kpi vg-kpi-blue" ><div class="vg-kpi-num" id="kpi-imoveis">—</div><div class="vg-kpi-label">Imóveis</div></div>
+        <div class="vg-kpi vg-kpi-amber"><div class="vg-kpi-num" id="kpi-tarefas">—</div><div class="vg-kpi-label">Tarefas ativas</div></div>
+      </div>
+      <div class="vg-grid">
+        <div class="vg-card"><div class="vg-card-header"><span class="vg-card-title">⚠️ Alertas e prazos</span><a href="/pages/imoveis.html" class="btn btn-ghost btn-sm">Ver imóveis →</a></div><div id="vg-alertas"><div class="vg-empty">Carregando...</div></div></div>
+        <div class="vg-card"><div class="vg-card-header"><span class="vg-card-title">📝 Atividade recente</span></div><div id="vg-atividade"><div class="vg-empty">Carregando...</div></div></div>
+        <div class="vg-card"><div class="vg-card-header"><span class="vg-card-title">👥 Clientes recentes</span><a href="/pages/clientes.html" class="btn btn-ghost btn-sm">Ver todos →</a></div><div id="vg-clientes"><div class="vg-empty">Carregando...</div></div></div>
+        <div class="vg-card"><div class="vg-card-header"><span class="vg-card-title">📅 Próximas obrigações</span><a href="/pages/calendario.html" class="btn btn-ghost btn-sm">Calendário →</a></div><div id="vg-tarefas-cli"><div class="vg-empty">Carregando...</div></div></div>
+      </div>
+    </div>
+
+    <!-- ── PAINEL TAREFAS (admin) ─────────────────────── -->
+    <div id="vg-panel-tarefas" style="display:none">
+      <div class="vg-kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="vg-kpi vg-kpi-green"><div class="vg-kpi-num" id="kt-ativas">—</div><div class="vg-kpi-label">Ativas</div></div>
+        <div class="vg-kpi vg-kpi-amber"><div class="vg-kpi-num" id="kt-pendentes">—</div><div class="vg-kpi-label">Aguardando</div></div>
+        <div class="vg-kpi vg-kpi-blue" ><div class="vg-kpi-num" id="kt-concluidas">—</div><div class="vg-kpi-label">Concluídas (mês)</div></div>
+        <div class="vg-kpi" style="border-left:4px solid var(--md-error)"><div class="vg-kpi-num" id="kt-atrasadas" style="color:var(--md-error)">—</div><div class="vg-kpi-label">Atrasadas</div></div>
+      </div>
+      <div class="vg-card">
+        <div class="vg-card-header"><span class="vg-card-title">📅 Próximas obrigações</span><a href="/pages/calendario.html" class="btn btn-ghost btn-sm">Calendário →</a></div>
+        <div id="vg-tarefas"><div class="vg-empty">Carregando...</div></div>
+      </div>
+    </div>
+
+    <!-- ── PAINEL COLABORADOR (tarefas pessoais) ──────── -->
+    <div id="vg-panel-colab" style="display:none">
+      <div class="vg-kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+        <div class="vg-kpi vg-kpi-green"><div class="vg-kpi-num" id="ck-ativas">—</div><div class="vg-kpi-label">Minhas tarefas ativas</div></div>
+        <div class="vg-kpi vg-kpi-amber"><div class="vg-kpi-num" id="ck-pendentes">—</div><div class="vg-kpi-label">Aguardando</div></div>
+        <div class="vg-kpi vg-kpi-blue" ><div class="vg-kpi-num" id="ck-concluidas">—</div><div class="vg-kpi-label">Concluídas (mês)</div></div>
+      </div>
+      <div class="vg-card">
+        <div class="vg-card-header"><span class="vg-card-title">📅 Minhas próximas tarefas</span><a href="/pages/calendario.html" class="btn btn-ghost btn-sm">Calendário →</a></div>
+        <div id="ck-tarefas"><div class="vg-empty">Carregando...</div></div>
       </div>
     </div>
 

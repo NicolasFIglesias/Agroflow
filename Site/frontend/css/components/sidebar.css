@@ -13,6 +13,13 @@
   z-index: 200;
   transition: transform .3s cubic-bezier(.2,.0,0,1);
   border-right: 1px solid #A8C888;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* No desktop (>1023px) a sidebar é sempre visível e não desloca */
+@media (min-width: 1024px) {
+  .sidebar { transform: none !important; }
 }
 
 /* ── Logo / Header ────────────────────────────────────────── */
