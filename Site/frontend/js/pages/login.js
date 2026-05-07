@@ -465,7 +465,7 @@ Promise.race([_warmupPromise, new Promise(r => setTimeout(r, _INTRO_MAX))])
         cargo:         document.getElementById('col-cargo').value,
       });
       Auth.salvar(data.token, data.usuario);
-      window.location.href = '/pages/calendario.html';
+      window.location.href = '/pages/visao-geral.html';
     } catch(err) {
       document.getElementById('col-error-msg').textContent = err.message || 'Erro ao criar conta';
       errorEl.classList.add('show');

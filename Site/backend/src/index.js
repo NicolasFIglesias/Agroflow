@@ -15,6 +15,7 @@ const contratosRoutes  = require('./routes/contratos');
 const modelosRoutes    = require('./routes/modelos');
 const preferenciasRoutes  = require('./routes/preferencias');
 const lancamentosRoutes   = require('./routes/lancamentos');
+const servicosRoutes      = require('./routes/servicos');
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/contratos',   contratosRoutes);
 app.use('/api/modelos',     modelosRoutes);
 app.use('/api/preferencias',  preferenciasRoutes);
 app.use('/api/lancamentos',   lancamentosRoutes);
+app.use('/api/servicos',      servicosRoutes);
 app.use('/api/dev',       devRoutes);
 
 app.get('/api/health', (_req, res) => {

@@ -123,10 +123,13 @@ function _abrirModal(tipo) {
   document.getElementById('btn-salvar-lanc').textContent = isVenda ? 'Lançar venda' : 'Lançar despesa';
 
   // Mostrar/ocultar seções por tipo
-  document.getElementById('secao-venda').style.display    = isVenda ? '' : 'none';
-  document.getElementById('secao-despesa').style.display  = isVenda ? 'none' : '';
-  document.getElementById('secao-parcelas').style.display = isVenda ? '' : 'none';
-  document.getElementById('secao-status').style.display   = isVenda ? '' : 'none';
+  document.getElementById('secao-venda').style.display         = isVenda ? '' : 'none';
+  document.getElementById('secao-despesa').style.display       = isVenda ? 'none' : '';
+  document.getElementById('secao-parcelas').style.display      = isVenda ? '' : 'none';
+  document.getElementById('secao-status').style.display        = isVenda ? '' : 'none';
+  document.getElementById('secao-desconto').style.display      = isVenda ? '' : 'none';
+  const colabSec = document.getElementById('secao-colab-venda');
+  if (colabSec) colabSec.style.display = isVenda ? '' : 'none';
 
   // Reset
   ['lanc-cli-busca','lanc-produto','lanc-valor','lanc-obs',
@@ -237,8 +240,12 @@ async function _cadastrarCliRapido() {
 
 async function _salvarLancamento() {
   const tipo = document.getElementById('lanc-tipo').value;
-  const valor = document.getElementById('lanc-valor').value;
-  if (!valor || parseFloat(valor) <= 0) { alert('Informe um valor válido.'); return; }
+  const valorBruto = parseFloat(document.getElementById('lanc-valor').value) || 0;
+  if (!valorBruto) { alert('Informe um valor válido.'); return; }
+  const desconto  = parseFloat(document.getElementById('lanc-desconto')?.value) || 0;
+  const descTipo  = document.getElementById('lanc-desc-tipo')?.value;
+  const descVal   = descTipo === 'pct' ? (valorBruto * desconto / 100) : desconto;
+  const valor     = String(Math.max(0, valorBruto - descVal));
   const btn = document.getElementById('btn-salvar-lanc');
   btn.disabled = true;
   const isVenda = tipo === 'venda';
@@ -266,6 +273,41 @@ async function _salvarLancamento() {
   finally { btn.disabled = false; }
 }
 
+function _bindBuscaServico() {
+  const inp = document.getElementById('lanc-produto');
+  const res = document.getElementById('lanc-srv-results');
+  if (!inp || !res) return;
+  let timer;
+  inp.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = inp.value.trim();
+    res.classList.remove('open');
+    if (!q) return;
+    timer = setTimeout(async () => {
+      try {
+        const servs = await API.get(`/api/servicos?busca=${encodeURIComponent(q)}`);
+        if (!servs.length) return;
+        res.innerHTML = servs.map(s => `
+          <div class="vnd-cli-item" data-nome="${_esc(s.nome)}" data-preco="${s.preco_venda}">
+            <div class="vnd-cli-item-nome">${_esc(s.nome)}</div>
+            <div class="vnd-cli-item-sub">Venda: R$ ${parseFloat(s.preco_venda).toLocaleString('pt-BR',{minimumFractionDigits:2})}${s.preco_custo?` · Custo: R$ ${parseFloat(s.preco_custo).toLocaleString('pt-BR',{minimumFractionDigits:2})}`:''}` +
+            `</div>
+          </div>`).join('');
+        res.classList.add('open');
+        res.querySelectorAll('.vnd-cli-item').forEach(el =>
+          el.addEventListener('click', () => {
+            inp.value = el.dataset.nome;
+            document.getElementById('lanc-valor').value = el.dataset.preco;
+            document.getElementById('lanc-valor').dispatchEvent(new Event('input'));
+            res.classList.remove('open');
+          })
+        );
+      } catch {}
+    }, 300);
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('.vnd-cli-wrap')) res.classList.remove('open'); }, true);
+}
+
 function _bindEventos() {
   document.getElementById('btn-nova-venda').addEventListener('click',   () => _abrirModal('venda'));
   document.getElementById('btn-nova-despesa').addEventListener('click', () => _abrirModal('despesa'));
@@ -277,6 +319,23 @@ function _bindEventos() {
   // Auto-vencimento ao trocar forma de pagamento
   document.getElementById('lanc-forma').addEventListener('change', _autoVencimento);
   document.getElementById('lanc-data').addEventListener('change', _autoVencimento);
+
+  // Desconto — calcular total
+  const _calcDesconto = () => {
+    const valor   = parseFloat(document.getElementById('lanc-valor').value) || 0;
+    const desc    = parseFloat(document.getElementById('lanc-desconto').value) || 0;
+    const tipo    = document.getElementById('lanc-desc-tipo').value;
+    const descVal = tipo === 'pct' ? (valor * desc / 100) : desc;
+    const total   = Math.max(0, valor - descVal);
+    const el = document.getElementById('lanc-total-desc');
+    if (el) el.value = total > 0 ? `R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}` : '';
+  };
+  document.getElementById('lanc-valor')?.addEventListener('input', _calcDesconto);
+  document.getElementById('lanc-desconto')?.addEventListener('input', _calcDesconto);
+  document.getElementById('lanc-desc-tipo')?.addEventListener('change', _calcDesconto);
+
+  // Autocomplete de serviços
+  _bindBuscaServico();
 
   // Cliente rápido
   document.getElementById('btn-fechar-cli-rapido').addEventListener('click', () => document.getElementById('modal-cli-rapido').classList.remove('open'));

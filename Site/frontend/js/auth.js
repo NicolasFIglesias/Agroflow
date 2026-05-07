@@ -51,7 +51,7 @@ const Auth = (() => {
   function redirecinarSeLogado() {
     if (logado()) {
       const u = usuario();
-      window.location.href = u && u.role === 'admin' ? '/pages/visao-geral.html' : '/pages/calendario.html';
+      window.location.href = '/pages/visao-geral.html';
     }
   }
 

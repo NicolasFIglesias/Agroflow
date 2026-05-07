@@ -14,32 +14,68 @@ function detectarTags(base64) {
   } catch { return []; }
 }
 
-function gerarDocx(base64Modelo, dados) {
-  const buf = Buffer.from(base64Modelo, 'base64');
-  const zip = new PizZip(buf);
-  const doc = new Docxtemplater(zip, {
-    paragraphLoop: true,
-    linebreaks: true,
-    nullGetter: () => '',
-  });
+// Pre-processa XML do docx para juntar runs que estejam com tags {{...}} divididas
+function _fixSplitTagsInXml(xml) {
+  let out = xml;
+  // Várias passagens para juntar {{ e }} separados por fronteiras de runs XML
+  let changed = true;
+  let passes = 0;
+  while (changed && passes < 10) {
+    changed = false; passes++;
+    const before = out;
+    // Juntar { seguido de fronteira de run seguido de {  → {{
+    out = out.replace(/\{(<\/w:t><\/w:r>(?:<\/w:del>)?(?:<w:bookmarkStart[^/]*\/>|<w:bookmarkEnd[^/]*\/>)*(?:<w:r>|<w:ins[^>]*>)(?:<w:rPr>[\s\S]*?<\/w:rPr>)?<w:t[^>]*>)\{/g, '{{');
+    // Juntar } seguido de fronteira de run seguido de }  → }}
+    out = out.replace(/\}(<\/w:t><\/w:r>(?:<\/w:del>)?(?:<w:bookmarkStart[^/]*\/>|<w:bookmarkEnd[^/]*\/>)*(?:<w:r>|<w:ins[^>]*>)(?:<w:rPr>[\s\S]*?<\/w:rPr>)?<w:t[^>]*>)\}/g, '}}');
+    if (out !== before) changed = true;
+  }
+  return out;
+}
+
+function _fixDocxBase64(base64) {
   try {
+    const buf = Buffer.from(base64, 'base64');
+    const zip  = new PizZip(buf);
+    const xmlFiles = Object.keys(zip.files).filter(f =>
+      /word\/(document|header\d*|footer\d*).*\.xml$/.test(f)
+    );
+    xmlFiles.forEach(f => {
+      const fixed = _fixSplitTagsInXml(zip.files[f].asText());
+      zip.file(f, fixed);
+    });
+    return zip.generate({ type: 'base64', compression: 'DEFLATE' });
+  } catch { return base64; }
+}
+
+function gerarDocx(base64Modelo, dados) {
+  // Tentar primeiro sem pré-processamento
+  function _tentarRender(b64) {
+    const buf = Buffer.from(b64, 'base64');
+    const zip = new PizZip(buf);
+    const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true, nullGetter: () => '' });
     doc.render(dados);
+    return doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
+  }
+
+  try {
+    return _tentarRender(base64Modelo);
   } catch (err) {
-    // Docxtemplater multi_error: tags com formatação quebrada no Word
-    if (err.properties && err.properties.errors && err.properties.errors.length > 0) {
-      const msgs = err.properties.errors
-        .map(e => e.properties?.explanation || e.properties?.tag || e.message || '')
-        .filter(Boolean)
-        .join('; ');
-      throw new Error(
-        `O modelo tem tags com formatação incorreta no Word. ` +
-        `Selecione cada tag como {{TAG}}, aplique um único estilo e tente novamente. ` +
-        `Detalhe: ${msgs}`
-      );
+    if (err.properties && err.properties.errors) {
+      // Multi error: tentar com XML pré-processado (juntar tags divididas)
+      try {
+        const fixedB64 = _fixDocxBase64(base64Modelo);
+        return _tentarRender(fixedB64);
+      } catch (err2) {
+        const msgs = (err2.properties?.errors || [])
+          .map(e => e.properties?.explanation || e.properties?.tag || e.message || '')
+          .filter(Boolean).join('; ');
+        throw new Error(
+          `Erro nas tags do modelo Word. Selecione cada {{TAG}} e aplique um único estilo (sem misturar negrito, cor, etc. dentro da tag). Detalhe: ${msgs || 'multi_error'}`
+        );
+      }
     }
     throw err;
   }
-  return doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
 }
 
 function buildTags(dados, cliente1, cliente2, imovel, conjuge1) {

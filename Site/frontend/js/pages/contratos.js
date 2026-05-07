@@ -178,18 +178,24 @@ function _bindModelos() {
       document.getElementById('ct-panel-contratos').style.display = isModelos ? 'none' : '';
       document.getElementById('ct-panel-modelos').style.display   = isModelos ? ''     : 'none';
       document.getElementById('ct-aba-btns').style.display        = isModelos ? 'none' : '';
+      const helpBtn = document.getElementById('btn-tags-help');
+      if (helpBtn) helpBtn.style.display = isModelos ? 'inline-flex' : 'none';
       if (isModelos) _carregarModelos();
     })
   );
 
-  // Help modal
-  document.getElementById('btn-tags-help')?.addEventListener('click', e => {
-    e.stopPropagation();
-    document.getElementById('modal-tags-help').classList.add('open');
-  });
-  document.getElementById('btn-fechar-tags-help')?.addEventListener('click',  () => document.getElementById('modal-tags-help').classList.remove('open'));
-  document.getElementById('btn-fechar-tags-help2')?.addEventListener('click', () => document.getElementById('modal-tags-help').classList.remove('open'));
-  document.getElementById('modal-tags-help')?.addEventListener('click', e => { if (e.target.id === 'modal-tags-help') document.getElementById('modal-tags-help').classList.remove('open'); });
+  // Help modal — ? button aparece só na aba de modelos
+  const _helpBtn  = document.getElementById('btn-tags-help');
+  const _helpModal = document.getElementById('modal-tags-help');
+  if (_helpBtn && _helpModal) {
+    _helpBtn.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      _helpModal.classList.add('open');
+    });
+    document.getElementById('btn-fechar-tags-help')?.addEventListener('click', () => _helpModal.classList.remove('open'));
+    document.getElementById('btn-fechar-tags-help2')?.addEventListener('click', () => _helpModal.classList.remove('open'));
+    _helpModal.addEventListener('click', e => { if (e.target === _helpModal) _helpModal.classList.remove('open'); });
+  }
 
   // Upload modal
   document.getElementById('btn-upload-modelo')?.addEventListener('click', () => document.getElementById('modal-upload-ct').classList.add('open'));

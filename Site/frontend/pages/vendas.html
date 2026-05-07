@@ -122,7 +122,7 @@
 
 <!-- Modal: Lançamento (venda ou despesa) -->
 <div class="modal-overlay" id="modal-lancamento">
-  <div class="modal-box">
+  <div class="modal-box" style="max-width:680px">
     <div class="modal-header">
       <h2 id="modal-lanc-titulo">Nova venda</h2>
       <button class="modal-close" id="btn-fechar-lanc">✕</button>
@@ -145,7 +145,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">Produto / Serviço</label>
-          <input type="text" id="lanc-produto" class="form-input" placeholder="Ex: Contrato de Arrendamento, Consultoria...">
+          <div class="vnd-cli-wrap">
+            <input type="text" id="lanc-produto" class="form-input" placeholder="Buscar produto/serviço cadastrado ou digitar..." autocomplete="off">
+            <div class="vnd-cli-results" id="lanc-srv-results"></div>
+          </div>
         </div>
       </div>
 
@@ -161,8 +164,8 @@
         </div>
       </div>
 
-      <!-- ── COLABORADOR (ambos) ─────────────────── -->
-      <div class="form-group">
+      <!-- ── COLABORADOR (só venda) ──────────────── -->
+      <div id="secao-colab-venda" class="form-group">
         <label class="form-label">Colaborador responsável</label>
         <select id="lanc-colaborador" class="form-select">
           <option value="">— Selecionar</option>
@@ -208,6 +211,25 @@
               <option value="pago">Pago</option>
             </select>
           </div>
+        </div>
+      </div>
+
+      <!-- ── DESCONTO (só venda) ───────────────────── -->
+      <div id="secao-desconto" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">Desconto</label>
+          <input type="number" id="lanc-desconto" class="form-input" step="0.01" min="0" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo desconto</label>
+          <select id="lanc-desc-tipo" class="form-select">
+            <option value="valor">R$ Valor</option>
+            <option value="pct">% Percentual</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Total com desconto</label>
+          <input type="text" id="lanc-total-desc" class="form-input" readonly style="background:var(--md-surface-container);font-weight:700">
         </div>
       </div>
 

@@ -39,9 +39,13 @@ let _hidden = [];
 
 (async () => {
   try {
-    _prefs = await API.get('/api/preferencias');
-    _order  = _prefs.sidebar_order  || MENU_ITEMS.map(i => i.page);
-    _hidden = _prefs.sidebar_hidden || [];
+    // Carregar preferências pessoais primeiro (sidebar order)
+    const userPrefs = await API.get('/api/preferencias/usuario').catch(() => ({}));
+    _prefs = await API.get('/api/preferencias').catch(() => ({}));
+
+    // Ordem/hidden: prioridade para preferências pessoais do usuário
+    _order  = userPrefs.sidebar_order  || _prefs.sidebar_order  || MENU_ITEMS.map(i => i.page);
+    _hidden = userPrefs.sidebar_hidden || _prefs.sidebar_hidden || [];
 
     // Preencher logo
     if (_prefs.logo_base64) {
@@ -179,6 +183,13 @@ async function _salvar() {
   _sincronizarOrder();
 
   // Colaboradores só podem salvar a ordem do menu
+  // Salvar preferências pessoais (sidebar order) para o usuário
+  await API.put('/api/preferencias/usuario', {
+    sidebar_order:  _order,
+    sidebar_hidden: _hidden,
+  }).catch(() => {});
+
+  // Salvar preferências da empresa (admin only)
   const payload = _isAdminPref ? {
     logo_base64:          document.getElementById('logo-base64')?.value || null,
     logo_mime:            document.getElementById('logo-mime').value   || 'image/png',
@@ -192,7 +203,7 @@ async function _salvar() {
   };
 
   try {
-    await API.put('/api/preferencias', payload);
+    if (_isAdminPref) await API.put('/api/preferencias', payload);
     invalidarCachePreferencias(); // Limpa cache do sessionStorage
     const el = document.getElementById('pref-saved');
     el.classList.add('show');

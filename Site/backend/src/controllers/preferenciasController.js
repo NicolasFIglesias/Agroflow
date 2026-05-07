@@ -1,5 +1,26 @@
 const db = require('../db');
 
+// Preferências individuais do usuário (sidebar order pessoal)
+exports.buscarUsuario = async (req, res) => {
+  try {
+    const { rows } = await db.query(`SELECT * FROM usuario_preferencias WHERE usuario_id=$1`, [req.usuario.id]);
+    res.json(rows[0] || { sidebar_order: null, sidebar_hidden: [] });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
+exports.salvarUsuario = async (req, res) => {
+  try {
+    const { sidebar_order, sidebar_hidden } = req.body;
+    await db.query(
+      `INSERT INTO usuario_preferencias (usuario_id, sidebar_order, sidebar_hidden)
+       VALUES ($1,$2,$3)
+       ON CONFLICT (usuario_id) DO UPDATE SET sidebar_order=$2, sidebar_hidden=$3, updated_at=NOW()`,
+      [req.usuario.id, JSON.stringify(sidebar_order||[]), JSON.stringify(sidebar_hidden||[])]
+    );
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
 const DEFAULTS = {
   sidebar_order:  ['clientes','imoveis','contratos','calendario'],
   sidebar_hidden: [],

@@ -67,10 +67,8 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div style="display:flex;gap:0;border-bottom:2px solid var(--md-outline-variant)">
         <button class="ficha-tab active" data-ct-tab="contratos" style="font-size:.875rem;padding:8px 18px">📄 Contratos</button>
-        <button class="ficha-tab" data-ct-tab="modelos" style="font-size:.875rem;padding:8px 18px">
-          📋 Modelos
-          <span title="Como usar tags nos modelos" id="btn-tags-help" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--md-outline-variant);color:var(--md-on-surface-variant);font-size:.65rem;font-weight:700;margin-left:6px;cursor:pointer">?</span>
-        </button>
+        <button class="ficha-tab" data-ct-tab="modelos" style="font-size:.875rem;padding:8px 18px">📋 Modelos</button>
+        <button type="button" id="btn-tags-help" title="Como usar tags nos modelos" style="display:none;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--md-outline-variant);color:var(--md-on-surface-variant);font-size:.7rem;font-weight:700;cursor:pointer;border:none;margin-left:4px;flex-shrink:0">?</button>
       </div>
       <div id="ct-aba-btns">
         <a href="/pages/contrato-novo.html" class="btn btn-primary btn-lg">
@@ -193,37 +191,32 @@
           </ol>
 
           <h3 style="margin:16px 0 8px">Tags disponíveis</h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:.78rem">
-            ${[
-              ['{{VENDEDOR_NOME}}','Nome da parte 1 (vendedor)'],
-              ['{{VENDEDOR_QUALIFICACAO}}','Qualificação jurídica completa da parte 1'],
-              ['{{COMPRADOR_NOME}}','Nome da parte 2 (comprador)'],
-              ['{{COMPRADOR_QUALIFICACAO}}','Qualificação jurídica completa da parte 2'],
-              ['{{CLIENTE1_CPF}}','CPF/CNPJ da parte 1'],
-              ['{{CLIENTE2_CPF}}','CPF/CNPJ da parte 2'],
-              ['{{IMOVEL_NOME}}','Denominação do imóvel'],
-              ['{{IMOVEL_MATRICULA}}','Número da matrícula'],
-              ['{{IMOVEL_AREA}}','Área em ha (ex: 250,50)'],
-              ['{{IMOVEL_MUNICIPIO}}','Município - UF'],
-              ['{{IMOVEL_CARTORIO}}','Cartório de registro'],
-              ['{{IMOVEL_CCIR}}','Número do CCIR'],
-              ['{{IMOVEL_CAR}}','Inscrição CAR'],
-              ['{{IMOVEL_CONFRONTANTES}}','Norte/Sul/Leste/Oeste'],
-              ['{{VALOR}}','Valor numérico'],
-              ['{{VALOR_EXTENSO}}','Valor por extenso (auto)'],
-              ['{{DATA_HOJE}}','Data atual por extenso'],
-              ['{{DATA_INICIO}}','Data de início por extenso'],
-              ['{{DATA_TERMINO}}','Data de término por extenso'],
-              ['{{PRAZO_EXTENSO}}','Prazo calculado (ex: 3 anos)'],
-              ['{{DATA_ASSINATURA}}','Data de assinatura por extenso'],
-              ['{{LOCAL_ASSINATURA}}','Cidade de assinatura'],
-              ['{{FORO}}','Foro da comarca'],
-              ['{{TESTEMUNHA1_NOME}}','Nome da 1ª testemunha'],
-              ['{{TESTEMUNHA1_CPF}}','CPF da 1ª testemunha'],
-              ['{{TESTEMUNHA2_NOME}}','Nome da 2ª testemunha'],
-              ['{{TESTEMUNHA2_CPF}}','CPF da 2ª testemunha'],
-              ['{{CLAUSULAS_ADICIONAIS}}','Cláusulas extras do formulário'],
-            ].map(([tag,desc]) => `<div style="font-family:monospace;color:var(--md-primary)">${tag}</div><div style="color:var(--md-on-surface-variant)">${desc}</div>`).join('')}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 16px;font-size:.78rem">
+            <div style="font-family:monospace;color:var(--md-primary)">{{VENDEDOR_NOME}}</div><div style="color:var(--md-on-surface-variant)">Nome da parte 1 (vendedor)</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{VENDEDOR_QUALIFICACAO}}</div><div style="color:var(--md-on-surface-variant)">Qualificação jurídica completa da parte 1</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{COMPRADOR_NOME}}</div><div style="color:var(--md-on-surface-variant)">Nome da parte 2 (comprador)</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{COMPRADOR_QUALIFICACAO}}</div><div style="color:var(--md-on-surface-variant)">Qualificação jurídica completa da parte 2</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{CLIENTE1_CPF}}</div><div style="color:var(--md-on-surface-variant)">CPF/CNPJ da parte 1</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{CLIENTE2_CPF}}</div><div style="color:var(--md-on-surface-variant)">CPF/CNPJ da parte 2</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{IMOVEL_NOME}}</div><div style="color:var(--md-on-surface-variant)">Denominação do imóvel</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{IMOVEL_MATRICULA}}</div><div style="color:var(--md-on-surface-variant)">Número da matrícula</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{IMOVEL_AREA}}</div><div style="color:var(--md-on-surface-variant)">Área em ha (ex: 250,50)</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{IMOVEL_MUNICIPIO}}</div><div style="color:var(--md-on-surface-variant)">Município - UF</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{IMOVEL_CONFRONTANTES}}</div><div style="color:var(--md-on-surface-variant)">Norte/Sul/Leste/Oeste</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{VALOR}}</div><div style="color:var(--md-on-surface-variant)">Valor numérico do formulário</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{VALOR_EXTENSO}}</div><div style="color:var(--md-on-surface-variant)">Valor por extenso (gerado auto)</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{DATA_HOJE}}</div><div style="color:var(--md-on-surface-variant)">Data atual por extenso</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{DATA_INICIO}}</div><div style="color:var(--md-on-surface-variant)">Data de início por extenso</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{DATA_TERMINO}}</div><div style="color:var(--md-on-surface-variant)">Data de término por extenso</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{PRAZO_EXTENSO}}</div><div style="color:var(--md-on-surface-variant)">Prazo calculado (ex: 3 anos)</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{DATA_ASSINATURA}}</div><div style="color:var(--md-on-surface-variant)">Data de assinatura por extenso</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{LOCAL_ASSINATURA}}</div><div style="color:var(--md-on-surface-variant)">Cidade de assinatura</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{FORO}}</div><div style="color:var(--md-on-surface-variant)">Foro da comarca</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{TESTEMUNHA1_NOME}}</div><div style="color:var(--md-on-surface-variant)">Nome da 1ª testemunha</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{TESTEMUNHA1_CPF}}</div><div style="color:var(--md-on-surface-variant)">CPF da 1ª testemunha</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{TESTEMUNHA2_NOME}}</div><div style="color:var(--md-on-surface-variant)">Nome da 2ª testemunha</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{TESTEMUNHA2_CPF}}</div><div style="color:var(--md-on-surface-variant)">CPF da 2ª testemunha</div>
+            <div style="font-family:monospace;color:var(--md-primary)">{{CLAUSULAS_ADICIONAIS}}</div><div style="color:var(--md-on-surface-variant)">Cláusulas extras do formulário</div>
           </div>
 
           <h3 style="margin:16px 0 8px">Erro "Multi error" ao baixar?</h3>
