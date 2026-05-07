@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+  <title>Faturamento — AgriFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components/sidebar.css">
+  <link rel="stylesheet" href="../css/vendas.css">
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🌿</div>
+    <div><div class="sidebar-logo-text">AgriFlow</div><div class="sidebar-logo-sub">Crédito Rural</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Principal</div>
+    <a href="/pages/visao-geral.html"  class="sidebar-item sidebar-item-admin" data-page="visao-geral"  style="display:none">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>Visão Geral
+    </a>
+    <a href="/pages/clientes.html" class="sidebar-item" data-page="clientes">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke-width="2"/></svg>Clientes
+    </a>
+    <a href="/pages/vendas.html" class="sidebar-item" data-page="vendas">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" stroke-width="2" stroke-linecap="round"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Vendas
+    </a>
+    <a href="/pages/calendario.html" class="sidebar-item" data-page="calendario">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="2"/></svg>Calendário
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label sidebar-item-admin" style="display:none">Administração</div>
+    <a href="/pages/colaboradores.html" class="sidebar-item sidebar-item-admin" data-page="colaboradores" style="display:none">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke-width="2"/><line x1="19" y1="8" x2="19" y2="14" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="11" x2="16" y2="11" stroke-width="2" stroke-linecap="round"/></svg>Colaboradores
+    </a>
+    <a href="/pages/faturamento.html" class="sidebar-item sidebar-item-admin active" data-page="faturamento" style="display:none">
+      <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke-width="2"/><line x1="8" y1="21" x2="16" y2="21" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="21" stroke-width="2" stroke-linecap="round"/><polyline points="6 8 10 12 14 9 18 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Faturamento
+    </a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name" id="sidebar-user-name">—</div>
+      <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+    </div>
+  </div>
+  <button class="sidebar-logout-btn" id="btn-logout">
+    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12V5a2 2 0 012-2h7" stroke-width="2" stroke-linecap="round"/></svg>
+    Sair da conta
+  </button>
+</aside>
+
+<main class="app-main">
+  <div class="app-content">
+
+    <div class="vnd-header">
+      <div>
+        <h1>📊 Faturamento</h1>
+        <p>Visão geral de vendas, despesas e ranking da equipe</p>
+      </div>
+      <div class="vnd-filtros" style="margin-bottom:0">
+        <button class="vnd-periodo-btn" data-periodo="hoje">Hoje</button>
+        <button class="vnd-periodo-btn" data-periodo="semana">Semana</button>
+        <button class="vnd-periodo-btn active" data-periodo="mes">Mês</button>
+        <button class="vnd-periodo-btn" data-periodo="ano">Ano</button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="fat-kpis" id="fat-kpis">
+      <div class="fat-kpi fat-kpi-verde">
+        <div class="fat-kpi-label">📈 Total vendido</div>
+        <div class="fat-kpi-valor positivo" id="kpi-vendas">—</div>
+        <div class="fat-kpi-sub" id="kpi-vendas-qtd">— vendas</div>
+      </div>
+      <div class="fat-kpi fat-kpi-red">
+        <div class="fat-kpi-label">📉 Total despesas</div>
+        <div class="fat-kpi-valor negativo" id="kpi-despesas">—</div>
+        <div class="fat-kpi-sub" id="kpi-despesas-qtd">— despesas</div>
+      </div>
+      <div class="fat-kpi fat-kpi-blue">
+        <div class="fat-kpi-label">💡 Lucro líquido</div>
+        <div class="fat-kpi-valor neutro" id="kpi-lucro">—</div>
+        <div class="fat-kpi-sub" id="kpi-lucro-sub">vendas − despesas</div>
+      </div>
+    </div>
+
+    <!-- Grid ranking + últimos -->
+    <div class="fat-grid">
+
+      <!-- Ranking -->
+      <div class="fat-card">
+        <div class="fat-card-header">
+          <span class="fat-card-title">🏆 Ranking de colaboradores</span>
+        </div>
+        <div id="fat-ranking"><div class="vnd-empty">Carregando...</div></div>
+      </div>
+
+      <!-- Últimos lançamentos -->
+      <div class="fat-card">
+        <div class="fat-card-header">
+          <span class="fat-card-title">🕐 Últimos lançamentos</span>
+          <a href="/pages/vendas.html" class="btn btn-ghost btn-sm">Ver todos →</a>
+        </div>
+        <div id="fat-ultimos"><div class="vnd-empty">Carregando...</div></div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/components/sidebar.js"></script>
+<script src="../js/pages/faturamento.js"></script>
+</body>
+</html>

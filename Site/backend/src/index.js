@@ -13,7 +13,8 @@ const devRoutes        = require('./routes/dev');
 const dashboardRoutes  = require('./routes/dashboard');
 const contratosRoutes  = require('./routes/contratos');
 const modelosRoutes    = require('./routes/modelos');
-const preferenciasRoutes = require('./routes/preferencias');
+const preferenciasRoutes  = require('./routes/preferencias');
+const lancamentosRoutes   = require('./routes/lancamentos');
 
 const app = express();
 
@@ -33,7 +34,8 @@ app.use('/api/imoveis',    imoveisRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/contratos',   contratosRoutes);
 app.use('/api/modelos',     modelosRoutes);
-app.use('/api/preferencias', preferenciasRoutes);
+app.use('/api/preferencias',  preferenciasRoutes);
+app.use('/api/lancamentos',   lancamentosRoutes);
 app.use('/api/dev',       devRoutes);
 
 app.get('/api/health', (_req, res) => {

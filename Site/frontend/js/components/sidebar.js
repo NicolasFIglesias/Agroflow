@@ -35,6 +35,35 @@ function initSidebar() {
     document.querySelectorAll('.sidebar-item-admin').forEach(el => { el.style.display = ''; });
   }
 
+  // Inject link de Vendas (todos) se não existir
+  const nav = document.querySelector('.sidebar-nav');
+  if (nav && !nav.querySelector('[data-page="vendas"]')) {
+    const refEl = nav.querySelector('[data-page="contratos"]') || nav.querySelector('.sidebar-divider');
+    const aV = document.createElement('a');
+    aV.href = '/pages/vendas.html'; aV.className = 'sidebar-item'; aV.dataset.page = 'vendas';
+    aV.innerHTML = `<svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <line x1="12" y1="1" x2="12" y2="23" stroke-width="2" stroke-linecap="round"/>
+      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>Vendas`;
+    if (refEl && refEl.nextSibling) nav.insertBefore(aV, refEl.nextSibling);
+    else nav.appendChild(aV);
+  }
+
+  // Inject link de Faturamento (admin) se não existir
+  if (usuario.role === 'admin' && nav && !nav.querySelector('[data-page="faturamento"]')) {
+    const divider = nav.querySelector('.sidebar-divider');
+    const aF = document.createElement('a');
+    aF.href = '/pages/faturamento.html'; aF.className = 'sidebar-item sidebar-item-admin'; aF.dataset.page = 'faturamento';
+    aF.innerHTML = `<svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="2"/>
+      <line x1="8" y1="21" x2="16" y2="21" stroke-width="2" stroke-linecap="round"/>
+      <line x1="12" y1="17" x2="12" y2="21" stroke-width="2" stroke-linecap="round"/>
+      <polyline points="6 8 10 12 14 9 18 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>Faturamento`;
+    if (divider) nav.insertBefore(aF, divider);
+    else nav.appendChild(aF);
+  }
+
   // Inject link de preferências (admin) se não existir
   if (usuario.role === 'admin') {
     const nav = document.querySelector('.sidebar-nav');

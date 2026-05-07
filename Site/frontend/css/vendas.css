@@ -1,0 +1,219 @@
+/* ── Vendas & Faturamento ─────────────────────────────────── */
+
+/* Header */
+.vnd-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.vnd-header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing:-.02em; }
+.vnd-header p  { color: var(--md-on-surface-variant); font-size:.9rem; margin-top:4px; }
+.vnd-header-btns { display:flex; gap:10px; flex-wrap:wrap; }
+
+/* Filtros */
+.vnd-filtros {
+  display: flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items:center;
+}
+.vnd-periodo-btn {
+  padding: 7px 14px; border-radius: var(--radius-full);
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container-low);
+  font-size:.8125rem; font-weight:600; cursor:pointer;
+  transition: all .12s; color: var(--md-on-surface-variant);
+}
+.vnd-periodo-btn.active {
+  background: var(--md-primary); color: #fff; border-color: var(--md-primary);
+}
+
+/* Tabela de lançamentos */
+.vnd-lista-wrap {
+  background: var(--md-surface-container-low);
+  border-radius: 20px; overflow:hidden; box-shadow: var(--shadow-sm);
+}
+.vnd-lista-header {
+  display: grid; grid-template-columns: 80px 1fr 140px 100px 110px 90px 48px;
+  gap:10px; padding:12px 20px;
+  font-size:.72rem; font-weight:700; color:var(--md-on-surface-variant);
+  text-transform:uppercase; letter-spacing:.05em;
+  border-bottom:1px solid var(--md-outline-variant);
+}
+.vnd-row {
+  display: grid; grid-template-columns: 80px 1fr 140px 100px 110px 90px 48px;
+  gap:10px; padding:14px 20px;
+  align-items:center; border-bottom:1px solid var(--md-outline-variant);
+  transition: background .1s;
+}
+.vnd-row:last-child { border-bottom:none; }
+.vnd-row:hover { background: var(--md-surface-container); }
+
+.vnd-tipo-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 10px; border-radius:var(--radius-full);
+  font-size:.72rem; font-weight:700;
+}
+.vnd-tipo-venda   { background:var(--md-primary-container); color:var(--md-on-primary-container); }
+.vnd-tipo-despesa { background:var(--md-error-container);   color:var(--md-on-error-container); }
+
+.vnd-cliente  { font-size:.9rem; font-weight:600; color:var(--md-on-surface); }
+.vnd-sub      { font-size:.75rem; color:var(--md-on-surface-variant); }
+.vnd-valor-pos { font-size:.9rem; font-weight:700; color:var(--md-primary); }
+.vnd-valor-neg { font-size:.9rem; font-weight:700; color:var(--md-error); }
+
+.vnd-empty { padding:48px; text-align:center; color:var(--md-on-surface-variant); font-size:.9rem; }
+
+/* Botão ação pequeno */
+.vnd-btn-del {
+  width:32px; height:32px; border-radius:50%; border:none; background:none;
+  color:var(--md-on-surface-variant); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .12s;
+}
+.vnd-btn-del:hover { background:var(--md-error-container); color:var(--md-on-error-container); }
+
+/* ── Modal de lançamento ─────────────────────────────────── */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(26,28,25,.48); z-index:1000;
+  display:flex; align-items:center; justify-content:center; padding:24px 16px;
+  opacity:0; pointer-events:none; transition:opacity .25s ease;
+}
+.modal-overlay.open { opacity:1; pointer-events:auto; }
+.modal-box {
+  background:var(--md-surface-container-highest,#E1E4DB);
+  border-radius:28px; width:100%; max-width:540px;
+  box-shadow:0 8px 28px rgba(0,0,0,.18); display:flex; flex-direction:column;
+  transform:translateY(14px) scale(.97); transition:transform .25s ease;
+}
+.modal-overlay.open .modal-box { transform:translateY(0) scale(1); }
+.modal-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 24px 16px; border-bottom:1px solid var(--md-outline-variant,#C3C8BC);
+  border-radius:28px 28px 0 0;
+}
+.modal-header h2 { font-size:1.1rem; font-weight:700; color:var(--md-on-surface,#1A1C19); margin:0; }
+.modal-close {
+  width:32px; height:32px; border-radius:50%; border:none; background:none;
+  font-size:1rem; cursor:pointer; color:var(--md-on-surface-variant);
+  display:flex; align-items:center; justify-content:center; transition:background .15s;
+}
+.modal-close:hover { background:rgba(0,0,0,.06); }
+.modal-body { padding:20px 24px; display:flex; flex-direction:column; gap:14px; overflow-y:auto; max-height:70vh; }
+.modal-footer {
+  display:flex; gap:8px; justify-content:flex-end;
+  padding:16px 24px; border-top:1px solid var(--md-outline-variant,#C3C8BC);
+  border-radius:0 0 28px 28px;
+}
+.form-group { display:flex; flex-direction:column; gap:4px; }
+.form-label  { font-size:.75rem; font-weight:600; color:var(--md-on-surface-variant); text-transform:uppercase; letter-spacing:.05em; }
+.form-input, .form-select, .form-textarea {
+  padding:12px 14px; border:1px solid var(--md-outline,#738070); border-radius:8px;
+  font-size:.9rem; color:var(--md-on-surface); background:var(--md-surface);
+  outline:none; width:100%; transition:border .15s; font-family:inherit;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border:2px solid var(--md-primary); padding:11px 13px;
+}
+.form-textarea { resize:vertical; min-height:70px; }
+
+/* Busca de cliente dentro do modal */
+.vnd-cli-wrap { position:relative; }
+.vnd-cli-results {
+  position:absolute; top:100%; left:0; right:0; z-index:10;
+  background:var(--md-surface-container-highest);
+  border-radius:8px; box-shadow:var(--shadow-lg);
+  max-height:200px; overflow-y:auto; margin-top:4px; display:none;
+}
+.vnd-cli-results.open { display:block; }
+.vnd-cli-item {
+  padding:10px 14px; cursor:pointer; font-size:.875rem; transition:background .1s;
+}
+.vnd-cli-item:hover { background:var(--md-surface-container-high); }
+.vnd-cli-item-nome { font-weight:600; color:var(--md-on-surface); }
+.vnd-cli-item-sub  { font-size:.75rem; color:var(--md-on-surface-variant); }
+.vnd-cli-cadastrar {
+  padding:10px 14px; font-size:.8rem; font-weight:700;
+  color:var(--md-primary); cursor:pointer; border-top:1px solid var(--md-outline-variant);
+  display:flex; align-items:center; gap:6px;
+}
+.vnd-cli-cadastrar:hover { background:var(--md-primary-container); }
+.vnd-cli-chip {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 12px; border-radius:var(--radius-full);
+  background:var(--md-secondary-container); color:var(--md-on-secondary-container);
+  font-size:.875rem; font-weight:600; margin-top:4px;
+}
+.vnd-cli-chip button { background:none; border:none; cursor:pointer; color:inherit; font-size:1rem; }
+
+/* ── Faturamento (dashboard) ─────────────────────────────── */
+.fat-kpis {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;
+}
+.fat-kpi {
+  background:var(--md-surface-container-low);
+  border-radius:20px; padding:24px; box-shadow:var(--shadow-sm);
+  display:flex; flex-direction:column; gap:6px;
+}
+.fat-kpi-label { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--md-on-surface-variant); }
+.fat-kpi-valor { font-size:1.8rem; font-weight:800; letter-spacing:-.03em; }
+.fat-kpi-sub   { font-size:.78rem; color:var(--md-on-surface-variant); }
+.fat-kpi-verde  { border-left:4px solid var(--md-primary); }
+.fat-kpi-red    { border-left:4px solid var(--md-error); }
+.fat-kpi-blue   { border-left:4px solid #2a6fa8; }
+
+.fat-kpi-valor.positivo { color:var(--md-primary); }
+.fat-kpi-valor.negativo { color:var(--md-error); }
+.fat-kpi-valor.neutro   { color:var(--md-on-surface); }
+
+/* Grid 2 colunas */
+.fat-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+.fat-card {
+  background:var(--md-surface-container-low);
+  border-radius:20px; box-shadow:var(--shadow-sm); overflow:hidden;
+}
+.fat-card-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px 12px; border-bottom:1px solid var(--md-outline-variant);
+}
+.fat-card-title { font-size:.9375rem; font-weight:700; color:var(--md-on-surface); }
+
+/* Ranking */
+.fat-rank-item {
+  display:flex; align-items:center; gap:12px; padding:12px 20px;
+  border-bottom:1px solid var(--md-outline-variant);
+}
+.fat-rank-item:last-child { border-bottom:none; }
+.fat-rank-pos { width:24px; text-align:center; font-size:.8rem; font-weight:800; color:var(--md-on-surface-variant); flex-shrink:0; }
+.fat-rank-pos.ouro   { color:#C9A227; }
+.fat-rank-pos.prata  { color:#9E9E9E; }
+.fat-rank-pos.bronze { color:#A0522D; }
+.fat-rank-avatar {
+  width:36px; height:36px; border-radius:50%;
+  background:var(--md-primary-container); color:var(--md-on-primary-container);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.875rem; font-weight:700; flex-shrink:0;
+}
+.fat-rank-info { flex:1; min-width:0; }
+.fat-rank-nome  { font-size:.875rem; font-weight:600; color:var(--md-on-surface); }
+.fat-rank-qtd   { font-size:.75rem; color:var(--md-on-surface-variant); }
+.fat-rank-bar-wrap { width:80px; flex-shrink:0; }
+.fat-rank-bar {
+  height:6px; border-radius:3px;
+  background:var(--md-primary-container);
+  position:relative; overflow:hidden;
+}
+.fat-rank-bar-fill { height:100%; background:var(--md-primary); border-radius:3px; transition:width .4s ease; }
+.fat-rank-valor { font-size:.875rem; font-weight:700; color:var(--md-primary); white-space:nowrap; min-width:90px; text-align:right; }
+
+/* Últimos lançamentos no faturamento */
+.fat-row {
+  display:flex; align-items:center; gap:10px; padding:10px 20px;
+  border-bottom:1px solid var(--md-outline-variant); font-size:.875rem;
+}
+.fat-row:last-child { border-bottom:none; }
+
+@media (max-width:900px) {
+  .vnd-lista-header, .vnd-row { grid-template-columns:80px 1fr 90px 48px; }
+  .vnd-lista-header :nth-child(3),.vnd-lista-header :nth-child(5),.vnd-lista-header :nth-child(6),
+  .vnd-row>*:nth-child(3),.vnd-row>*:nth-child(5),.vnd-row>*:nth-child(6) { display:none; }
+  .fat-kpis { grid-template-columns:1fr; }
+  .fat-grid  { grid-template-columns:1fr; }
+}
