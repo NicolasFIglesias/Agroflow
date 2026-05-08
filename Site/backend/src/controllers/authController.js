@@ -212,6 +212,23 @@ exports.registrarColaborador = async (req, res) => {
   }
 };
 
+// POST /api/auth/redefinir-senha — redefine senha direto pelo email, sem código
+exports.redefinirSenha = async (req, res) => {
+  try {
+    const { email, nova_senha } = req.body;
+    if (!email || !nova_senha) return res.status(400).json({ error: 'Email e nova senha são obrigatórios' });
+    if (nova_senha.length < 6)  return res.status(400).json({ error: 'A senha deve ter ao menos 6 caracteres' });
+    const { rows } = await db.query(
+      `SELECT id FROM usuarios WHERE email=$1 AND ativo=true`,
+      [email.toLowerCase().trim()]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Nenhum usuário ativo encontrado com este e-mail' });
+    const senhaHash = await bcrypt.hash(nova_senha, 10);
+    await db.query(`UPDATE usuarios SET senha_hash=$1 WHERE id=$2`, [senhaHash, rows[0].id]);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
 // GET /api/auth/me
 exports.me = async (req, res) => {
   try {

@@ -214,70 +214,27 @@ Promise.race([_warmupPromise, new Promise(r => setTimeout(r, _INTRO_MAX))])
     irParaAba('entrar');
   });
 
-  document.getElementById('btn-enviar-codigo').addEventListener('click', async () => {
-    const email     = document.getElementById('rec-email').value.trim();
-    const errorEl   = document.getElementById('rec-error');
-    const successEl = document.getElementById('rec-success');
-    const spin      = document.getElementById('rec-spin');
-    const btnText   = document.getElementById('rec-btn-text');
-    const btn       = document.getElementById('btn-enviar-codigo');
-
-    errorEl.classList.remove('show');
-    successEl.style.display = 'none';
-    if (!email) {
-      document.getElementById('rec-error-msg').textContent = 'Informe seu e-mail.';
-      errorEl.classList.add('show');
-      return;
-    }
-
-    spin.style.display  = 'inline-block';
-    btnText.textContent = 'Enviando...';
-    btn.disabled        = true;
-
-    try {
-      await API.post('/api/auth/recuperar-senha', { email });
-      _emailRecuperar = email;
-      document.getElementById('rec-success-msg').textContent = 'Código enviado! Verifique seu e-mail.';
-      successEl.style.display = 'flex';
-      setTimeout(() => {
-        document.getElementById('rec-passo1').style.display = 'none';
-        document.getElementById('rec-passo2').style.display = 'block';
-        document.getElementById('rec-codigo').focus();
-      }, 800);
-    } catch(err) {
-      document.getElementById('rec-error-msg').textContent = err.message || 'Não foi possível enviar o código.';
-      errorEl.classList.add('show');
-    } finally {
-      spin.style.display  = 'none';
-      btnText.textContent = 'Enviar código';
-      btn.disabled        = false;
-    }
-  });
-
-  document.getElementById('btn-nova-senha').addEventListener('click', async () => {
-    const codigo  = document.getElementById('rec-codigo').value.trim();
+  document.getElementById('btn-redefinir-senha').addEventListener('click', async () => {
+    const email   = document.getElementById('rec-email').value.trim();
     const nova    = document.getElementById('rec-nova-senha').value;
     const conf    = document.getElementById('rec-conf-senha').value;
-    const errorEl = document.getElementById('rec2-error');
-    const spin    = document.getElementById('rec2-spin');
-    const btnText = document.getElementById('rec2-btn-text');
-    const btn     = document.getElementById('btn-nova-senha');
+    const errorEl = document.getElementById('rec-error');
+    const spin    = document.getElementById('rec-spin');
+    const btnText = document.getElementById('rec-btn-text');
+    const btn     = document.getElementById('btn-redefinir-senha');
 
     errorEl.classList.remove('show');
-    if (!codigo || codigo.length !== 6) {
-      document.getElementById('rec2-error-msg').textContent = 'Informe o código de 6 dígitos.';
-      errorEl.classList.add('show');
-      return;
+    if (!email) {
+      document.getElementById('rec-error-msg').textContent = 'Informe seu e-mail.';
+      errorEl.classList.add('show'); return;
     }
     if (!nova || nova.length < 6) {
-      document.getElementById('rec2-error-msg').textContent = 'A senha deve ter ao menos 6 caracteres.';
-      errorEl.classList.add('show');
-      return;
+      document.getElementById('rec-error-msg').textContent = 'A senha deve ter ao menos 6 caracteres.';
+      errorEl.classList.add('show'); return;
     }
     if (nova !== conf) {
-      document.getElementById('rec2-error-msg').textContent = 'As senhas não coincidem.';
-      errorEl.classList.add('show');
-      return;
+      document.getElementById('rec-error-msg').textContent = 'As senhas não coincidem.';
+      errorEl.classList.add('show'); return;
     }
 
     spin.style.display  = 'inline-block';
@@ -285,27 +242,18 @@ Promise.race([_warmupPromise, new Promise(r => setTimeout(r, _INTRO_MAX))])
     btn.disabled        = true;
 
     try {
-      await API.post('/api/auth/nova-senha', { email: _emailRecuperar, codigo, nova_senha: nova });
-      const data = await API.post('/api/auth/login', { email: _emailRecuperar, senha: nova });
+      await API.post('/api/auth/redefinir-senha', { email, nova_senha: nova });
+      const data = await API.post('/api/auth/login', { email, senha: nova });
       Auth.salvar(data.token, data.usuario);
       _redirecionar(data.usuario);
     } catch(err) {
-      document.getElementById('rec2-error-msg').textContent = err.message || 'Código inválido ou expirado.';
+      document.getElementById('rec-error-msg').textContent = err.message || 'Não foi possível redefinir a senha.';
       errorEl.classList.add('show');
     } finally {
       spin.style.display  = 'none';
       btnText.textContent = 'Redefinir senha';
       btn.disabled        = false;
     }
-  });
-
-  document.getElementById('btn-reenviar')?.addEventListener('click', () => {
-    document.getElementById('rec-passo2').style.display = 'none';
-    document.getElementById('rec-passo1').style.display = 'block';
-    document.getElementById('rec-codigo').value         = '';
-    document.getElementById('rec-nova-senha').value     = '';
-    document.getElementById('rec-conf-senha').value     = '';
-    document.getElementById('rec2-error').classList.remove('show');
   });
 
   // ── Força da senha ────────────────────────────────────────

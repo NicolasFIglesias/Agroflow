@@ -9,5 +9,6 @@ router.post('/convite',               authmw, ctrl.gerarConvite);
 router.get('/convite/:token',         ctrl.verificarConviteGet);
 router.post('/verificar-convite',     ctrl.verificarConvite);
 router.post('/registrar-colaborador', ctrl.registrarColaborador);
+router.post('/redefinir-senha',       ctrl.redefinirSenha);
 
 module.exports = router;
