@@ -68,7 +68,6 @@
       <div style="display:flex;gap:0;border-bottom:2px solid var(--md-outline-variant)">
         <button class="ficha-tab active" data-ct-tab="contratos" style="font-size:.875rem;padding:8px 18px">📄 Contratos</button>
         <button class="ficha-tab" data-ct-tab="modelos" style="font-size:.875rem;padding:8px 18px">📋 Modelos</button>
-        <button type="button" id="btn-tags-help" title="Como usar tags nos modelos" style="display:none;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--md-outline-variant);color:var(--md-on-surface-variant);font-size:.7rem;font-weight:700;cursor:pointer;border:none;margin-left:4px;flex-shrink:0">?</button>
       </div>
       <div id="ct-aba-btns">
         <a href="/pages/contrato-novo.html" class="btn btn-primary btn-lg">
@@ -171,68 +170,6 @@
       </div>
     </div>
 
-    <!-- Modal: Ajuda com tags -->
-    <div class="modal-overlay" id="modal-tags-help">
-      <div class="modal-box" style="max-width:680px;max-height:85vh">
-        <div class="modal-header">
-          <h2>❓ Como usar tags nos modelos</h2>
-          <button class="modal-close" id="btn-fechar-tags-help">✕</button>
-        </div>
-        <div class="modal-body" style="font-size:.875rem;line-height:1.7">
-          <h3 style="margin-bottom:8px">O que são tags?</h3>
-          <p>Tags são marcadores no formato <code style="background:var(--md-surface-container);padding:2px 6px;border-radius:4px">{{NOME_DA_TAG}}</code> que você coloca no seu arquivo Word. Quando gerar o contrato, o sistema substitui cada tag pelo valor real automaticamente.</p>
-
-          <h3 style="margin:16px 0 8px">Como criar o template</h3>
-          <ol style="margin-left:20px">
-            <li>Abra o Word e crie seu contrato normalmente</li>
-            <li>Onde quiser inserir um valor dinâmico, escreva <code style="background:var(--md-surface-container);padding:1px 5px;border-radius:3px">{{NOME_DA_TAG}}</code></li>
-            <li><strong>Importante:</strong> Selecione toda a tag e aplique um único estilo. Não troque a formatação no meio da tag (ex: parte em negrito, parte normal) — isso quebra o reconhecimento</li>
-            <li>Salve como .docx e faça upload aqui</li>
-          </ol>
-
-          <h3 style="margin:16px 0 8px">Tags disponíveis</h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 16px;font-size:.78rem">
-            <div style="font-family:monospace;color:var(--md-primary)">{{VENDEDOR_NOME}}</div><div style="color:var(--md-on-surface-variant)">Nome da parte 1 (vendedor)</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{VENDEDOR_QUALIFICACAO}}</div><div style="color:var(--md-on-surface-variant)">Qualificação jurídica completa da parte 1</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{COMPRADOR_NOME}}</div><div style="color:var(--md-on-surface-variant)">Nome da parte 2 (comprador)</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{COMPRADOR_QUALIFICACAO}}</div><div style="color:var(--md-on-surface-variant)">Qualificação jurídica completa da parte 2</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{CLIENTE1_CPF}}</div><div style="color:var(--md-on-surface-variant)">CPF/CNPJ da parte 1</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{CLIENTE2_CPF}}</div><div style="color:var(--md-on-surface-variant)">CPF/CNPJ da parte 2</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{IMOVEL_NOME}}</div><div style="color:var(--md-on-surface-variant)">Denominação do imóvel</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{IMOVEL_MATRICULA}}</div><div style="color:var(--md-on-surface-variant)">Número da matrícula</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{IMOVEL_AREA}}</div><div style="color:var(--md-on-surface-variant)">Área em ha (ex: 250,50)</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{IMOVEL_MUNICIPIO}}</div><div style="color:var(--md-on-surface-variant)">Município - UF</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{IMOVEL_CONFRONTANTES}}</div><div style="color:var(--md-on-surface-variant)">Norte/Sul/Leste/Oeste</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{VALOR}}</div><div style="color:var(--md-on-surface-variant)">Valor numérico do formulário</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{VALOR_EXTENSO}}</div><div style="color:var(--md-on-surface-variant)">Valor por extenso (gerado auto)</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{DATA_HOJE}}</div><div style="color:var(--md-on-surface-variant)">Data atual por extenso</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{DATA_INICIO}}</div><div style="color:var(--md-on-surface-variant)">Data de início por extenso</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{DATA_TERMINO}}</div><div style="color:var(--md-on-surface-variant)">Data de término por extenso</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{PRAZO_EXTENSO}}</div><div style="color:var(--md-on-surface-variant)">Prazo calculado (ex: 3 anos)</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{DATA_ASSINATURA}}</div><div style="color:var(--md-on-surface-variant)">Data de assinatura por extenso</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{LOCAL_ASSINATURA}}</div><div style="color:var(--md-on-surface-variant)">Cidade de assinatura</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{FORO}}</div><div style="color:var(--md-on-surface-variant)">Foro da comarca</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{TESTEMUNHA1_NOME}}</div><div style="color:var(--md-on-surface-variant)">Nome da 1ª testemunha</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{TESTEMUNHA1_CPF}}</div><div style="color:var(--md-on-surface-variant)">CPF da 1ª testemunha</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{TESTEMUNHA2_NOME}}</div><div style="color:var(--md-on-surface-variant)">Nome da 2ª testemunha</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{TESTEMUNHA2_CPF}}</div><div style="color:var(--md-on-surface-variant)">CPF da 2ª testemunha</div>
-            <div style="font-family:monospace;color:var(--md-primary)">{{CLAUSULAS_ADICIONAIS}}</div><div style="color:var(--md-on-surface-variant)">Cláusulas extras do formulário</div>
-          </div>
-
-          <h3 style="margin:16px 0 8px">Erro "Multi error" ao baixar?</h3>
-          <p>Isso ocorre quando uma tag está com formatação diferente dentro do Word. Para corrigir:</p>
-          <ol style="margin-left:20px">
-            <li>No Word, selecione toda a tag (ex: <code>{{VENDEDOR_NOME}}</code>)</li>
-            <li>Apague e redigite manualmente — não copie e cole</li>
-            <li>Certifique-se de que toda a tag tem a mesma fonte e tamanho</li>
-            <li>Salve e faça upload novamente</li>
-          </ol>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary" id="btn-fechar-tags-help2">Entendido</button>
-        </div>
-      </div>
-    </div>
 
   </div>
 </main>
