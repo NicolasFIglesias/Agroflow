@@ -127,8 +127,10 @@ function _aplicarPreferenciasEmpresa(prefs) {
   }
   if (prefs.cor_primaria) {
     document.documentElement.style.setProperty('--md-primary', prefs.cor_primaria);
-    document.documentElement.style.setProperty('--verde', prefs.cor_primaria);
-    document.documentElement.style.setProperty('--verde-esc', _darken(prefs.cor_primaria, 20));
+    document.documentElement.style.setProperty('--verde',      prefs.cor_primaria);
+    document.documentElement.style.setProperty('--verde-esc',  _darken(prefs.cor_primaria, 30));
+    document.documentElement.style.setProperty('--verde-nb',   _lighten(prefs.cor_primaria, 60));
+    document.documentElement.style.setProperty('--verde-cl',   _lighten(prefs.cor_primaria, 120));
   }
   // Aplicar nome empresa no logo (já feito em initSidebar, mas caso preferências sobrescrevam)
 }
@@ -162,6 +164,12 @@ function _aplicarPreferencias(prefs) { _aplicarPreferenciasEmpresa(prefs); }
 function _darken(hex, amt) {
   const n = parseInt(hex.replace('#',''), 16);
   const clamp = v => Math.max(0, v - amt);
+  return '#' + [n >> 16, (n >> 8) & 0xFF, n & 0xFF].map(v => clamp(v).toString(16).padStart(2,'0')).join('');
+}
+
+function _lighten(hex, amt) {
+  const n = parseInt(hex.replace('#',''), 16);
+  const clamp = v => Math.min(255, v + amt);
   return '#' + [n >> 16, (n >> 8) & 0xFF, n & 0xFF].map(v => clamp(v).toString(16).padStart(2,'0')).join('');
 }
 

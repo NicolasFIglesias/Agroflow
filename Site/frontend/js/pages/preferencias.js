@@ -173,9 +173,23 @@ function _mostrarLogoPreview(base64, mime) {
 function _atualizarCorUI(cor) {
   document.getElementById('cor-label').textContent = cor;
   document.getElementById('cor-chip').style.background = cor;
-  // Preview ao vivo
-  document.documentElement.style.setProperty('--md-primary', cor);
-  document.documentElement.style.setProperty('--verde', cor);
+  const root = document.documentElement;
+  root.style.setProperty('--md-primary', cor);
+  root.style.setProperty('--verde',      cor);
+  root.style.setProperty('--verde-esc',  _darken(cor, 30));
+  root.style.setProperty('--verde-nb',   _lighten(cor, 60));
+  root.style.setProperty('--verde-cl',   _lighten(cor, 120));
+}
+
+function _darken(hex, amt) {
+  const n = parseInt(hex.replace('#',''), 16);
+  const clamp = v => Math.max(0, v - amt);
+  return '#' + [n >> 16, (n >> 8) & 0xFF, n & 0xFF].map(v => clamp(v).toString(16).padStart(2,'0')).join('');
+}
+function _lighten(hex, amt) {
+  const n = parseInt(hex.replace('#',''), 16);
+  const clamp = v => Math.min(255, v + amt);
+  return '#' + [n >> 16, (n >> 8) & 0xFF, n & 0xFF].map(v => clamp(v).toString(16).padStart(2,'0')).join('');
 }
 
 // ── Salvar ─────────────────────────────────────────────────

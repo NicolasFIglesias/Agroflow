@@ -17,14 +17,6 @@
   overflow-x: hidden;
 }
 
-/* Barra amarela no topo — destaque neo-brutalista */
-.sidebar::before {
-  content: '';
-  display: block;
-  height: 4px;
-  background: #FFD60A;
-  flex-shrink: 0;
-}
 
 @media (min-width: 1024px) {
   .sidebar { transform: none !important; }
@@ -41,8 +33,8 @@
 }
 .sidebar-logo-icon {
   width: 36px; height: 36px;
-  background: #1A6B3C;
-  border: 2px solid #4ADE80;
+  background: var(--verde, #1A6B3C);
+  border: 2px solid var(--verde-nb, #4ADE80);
   border-radius: 2px;
   display: flex; align-items: center; justify-content: center;
   font-size: 1.1rem;
@@ -57,7 +49,7 @@
 }
 .sidebar-logo-sub {
   font-size: .6rem;
-  color: #4ADE80;
+  color: var(--verde-nb, #4ADE80);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -109,9 +101,9 @@
 }
 
 .sidebar-item.active {
-  background: #1A6B3C;
-  color: #C8F0D8;
-  border-color: #4ADE80;
+  background: var(--verde, #1A6B3C);
+  color: var(--verde-cl, #C8F0D8);
+  border-color: var(--verde-nb, #4ADE80);
   font-weight: 900;
 }
 
@@ -142,9 +134,9 @@
 .sidebar-avatar {
   width: 32px; height: 32px;
   border-radius: 2px;
-  background: #1A6B3C;
-  border: 2px solid #4ADE80;
-  color: #C8F0D8;
+  background: var(--verde, #1A6B3C);
+  border: 2px solid var(--verde-nb, #4ADE80);
+  color: var(--verde-cl, #C8F0D8);
   display: flex; align-items: center; justify-content: center;
   font-size: .75rem; font-weight: 900;
   text-transform: uppercase;
@@ -193,10 +185,10 @@
   position: fixed; top: 12px; left: 12px;
   z-index: 300;
   background: #0F0F0F;
-  color: #4ADE80;
+  color: var(--verde-nb, #4ADE80);
   border-radius: 2px;
   padding: 8px 10px;
-  border: 2px solid #4ADE80;
+  border: 2px solid var(--verde-nb, #4ADE80);
   font-size: .9rem;
   font-weight: 900;
 }
