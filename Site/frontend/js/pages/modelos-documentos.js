@@ -61,7 +61,7 @@ function renderModelo(m) {
         </div>` : ''}
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0">
-        <a href="${CONFIG.API_URL}/api/modelos/${m.id}/download" class="btn btn-secondary btn-sm" target="_blank">📥 Baixar</a>
+        <button class="btn btn-secondary btn-sm" onclick="API.download('/api/modelos/${m.id}/download','${_esc(m.nome||'modelo')}.docx').catch(e=>alert(e.message))">📥 Baixar</button>
         ${!m.is_sistema ? `
           ${!m.is_padrao ? `<button class="btn btn-secondary btn-sm" data-md-action="padrao" data-md-id="${m.id}" data-md-tipo="${m.tipo_contrato}">★ Tornar padrão</button>` : ''}
           <button class="btn btn-danger btn-sm" data-md-action="desativar" data-md-id="${m.id}">Desativar</button>` : ''}

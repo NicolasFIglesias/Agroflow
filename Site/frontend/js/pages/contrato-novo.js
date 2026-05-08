@@ -577,23 +577,7 @@ function renderSucesso() {
 // ── Download com auth ──────────────────────────────────────
 async function _baixarDocxSucesso(id, numero) {
   try {
-    const r = await fetch(`${CONFIG.API_URL}/api/contratos/${id}/download`, {
-      headers: { 'Authorization': `Bearer ${Auth.token()}` }
-    });
-    if (!r.ok) {
-      const err = await r.json().catch(() => ({}));
-      alert('Erro ao baixar: ' + (err.error || `Erro ${r.status}`));
-      return;
-    }
-    const blob = await r.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `${numero || 'contrato'}.docx`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    await API.download(`/api/contratos/${id}/download`, `${numero || 'contrato'}.docx`);
   } catch (err) { alert('Erro ao baixar: ' + err.message); }
 }
 window._baixarDocxSucesso = _baixarDocxSucesso;

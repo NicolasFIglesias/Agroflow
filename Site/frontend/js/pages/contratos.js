@@ -119,23 +119,7 @@ function renderRow(ct) {
 
 async function _baixarDocx(id, numero) {
   try {
-    const r = await fetch(`${CONFIG.API_URL}/api/contratos/${id}/download`, {
-      headers: { 'Authorization': `Bearer ${Auth.token()}` }
-    });
-    if (!r.ok) {
-      const err = await r.json().catch(() => ({}));
-      alert('Erro ao baixar: ' + (err.error || `Erro ${r.status}`));
-      return;
-    }
-    const blob = await r.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `${numero || 'contrato'}.docx`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    await API.download(`/api/contratos/${id}/download`, `${numero || 'contrato'}.docx`);
   } catch (err) { alert('Erro ao baixar: ' + err.message); }
 }
 
@@ -224,7 +208,7 @@ async function _carregarModelos() {
               <div style="font-size:.75rem;color:var(--md-on-surface-variant)">${Array.isArray(m.tags_detectadas)?m.tags_detectadas.length:0} tags · ${new Date(m.created_at).toLocaleDateString('pt-BR')}</div>
             </div>
             <div style="display:flex;gap:8px">
-              <a href="${CONFIG.API_URL}/api/modelos/${m.id}/download" class="btn btn-secondary btn-sm" target="_blank">📥 Baixar</a>
+              <button class="btn btn-secondary btn-sm" onclick="API.download('/api/modelos/${m.id}/download','${_esc(m.nome||'modelo')}.docx').catch(e=>alert(e.message))">📥 Baixar</button>
               ${!m.is_sistema&&!m.is_padrao?`<button class="btn btn-secondary btn-sm" onclick="padrao_modelo('${m.id}','${tipo}')">★ Padrão</button>`:''}
               ${!m.is_sistema?`<button class="btn btn-danger btn-sm" onclick="del_modelo('${m.id}')">×</button>`:''}
             </div>
