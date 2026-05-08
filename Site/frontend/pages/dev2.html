@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Panel v2 — AgriFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --preto: #0A0A0A; --branco: #FAFAF5; --verde: #1A6B3C;
+      --verde-cl: #C8F0D8; --amarelo: #FFD60A; --vermelho: #CC0000;
+      --creme: #EEEEE0; --font: 'Inter', sans-serif; --mono: 'JetBrains Mono', monospace;
+      --border: 2px solid #0A0A0A; --shadow: 4px 4px 0px #0A0A0A;
+    }
+    body { font-family: var(--font); background: #1A1A1A; color: var(--branco); min-height: 100vh; }
+
+    /* Topbar */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 56px;
+      background: var(--preto); border-bottom: 3px solid var(--amarelo);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .topbar-badge {
+      background: var(--amarelo); color: var(--preto);
+      font-size: .6rem; font-weight: 900; padding: 3px 8px;
+      border: 1.5px solid var(--preto); text-transform: uppercase; letter-spacing: .1em;
+    }
+    .topbar-title { font-size: .9rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--branco); }
+    .topbar-right { display: flex; gap: 10px; align-items: center; }
+    .topbar-stat {
+      font-size: .72rem; font-weight: 700; padding: 4px 12px;
+      border: 1.5px solid #333; background: #111;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .topbar-stat strong { color: var(--amarelo); }
+    .btn-ghost-small {
+      padding: 6px 14px; border: 1.5px solid #444; background: transparent;
+      color: #AAA; font-size: .7rem; font-weight: 700; font-family: var(--font);
+      cursor: pointer; text-transform: uppercase; letter-spacing: .06em;
+      transition: border-color .1s, color .1s;
+    }
+    .btn-ghost-small:hover { border-color: var(--vermelho); color: #FF8888; }
+
+    /* Layout */
+    .layout { display: flex; height: calc(100vh - 56px); }
+
+    /* Sidebar empresas */
+    .emp-list {
+      width: 260px; flex-shrink: 0;
+      background: #111; border-right: 2px solid #222;
+      overflow-y: auto;
+    }
+    .emp-list-title {
+      padding: 14px 16px 10px;
+      font-size: .6rem; font-weight: 900; text-transform: uppercase;
+      letter-spacing: .12em; color: #555; border-bottom: 1px solid #222;
+    }
+    .emp-item {
+      padding: 12px 16px; cursor: pointer;
+      border-bottom: 1px solid #1A1A1A;
+      transition: background .1s;
+    }
+    .emp-item:hover { background: #181818; }
+    .emp-item.active { background: #1A2E1A; border-left: 3px solid var(--verde); }
+    .emp-nome { font-size: .82rem; font-weight: 700; color: var(--branco); }
+    .emp-meta { font-size: .65rem; color: #555; margin-top: 2px; font-family: var(--mono); }
+
+    /* Main area */
+    .main { flex: 1; overflow-y: auto; padding: 24px; }
+
+    /* Cards de info */
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .info-card {
+      background: #111; border: 2px solid #222; padding: 16px 20px;
+    }
+    .info-card-label { font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: #555; margin-bottom: 8px; }
+    .info-card-val { font-size: 1.6rem; font-weight: 900; font-family: var(--mono); }
+    .info-card-val.green { color: var(--verde-cl); }
+    .info-card-val.yellow { color: var(--amarelo); }
+    .info-card-val.red { color: #FF6666; }
+
+    /* Tabela */
+    .section-title {
+      font-size: .65rem; font-weight: 900; text-transform: uppercase;
+      letter-spacing: .1em; color: #555; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .dev-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+    .dev-table th {
+      text-align: left; padding: 8px 12px;
+      background: #0A0A0A; color: #666;
+      font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+      border-bottom: 2px solid #222;
+    }
+    .dev-table td {
+      padding: 10px 12px; border-bottom: 1px solid #1A1A1A;
+      vertical-align: middle;
+    }
+    .dev-table tr:hover td { background: #111; }
+
+    .dev-tag { display: inline-block; padding: 2px 8px; font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+    .dev-tag-admin { background: #1A2E1A; color: var(--verde-cl); }
+    .dev-tag-colab { background: #1A1A2E; color: #A0A0FF; }
+    .dev-tag-ativo { background: #1A2E1A; color: #80FF80; }
+    .dev-tag-inativo { background: #2E1A1A; color: #FF8080; }
+
+    .dev-btn-sm {
+      padding: 4px 10px; font-size: .65rem; font-weight: 800; cursor: pointer;
+      font-family: var(--mono); text-transform: uppercase; letter-spacing: .05em;
+      border: 1.5px solid #333; background: #111; color: #AAA;
+      transition: all .1s;
+    }
+    .dev-btn-sm:hover { border-color: #AAA; color: var(--branco); }
+    .dev-btn-danger { border-color: #440000 !important; color: #FF6666 !important; }
+    .dev-btn-danger:hover { background: #330000 !important; }
+    .dev-btn-success { border-color: #003A00 !important; color: #80FF80 !important; }
+
+    .dev-reset-row { display: flex; align-items: center; gap: 6px; }
+    .dev-reset-input {
+      display: none; padding: 4px 8px; background: #0A0A0A; border: 1px solid #333;
+      color: var(--branco); font-size: .72rem; font-family: var(--mono);
+      width: 140px;
+    }
+    .dev-reset-input.show { display: block; }
+
+    .dev-email { color: #7EB8FF; font-family: var(--mono); font-size: .75rem; }
+    .dev-spin { display: none; width: 12px; height: 12px; border: 2px solid #333; border-top-color: var(--verde-cl); border-radius: 50%; animation: spin .5s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-txt { color: #555; font-size: .78rem; padding: 40px; text-align: center; text-transform: uppercase; letter-spacing: .08em; }
+    .empty-state { display: flex; align-items: center; justify-content: center; height: 200px; color: #333; font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; }
+
+    /* Tabs */
+    .dev-tabs { display: flex; gap: 2px; margin-bottom: 16px; }
+    .dev-tab {
+      padding: 6px 14px; font-size: .65rem; font-weight: 800; cursor: pointer;
+      font-family: var(--font); text-transform: uppercase; letter-spacing: .08em;
+      border: 1.5px solid #333; background: #111; color: #555; transition: all .1s;
+    }
+    .dev-tab.active { background: var(--verde); color: var(--branco); border-color: var(--verde); }
+    .dev-tab:hover:not(.active) { border-color: #555; color: #AAA; }
+    .dev-tab-panel { display: none; }
+    .dev-tab-panel.active { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-badge">SUPERDEV</span>
+    <span class="topbar-title">AgriFlow — Painel Administrativo</span>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-stat" id="stat-empresas"><strong>—</strong> empresas</div>
+    <div class="topbar-stat" id="stat-usuarios"><strong>—</strong> usuários</div>
+    <div class="topbar-stat" id="stat-clientes"><strong>—</strong> clientes</div>
+    <button class="btn-ghost-small" id="btn-sair">Sair</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- Lista de empresas -->
+  <div class="emp-list">
+    <div class="emp-list-title">Empresas cadastradas</div>
+    <div id="emp-lista"><div class="loading-txt">Carregando...</div></div>
+  </div>
+
+  <!-- Painel principal -->
+  <div class="main" id="dev-main">
+    <div class="empty-state">← Selecione uma empresa</div>
+  </div>
+
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/pages/dev2.js"></script>
+</body>
+</html>

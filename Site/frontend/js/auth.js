@@ -42,8 +42,8 @@ const Auth = (() => {
       return;
     }
     const u = usuario();
-    if (u && u.role === 'superdev' && !window.location.pathname.endsWith('dev.html')) {
-      window.location.href = '/pages/dev.html';
+    if (u && u.role === 'superdev' && !window.location.pathname.endsWith('dev.html') && !window.location.pathname.endsWith('dev2.html')) {
+      window.location.href = '/pages/dev2.html';
     }
   }
 

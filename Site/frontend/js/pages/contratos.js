@@ -239,9 +239,24 @@ async function _enviarUpload() {
     const data = await API.post('/api/modelos', { tipo_contrato: tipo, nome, arquivo_nome: arq.name, arquivo_base64: base64 });
     const tags = data.tags_detectadas || [];
     document.getElementById('up-ct-tags').style.display = '';
-    document.getElementById('up-ct-tags').innerHTML = `<div style="font-size:.78rem;font-weight:700;color:var(--md-on-surface-variant);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">✅ ${tags.length} tags detectadas</div><div style="display:flex;flex-wrap:wrap;gap:4px">${tags.map(t=>`<span style="font-size:.7rem;font-family:monospace;background:var(--md-surface-container-high);padding:2px 6px;border-radius:4px">{{${t}}}</span>`).join('')}</div>`;
-    btn.textContent = 'Fechar';
-    btn.onclick = () => { document.getElementById('modal-upload-ct').classList.remove('open'); _carregarModelos(); btn.textContent = 'Enviar e validar →'; btn.onclick = _enviarUpload; btn.disabled = false; document.getElementById('up-ct-tags').style.display = 'none'; };
+    document.getElementById('up-ct-tags').innerHTML = `
+      <div style="background:var(--verde-cl,#C8F0D8);border:2px solid var(--verde,#1A6B3C);border-radius:2px;padding:12px 16px;margin-bottom:12px;font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em">
+        ✅ Modelo enviado — ${tags.length} tag${tags.length!==1?'s':''} detectada${tags.length!==1?'s':''}
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${tags.map(t=>`<span style="font-size:.7rem;font-family:monospace;background:#FAFAF5;border:1.5px solid #0F0F0F;padding:2px 8px;border-radius:2px;">{{${t}}}</span>`).join('')}
+      </div>`;
+    btn.disabled = false;
+    btn.textContent = '✓ Fechar e salvar';
+    btn.onclick = () => {
+      document.getElementById('modal-upload-ct').classList.remove('open');
+      _carregarModelos();
+      // reset form
+      btn.textContent = 'Enviar e validar →'; btn.onclick = _enviarUpload;
+      document.getElementById('up-ct-tags').style.display = 'none';
+      ['up-ct-tipo','up-ct-nome'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      document.getElementById('up-ct-arquivo').value = '';
+    };
   } catch (err) {
     alert('Erro: ' + err.message);
     btn.disabled = false; btn.textContent = 'Enviar e validar →';

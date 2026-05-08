@@ -107,10 +107,7 @@ html { font-size: 14px; }
 
 body {
   font-family: var(--font);
-  background: var(--creme);
-  background-image:
-    repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(0,0,0,.04) 31px, rgba(0,0,0,.04) 32px),
-    repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(0,0,0,.03) 31px, rgba(0,0,0,.03) 32px);
+  background: #EEEEE0;
   color: var(--preto);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
