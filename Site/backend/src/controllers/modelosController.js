@@ -19,11 +19,20 @@ exports.upload = async (req, res) => {
     const { tipo_contrato, nome, descricao, arquivo_nome, arquivo_base64 } = req.body;
     if (!tipo_contrato || !nome)          return res.status(400).json({ error: 'tipo_contrato e nome são obrigatórios' });
     if (!arquivo_base64)                  return res.status(400).json({ error: 'arquivo_base64 é obrigatório' });
-    if (arquivo_nome && !arquivo_nome.toLowerCase().endsWith('.docx'))
-                                          return res.status(400).json({ error: 'Apenas arquivos .docx são aceitos' });
+    const ext = (arquivo_nome || '').toLowerCase().split('.').pop();
+    if (!['docx', 'html', 'htm'].includes(ext))
+      return res.status(400).json({ error: 'Apenas arquivos .docx ou .html são aceitos' });
 
     let tags = [];
-    try { const { detectarTags } = require('../services/tagEngine'); tags = detectarTags(arquivo_base64); } catch {}
+    try {
+      const { detectarTags, detectarTagsHtml } = require('../services/tagEngine');
+      if (ext === 'docx') {
+        tags = detectarTags(arquivo_base64);
+      } else {
+        const htmlText = Buffer.from(arquivo_base64, 'base64').toString('utf8');
+        tags = detectarTagsHtml(htmlText);
+      }
+    } catch {}
 
     const { rows: [m] } = await db.query(
       `INSERT INTO modelos_documento (empresa_id, tipo_contrato, nome, descricao, arquivo_nome, arquivo_conteudo, tags_detectadas, criado_por)
@@ -41,10 +50,19 @@ exports.download = async (req, res) => {
       [req.params.id, req.usuario.empresa_id]
     );
     if (!m || !m.arquivo_conteudo) return res.status(404).json({ error: 'Modelo não encontrado' });
-    const buf = Buffer.from(m.arquivo_conteudo, 'base64');
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    res.setHeader('Content-Disposition', `attachment; filename="${m.arquivo_nome || 'modelo.docx'}"`);
-    res.send(buf);
+    const nome = m.arquivo_nome || 'modelo.docx';
+    const isHtml = nome.toLowerCase().endsWith('.html') || nome.toLowerCase().endsWith('.htm');
+    if (isHtml) {
+      const html = Buffer.from(m.arquivo_conteudo, 'base64').toString('utf8');
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${nome}"`);
+      res.send(html);
+    } else {
+      const buf = Buffer.from(m.arquivo_conteudo, 'base64');
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      res.setHeader('Content-Disposition', `attachment; filename="${nome}"`);
+      res.send(buf);
+    }
   } catch (err) { res.status(500).json({ error: err.message }); }
 };
 

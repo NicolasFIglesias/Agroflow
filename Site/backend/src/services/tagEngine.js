@@ -253,4 +253,20 @@ function buildTags(dados, cliente1, cliente2, imovel, conjuge1) {
   return tags;
 }
 
-module.exports = { detectarTags, gerarDocx, buildTags };
+function detectarTagsHtml(htmlText) {
+  const matches = [...htmlText.matchAll(/\{\{([A-Z0-9_]+)\}\}/g)];
+  return [...new Set(matches.map(m => m[1]))];
+}
+
+function gerarHtml(htmlTemplate, dados) {
+  let html = htmlTemplate;
+  for (const [key, value] of Object.entries(dados)) {
+    const safe = String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+    html = html.split(`{{${key}}}`).join(safe);
+  }
+  // Clear remaining unmatched tags
+  html = html.replace(/\{\{[A-Z0-9_]+\}\}/g, '');
+  return html;
+}
+
+module.exports = { detectarTags, detectarTagsHtml, gerarDocx, gerarHtml, buildTags };

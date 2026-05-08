@@ -50,12 +50,17 @@ const API = (() => {
     }
     const blob = await r.blob();
 
+    // Use filename from server Content-Disposition header if available
+    const cd = r.headers.get('Content-Disposition') || '';
+    const cdMatch = cd.match(/filename="?([^";\n]+)"?/i);
+    const nomeEfetivo = cdMatch ? cdMatch[1].trim() : nomeArquivo;
+
     if ('showSaveFilePicker' in window) {
       try {
-        const ext = nomeArquivo.split('.').pop();
+        const ext = nomeEfetivo.split('.').pop();
         const mime = blob.type || 'application/octet-stream';
         const fh = await window.showSaveFilePicker({
-          suggestedName: nomeArquivo,
+          suggestedName: nomeEfetivo,
           types: [{ description: 'Arquivo', accept: { [mime]: ['.' + ext] } }],
         });
         const ws = await fh.createWritable();
@@ -72,7 +77,7 @@ const API = (() => {
     const url = URL.createObjectURL(blob);
     const a   = document.createElement('a');
     a.href     = url;
-    a.download = nomeArquivo;
+    a.download = nomeEfetivo;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

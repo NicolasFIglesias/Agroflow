@@ -137,7 +137,7 @@ exports.buscarPorId = async (req, res) => {
 
 exports.download = async (req, res) => {
   try {
-    const { gerarDocx, buildTags } = require('../services/tagEngine');
+    const { gerarDocx, gerarHtml, buildTags } = require('../services/tagEngine');
     const { rows: [ct] } = await db.query(`SELECT * FROM contratos WHERE id=$1 AND empresa_id=$2`, [req.params.id, req.usuario.empresa_id]);
     if (!ct) return res.status(404).json({ error: 'Contrato não encontrado' });
 
@@ -151,12 +151,22 @@ exports.download = async (req, res) => {
     const [c2]        = await _getCliente(dados.cliente2_id, req.usuario.empresa_id);
     const imovel      = await _getImovel(ct.imovel_id, req.usuario.empresa_id);
 
-    const tags    = buildTags(dados, c1, c2, imovel, conj1);
-    const docxBuf = gerarDocx(modelo.arquivo_conteudo, tags);
+    const tags = buildTags(dados, c1, c2, imovel, conj1);
+    const nomeArquivo = modelo.arquivo_nome || 'modelo.docx';
+    const isHtml = nomeArquivo.toLowerCase().endsWith('.html') || nomeArquivo.toLowerCase().endsWith('.htm');
 
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    res.setHeader('Content-Disposition', `attachment; filename="${ct.numero}.docx"`);
-    res.send(docxBuf);
+    if (isHtml) {
+      const htmlTemplate = Buffer.from(modelo.arquivo_conteudo, 'base64').toString('utf8');
+      const htmlGerado   = gerarHtml(htmlTemplate, tags);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${ct.numero}.html"`);
+      res.send(htmlGerado);
+    } else {
+      const docxBuf = gerarDocx(modelo.arquivo_conteudo, tags);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      res.setHeader('Content-Disposition', `attachment; filename="${ct.numero}.docx"`);
+      res.send(docxBuf);
+    }
   } catch (err) {
     console.error('Erro no download:', err);
     res.status(500).json({ error: 'Erro ao gerar documento: ' + err.message });

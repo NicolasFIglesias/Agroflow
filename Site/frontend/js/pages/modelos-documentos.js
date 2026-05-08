@@ -20,7 +20,7 @@ async function carregarModelos() {
     _modelos = await API.get(url);
 
     if (!_modelos.length) {
-      el.innerHTML = '<div class="ct-vazio" style="padding:40px;text-align:center;color:var(--md-on-surface-variant)">Nenhum modelo cadastrado.<br><small>Faça upload de um .docx para começar.</small></div>';
+      el.innerHTML = '<div class="ct-vazio" style="padding:40px;text-align:center;color:var(--md-on-surface-variant)">Nenhum modelo cadastrado.<br><small>Faça upload de um .docx ou .html para começar.</small></div>';
       return;
     }
 
@@ -61,7 +61,7 @@ function renderModelo(m) {
         </div>` : ''}
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0">
-        <button class="btn btn-secondary btn-sm" onclick="API.download('/api/modelos/${m.id}/download','${_esc(m.nome||'modelo')}.docx').catch(e=>alert(e.message))">📥 Baixar</button>
+        <button class="btn btn-secondary btn-sm" onclick="API.download('/api/modelos/${m.id}/download','${_esc(m.arquivo_nome||m.nome+'.docx')}').catch(e=>alert(e.message))">📥 Baixar</button>
         ${!m.is_sistema ? `
           ${!m.is_padrao ? `<button class="btn btn-secondary btn-sm" data-md-action="padrao" data-md-id="${m.id}" data-md-tipo="${m.tipo_contrato}">★ Tornar padrão</button>` : ''}
           <button class="btn btn-danger btn-sm" data-md-action="desativar" data-md-id="${m.id}">Desativar</button>` : ''}
@@ -109,8 +109,8 @@ function abrirModalUpload() {
       <input type="text" id="up-nome" class="form-input" placeholder="Ex: Arrendamento — Modelo Sicredi">
     </div>
     <div class="form-group">
-      <label class="form-label">Arquivo .docx *</label>
-      <input type="file" id="up-arquivo" class="form-input" accept=".docx">
+      <label class="form-label">Arquivo (.docx ou .html) *</label>
+      <input type="file" id="up-arquivo" class="form-input" accept=".docx,.html,.htm">
     </div>`;
   document.getElementById('btn-enviar-upload').textContent = 'Enviar e validar →';
   document.getElementById('modal-upload').classList.add('open');

@@ -195,7 +195,7 @@ async function _carregarModelos() {
   el.innerHTML = '<div class="ct-loading">Carregando...</div>';
   try {
     const mods = await API.get('/api/modelos');
-    if (!mods.length) { el.innerHTML = '<div class="ct-loading">Nenhum modelo cadastrado. Faça upload de um .docx.</div>'; return; }
+    if (!mods.length) { el.innerHTML = '<div class="ct-loading">Nenhum modelo cadastrado. Faça upload de um .docx ou .html.</div>'; return; }
     const grupos = {};
     mods.forEach(m => { if (!grupos[m.tipo_contrato]) grupos[m.tipo_contrato] = []; grupos[m.tipo_contrato].push(m); });
     el.innerHTML = Object.entries(grupos).map(([tipo, lista]) => `
@@ -208,7 +208,7 @@ async function _carregarModelos() {
               <div style="font-size:.75rem;color:var(--md-on-surface-variant)">${Array.isArray(m.tags_detectadas)?m.tags_detectadas.length:0} tags · ${new Date(m.created_at).toLocaleDateString('pt-BR')}</div>
             </div>
             <div style="display:flex;gap:8px">
-              <button class="btn btn-secondary btn-sm" onclick="API.download('/api/modelos/${m.id}/download','${_esc(m.nome||'modelo')}.docx').catch(e=>alert(e.message))">📥 Baixar</button>
+              <button class="btn btn-secondary btn-sm" onclick="API.download('/api/modelos/${m.id}/download','${_esc(m.arquivo_nome||m.nome+'.docx')}').catch(e=>alert(e.message))">📥 Baixar</button>
               ${!m.is_sistema&&!m.is_padrao?`<button class="btn btn-secondary btn-sm" onclick="padrao_modelo('${m.id}','${tipo}')">★ Padrão</button>`:''}
               ${!m.is_sistema?`<button class="btn btn-danger btn-sm" onclick="del_modelo('${m.id}')">×</button>`:''}
             </div>
