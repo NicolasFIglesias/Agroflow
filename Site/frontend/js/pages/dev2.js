@@ -111,34 +111,53 @@
     bindPasswordActions(main);
   }
 
+  function _senhaAleatoria() {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
+    return Array.from({length: 12}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+  }
+
   function renderTabUsuarios(usuarios) {
     if (!usuarios.length) return '<div class="empty-state">Sem usuários</div>';
-    return `<table class="dev-table">
+    return `
+      <div style="background:#1A0000;border:1.5px solid #440000;padding:10px 14px;margin-bottom:14px;font-size:.7rem;color:#FF8888;line-height:1.5">
+        🔒 <strong>Senhas são criptografadas (bcrypt)</strong> — impossível visualizar a senha atual.<br>
+        Use <strong>"Gerar temp"</strong> para criar uma senha temporária visível, ou <strong>"Definir"</strong> para definir manualmente.
+      </div>
+      <table class="dev-table">
       <thead><tr>
-        <th>Nome</th><th>Email</th><th>Cargo</th><th>Papel</th><th>Status</th>
-        <th>Nova senha</th><th>Alterar email</th>
+        <th>Nome</th><th>Email</th><th>Papel</th><th>Status</th>
+        <th>Senha</th><th>Email</th>
       </tr></thead>
       <tbody>${usuarios.map(u => `
-        <tr>
+        <tr data-uid="${u.id}">
           <td style="font-weight:700">${_esc(u.nome)}</td>
-          <td class="dev-email">${_esc(u.email)}</td>
-          <td style="color:#888;font-size:.72rem">${_esc(u.cargo||'—')}</td>
+          <td class="dev-email" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#7EB8FF">${_esc(u.email)}</td>
           <td><span class="dev-tag dev-tag-${u.role==='admin'?'admin':'colab'}">${u.role}</span></td>
           <td><span class="dev-tag dev-tag-${u.ativo?'ativo':'inativo'}">${u.ativo?'Ativo':'Inativo'}</span></td>
-          <td>
+          <td style="min-width:260px">
             <div class="dev-reset-row">
-              <button class="dev-btn-sm btn-abrir-senha" data-uid="${u.id}">Resetar senha</button>
-              <input class="dev-reset-input" type="password" placeholder="nova senha" data-uid="${u.id}">
-              <button class="dev-btn-sm dev-btn-success btn-salvar-senha" data-uid="${u.id}" style="display:none">Salvar</button>
-              <button class="dev-btn-sm dev-btn-danger btn-cancel-senha" data-uid="${u.id}" style="display:none">✕</button>
+              <button class="dev-btn-sm btn-gerar-senha" data-uid="${u.id}">⚡ Gerar temp</button>
+              <button class="dev-btn-sm btn-abrir-senha" data-uid="${u.id}">✎ Definir</button>
             </div>
+            <div class="dev-senha-form" style="display:none;margin-top:6px">
+              <div class="dev-reset-row">
+                <input class="dev-reset-input show" type="text" placeholder="nova senha" style="width:150px;font-family:'JetBrains Mono',monospace">
+                <button class="dev-btn-sm dev-btn-success btn-salvar-senha" data-uid="${u.id}">✓</button>
+                <button class="dev-btn-sm dev-btn-danger btn-cancel-senha" data-uid="${u.id}">✕</button>
+              </div>
+            </div>
+            <div class="dev-senha-result" style="display:none;margin-top:6px;padding:6px 10px;background:#001A00;border:1.5px solid #004400;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#80FF80;letter-spacing:.05em"></div>
           </td>
-          <td>
+          <td style="min-width:220px">
             <div class="dev-reset-row">
-              <button class="dev-btn-sm btn-abrir-email" data-uid="${u.id}">Alterar email</button>
-              <input class="dev-reset-input" type="email" placeholder="novo email" data-uid="${u.id}">
-              <button class="dev-btn-sm dev-btn-success btn-salvar-email" data-uid="${u.id}" style="display:none">Salvar</button>
-              <button class="dev-btn-sm dev-btn-danger btn-cancel-email" data-uid="${u.id}" style="display:none">✕</button>
+              <button class="dev-btn-sm btn-abrir-email" data-uid="${u.id}">✎ Alterar</button>
+            </div>
+            <div class="dev-email-form" style="display:none;margin-top:6px">
+              <div class="dev-reset-row">
+                <input class="dev-reset-input show" type="email" placeholder="novo email" style="width:160px">
+                <button class="dev-btn-sm dev-btn-success btn-salvar-email" data-uid="${u.id}">✓</button>
+                <button class="dev-btn-sm dev-btn-danger btn-cancel-email" data-uid="${u.id}">✕</button>
+              </div>
             </div>
           </td>
         </tr>`).join('')}
@@ -175,15 +194,35 @@
 
   // ── Bind de ações ──────────────────────────────────────────
   function bindPasswordActions(main) {
-    // Senha
-    main.querySelectorAll('.btn-abrir-senha').forEach(btn => {
-      btn.addEventListener('click', () => {
+    // Gerar senha temporária aleatória (mostra em tela)
+    main.querySelectorAll('.btn-gerar-senha').forEach(btn => {
+      btn.addEventListener('click', async () => {
         const uid = btn.dataset.uid;
         const row = btn.closest('tr');
-        row.querySelector('.dev-reset-input[type="password"]').classList.add('show');
-        row.querySelector('.btn-salvar-senha').style.display = '';
-        row.querySelector('.btn-cancel-senha').style.display = '';
-        btn.style.display = 'none';
+        const nova = _senhaAleatoria();
+        btn.textContent = '...'; btn.disabled = true;
+        try {
+          await devPut(`/api/dev/usuarios/${uid}/senha`, { nova_senha: nova });
+          const result = row.querySelector('.dev-senha-result');
+          result.textContent = `Nova senha: ${nova}`;
+          result.style.display = '';
+          btn.textContent = '⚡ Gerar temp';  btn.disabled = false;
+          // Esconder após 30s por segurança
+          setTimeout(() => { result.style.display = 'none'; }, 30000);
+        } catch (err) {
+          alert('Erro: ' + err.message);
+          btn.textContent = '⚡ Gerar temp'; btn.disabled = false;
+        }
+      });
+    });
+
+    // Abrir campo para definir senha manualmente
+    main.querySelectorAll('.btn-abrir-senha').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const row = btn.closest('tr');
+        const form = row.querySelector('.dev-senha-form');
+        form.style.display = form.style.display === 'none' ? '' : 'none';
+        row.querySelector('.dev-senha-result').style.display = 'none';
       });
     });
 
@@ -191,42 +230,40 @@
       btn.addEventListener('click', async () => {
         const uid = btn.dataset.uid;
         const row = btn.closest('tr');
-        const nova = row.querySelector('.dev-reset-input[type="password"]').value;
+        const inp = row.querySelector('.dev-senha-form input');
+        const nova = inp.value.trim();
         if (!nova || nova.length < 4) { alert('Mínimo 4 caracteres.'); return; }
         btn.textContent = '...'; btn.disabled = true;
         try {
           await devPut(`/api/dev/usuarios/${uid}/senha`, { nova_senha: nova });
-          btn.textContent = '✓ OK!';
-          setTimeout(() => {
-            row.querySelector('.dev-reset-input[type="password"]').classList.remove('show');
-            row.querySelector('.dev-reset-input[type="password"]').value = '';
-            row.querySelector('.btn-cancel-senha').style.display = 'none';
-            row.querySelector('.btn-abrir-senha').style.display = '';
-            btn.textContent = 'Salvar'; btn.disabled = false;
-          }, 1500);
-        } catch (err) { alert('Erro: ' + err.message); btn.textContent = 'Salvar'; btn.disabled = false; }
+          const result = row.querySelector('.dev-senha-result');
+          result.textContent = `Senha definida: ${nova}`;
+          result.style.display = '';
+          row.querySelector('.dev-senha-form').style.display = 'none';
+          inp.value = '';
+          btn.textContent = '✓'; btn.disabled = false;
+          setTimeout(() => { result.style.display = 'none'; btn.textContent = '✓'; }, 15000);
+        } catch (err) {
+          alert('Erro: ' + err.message);
+          btn.textContent = '✓'; btn.disabled = false;
+        }
       });
     });
 
     main.querySelectorAll('.btn-cancel-senha').forEach(btn => {
       btn.addEventListener('click', () => {
         const row = btn.closest('tr');
-        row.querySelector('.dev-reset-input[type="password"]').classList.remove('show');
-        row.querySelector('.btn-salvar-senha').style.display = 'none';
-        btn.style.display = 'none';
-        row.querySelector('.btn-abrir-senha').style.display = '';
+        row.querySelector('.dev-senha-form').style.display = 'none';
+        row.querySelector('.dev-senha-form input').value = '';
       });
     });
 
     // Email
     main.querySelectorAll('.btn-abrir-email').forEach(btn => {
       btn.addEventListener('click', () => {
-        const uid = btn.dataset.uid;
         const row = btn.closest('tr');
-        row.querySelector('.dev-reset-input[type="email"]').classList.add('show');
-        row.querySelector('.btn-salvar-email').style.display = '';
-        row.querySelector('.btn-cancel-email').style.display = '';
-        btn.style.display = 'none';
+        const form = row.querySelector('.dev-email-form');
+        form.style.display = form.style.display === 'none' ? '' : 'none';
       });
     });
 
@@ -234,33 +271,29 @@
       btn.addEventListener('click', async () => {
         const uid = btn.dataset.uid;
         const row = btn.closest('tr');
-        const email = row.querySelector('.dev-reset-input[type="email"]').value.trim();
+        const inp = row.querySelector('.dev-email-form input');
+        const email = inp.value.trim();
         if (!email || !email.includes('@')) { alert('Email inválido.'); return; }
         btn.textContent = '...'; btn.disabled = true;
         try {
           await devPut(`/api/dev/usuarios/${uid}`, { email });
-          // Update displayed email
           const emailCell = row.querySelector('.dev-email');
           if (emailCell) emailCell.textContent = email;
-          btn.textContent = '✓ OK!';
-          setTimeout(() => {
-            row.querySelector('.dev-reset-input[type="email"]').classList.remove('show');
-            row.querySelector('.dev-reset-input[type="email"]').value = '';
-            row.querySelector('.btn-cancel-email').style.display = 'none';
-            row.querySelector('.btn-abrir-email').style.display = '';
-            btn.textContent = 'Salvar'; btn.disabled = false;
-          }, 1500);
-        } catch (err) { alert('Erro: ' + err.message); btn.textContent = 'Salvar'; btn.disabled = false; }
+          row.querySelector('.dev-email-form').style.display = 'none';
+          inp.value = '';
+          btn.textContent = '✓'; btn.disabled = false;
+        } catch (err) {
+          alert('Erro: ' + err.message);
+          btn.textContent = '✓'; btn.disabled = false;
+        }
       });
     });
 
     main.querySelectorAll('.btn-cancel-email').forEach(btn => {
       btn.addEventListener('click', () => {
         const row = btn.closest('tr');
-        row.querySelector('.dev-reset-input[type="email"]').classList.remove('show');
-        row.querySelector('.btn-salvar-email').style.display = 'none';
-        btn.style.display = 'none';
-        row.querySelector('.btn-abrir-email').style.display = '';
+        row.querySelector('.dev-email-form').style.display = 'none';
+        row.querySelector('.dev-email-form input').value = '';
       });
     });
   }

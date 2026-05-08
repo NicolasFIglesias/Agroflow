@@ -41,12 +41,44 @@ function detectarTags(base64) {
   } catch { return []; }
 }
 
-// Corrige tags divididas entre runs usando DOM parsing (mais confiável que regex)
+// Corrige tags divididas entre runs usando regex direto no XML (sem deps externas)
+// Estratégia: para cada parágrafo que contém tags divididas, colapsa todo o texto
+// para o primeiro <w:t> e esvazia os demais — garante que docxtemplater veja a tag completa.
+function _fixSplitTagsInPara(paraXml) {
+  // Extrai todos os textos de <w:t>
+  const tMatches = [...paraXml.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)];
+  if (tMatches.length < 2) return paraXml;
+
+  const textos = tMatches.map(m => m[1]);
+  const combinado = textos.join('');
+
+  if (!combinado.includes('{{') && !combinado.includes('}}')) return paraXml;
+
+  // Verificar se algum run tem tag incompleta (dividida entre runs)
+  const temDividida = textos.some(t =>
+    (t.includes('{{') && !t.includes('}}')) ||
+    (!t.includes('{{') && t.includes('}}')) ||
+    /\{\{[A-Z_0-9]*$/.test(t) ||
+    /^[A-Z_0-9]*\}\}/.test(t)
+  );
+
+  if (!temDividida) return paraXml;
+
+  // Fix: colocar todo texto no primeiro <w:t>, esvaziar os outros
+  let primeiro = true;
+  const temEspaco = /[ \t]/.test(combinado);
+  return paraXml.replace(/<w:t([^>]*)>([\s\S]*?)<\/w:t>/g, (match, attrs, texto) => {
+    if (primeiro) {
+      primeiro = false;
+      const spaceAttr = temEspaco ? ' xml:space="preserve"' : '';
+      return `<w:t${spaceAttr}>${combinado}</w:t>`;
+    }
+    return '<w:t></w:t>';
+  });
+}
+
 function _fixDocxBase64(base64) {
   try {
-    const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
-    const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
-
     const buf = Buffer.from(base64, 'base64');
     const zip = new PizZip(buf);
 
@@ -57,14 +89,11 @@ function _fixDocxBase64(base64) {
     xmlFiles.forEach(filename => {
       try {
         const xmlStr = zip.files[filename].asText();
-        const parser = new DOMParser();
-        const doc    = parser.parseFromString(xmlStr, 'text/xml');
-
-        // Processar todos os parágrafos
-        const paras = doc.getElementsByTagNameNS(W, 'p');
-        for (let i = 0; i < paras.length; i++) _fixParaRuns(paras[i], W);
-
-        zip.file(filename, new XMLSerializer().serializeToString(doc));
+        // Processar cada parágrafo individualmente
+        const fixed = xmlStr.replace(/<w:p[ >][\s\S]*?<\/w:p>/g, para =>
+          _fixSplitTagsInPara(para)
+        );
+        zip.file(filename, fixed);
       } catch { /* pular arquivo com erro */ }
     });
 
@@ -72,24 +101,10 @@ function _fixDocxBase64(base64) {
   } catch { return base64; }
 }
 
+// Mantido para compatibilidade (não usado mais)
 function _fixParaRuns(para, W) {
-  // Coletar runs diretos do parágrafo
-  const runs = [];
-  const cn = para.childNodes;
-  for (let i = 0; i < cn.length; i++) {
-    if (cn[i].localName === 'r') runs.push(cn[i]);
-  }
-  if (runs.length < 2) return;
-
-  // Texto de cada run
-  function runText(r) {
-    let t = '';
-    const ts = r.getElementsByTagNameNS(W, 't');
-    for (let i = 0; i < ts.length; i++) t += ts[i].textContent || '';
-    return t;
-  }
-
-  // Verificar se algum run tem tag incompleta
+  void para; void W;
+  // replaced by _fixSplitTagsInPara
   function hasIncomplete(t) {
     return (t.includes('{{') && !t.includes('}}')) ||
            (!t.includes('{{') && t.includes('}}')) ||
