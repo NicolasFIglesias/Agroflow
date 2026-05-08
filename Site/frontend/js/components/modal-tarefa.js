@@ -26,14 +26,14 @@ const ModalTarefa = (() => {
       _projetos = []; _usuarios = [];
     }
 
+    // Preencher campos — tipo ANTES de ser usado
+    const tipo = tarefa?.tipo || 'equipe';
+    _setTipo(tipo);
+
     _renderProjetos(tarefa?.projeto_id || projetoId);
     // Para tarefas pessoais sem atribuição, pré-selecionar o usuário atual
     const atribuidoDefault = tarefa?.atribuido_a || (tipo === 'pessoal' ? Auth.usuario()?.id : null);
     _renderUsuarios(atribuidoDefault);
-
-    // Preencher campos
-    const tipo = tarefa?.tipo || 'equipe';
-    _setTipo(tipo);
 
     document.getElementById('tarefa-titulo').value    = tarefa?.titulo || '';
     document.getElementById('tarefa-descricao').value = tarefa?.descricao || '';

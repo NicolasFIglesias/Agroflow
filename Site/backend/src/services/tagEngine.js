@@ -7,10 +7,37 @@ function detectarTags(base64) {
   try {
     const buf = Buffer.from(base64, 'base64');
     const zip = new PizZip(buf);
-    const doc = new Docxtemplater(zip, { nullGetter: () => '' });
-    const txt = doc.getFullText();
-    const m   = [...txt.matchAll(/\{\{([A-Z0-9_]+)\}\}/g)];
-    return [...new Set(m.map(x => x[1]))];
+
+    // Extrair texto de cada parágrafo concatenando runs <w:t>
+    // Isso garante que tags divididas entre runs (mas no mesmo parágrafo) sejam detectadas
+    const tags = new Set();
+    const W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+
+    const xmlFiles = Object.keys(zip.files).filter(f =>
+      /word\/(document|header\d*|footer\d*).*\.xml$/.test(f)
+    );
+
+    xmlFiles.forEach(filename => {
+      try {
+        const xmlStr = zip.files[filename].asText();
+        // Abordagem 1: regex direto no XML (mais rápida, pega tags inteiras)
+        const matches1 = [...xmlStr.matchAll(/\{\{([A-Z0-9_]+)\}\}/g)];
+        matches1.forEach(m => tags.add(m[1]));
+
+        // Abordagem 2: concatenar texto por parágrafo e buscar tags divididas
+        // Extrair conteúdo de <w:p>...</w:p>
+        const paraMatches = xmlStr.matchAll(/<w:p[ >][\s\S]*?<\/w:p>/g);
+        for (const pm of paraMatches) {
+          // Extrair todo texto de <w:t>...</w:t> dentro do parágrafo
+          const tMatches = [...pm[0].matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)];
+          const paraText = tMatches.map(tm => tm[1]).join('');
+          const matches2 = [...paraText.matchAll(/\{\{([A-Z0-9_]+)\}\}/g)];
+          matches2.forEach(m => tags.add(m[1]));
+        }
+      } catch { /* pular arquivo com erro */ }
+    });
+
+    return [...tags];
   } catch { return []; }
 }
 
