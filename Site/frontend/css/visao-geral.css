@@ -1,3 +1,12 @@
+/* ── Hover universal para tabs ───────────────────────────── */
+.ficha-tab:hover:not(.active),
+[data-vg-tab]:hover:not(.active),
+[data-ct-tab]:hover:not(.active),
+[data-vnd-painel]:hover:not(.active) {
+  color: var(--md-on-surface) !important;
+  background: var(--md-surface-container) !important;
+}
+
 /* ── Visão Geral / Dashboard ─────────────────────────────── */
 
 .vg-header {

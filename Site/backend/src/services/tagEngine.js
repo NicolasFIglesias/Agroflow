@@ -14,37 +14,92 @@ function detectarTags(base64) {
   } catch { return []; }
 }
 
-// Pre-processa XML do docx para juntar runs que estejam com tags {{...}} divididas
-function _fixSplitTagsInXml(xml) {
-  let out = xml;
-  // Várias passagens para juntar {{ e }} separados por fronteiras de runs XML
-  let changed = true;
-  let passes = 0;
-  while (changed && passes < 10) {
-    changed = false; passes++;
-    const before = out;
-    // Juntar { seguido de fronteira de run seguido de {  → {{
-    out = out.replace(/\{(<\/w:t><\/w:r>(?:<\/w:del>)?(?:<w:bookmarkStart[^/]*\/>|<w:bookmarkEnd[^/]*\/>)*(?:<w:r>|<w:ins[^>]*>)(?:<w:rPr>[\s\S]*?<\/w:rPr>)?<w:t[^>]*>)\{/g, '{{');
-    // Juntar } seguido de fronteira de run seguido de }  → }}
-    out = out.replace(/\}(<\/w:t><\/w:r>(?:<\/w:del>)?(?:<w:bookmarkStart[^/]*\/>|<w:bookmarkEnd[^/]*\/>)*(?:<w:r>|<w:ins[^>]*>)(?:<w:rPr>[\s\S]*?<\/w:rPr>)?<w:t[^>]*>)\}/g, '}}');
-    if (out !== before) changed = true;
-  }
-  return out;
-}
-
+// Corrige tags divididas entre runs usando DOM parsing (mais confiável que regex)
 function _fixDocxBase64(base64) {
   try {
+    const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
+    const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+
     const buf = Buffer.from(base64, 'base64');
-    const zip  = new PizZip(buf);
+    const zip = new PizZip(buf);
+
     const xmlFiles = Object.keys(zip.files).filter(f =>
       /word\/(document|header\d*|footer\d*).*\.xml$/.test(f)
     );
-    xmlFiles.forEach(f => {
-      const fixed = _fixSplitTagsInXml(zip.files[f].asText());
-      zip.file(f, fixed);
+
+    xmlFiles.forEach(filename => {
+      try {
+        const xmlStr = zip.files[filename].asText();
+        const parser = new DOMParser();
+        const doc    = parser.parseFromString(xmlStr, 'text/xml');
+
+        // Processar todos os parágrafos
+        const paras = doc.getElementsByTagNameNS(W, 'p');
+        for (let i = 0; i < paras.length; i++) _fixParaRuns(paras[i], W);
+
+        zip.file(filename, new XMLSerializer().serializeToString(doc));
+      } catch { /* pular arquivo com erro */ }
     });
+
     return zip.generate({ type: 'base64', compression: 'DEFLATE' });
   } catch { return base64; }
+}
+
+function _fixParaRuns(para, W) {
+  // Coletar runs diretos do parágrafo
+  const runs = [];
+  const cn = para.childNodes;
+  for (let i = 0; i < cn.length; i++) {
+    if (cn[i].localName === 'r') runs.push(cn[i]);
+  }
+  if (runs.length < 2) return;
+
+  // Texto de cada run
+  function runText(r) {
+    let t = '';
+    const ts = r.getElementsByTagNameNS(W, 't');
+    for (let i = 0; i < ts.length; i++) t += ts[i].textContent || '';
+    return t;
+  }
+
+  // Verificar se algum run tem tag incompleta
+  function hasIncomplete(t) {
+    return (t.includes('{{') && !t.includes('}}')) ||
+           (!t.includes('{{') && t.includes('}}')) ||
+           /\{\{[A-Z_0-9]*$/.test(t) ||
+           /^[A-Z_0-9]*\}\}/.test(t);
+  }
+
+  if (!runs.some(r => hasIncomplete(runText(r)))) return;
+
+  // Mesclar runs que formam tags incompletas
+  let i = 0;
+  while (i < runs.length) {
+    const rt = runText(runs[i]);
+    if (!hasIncomplete(rt)) { i++; continue; }
+
+    // Acumular runs até fechar o }}
+    let combined = rt;
+    let j = i + 1;
+    while (j < runs.length && !combined.includes('}}')) {
+      combined += runText(runs[j]);
+      j++;
+    }
+
+    // Colocar texto combinado no primeiro run
+    const tNodes = runs[i].getElementsByTagNameNS(W, 't');
+    if (tNodes.length > 0) {
+      tNodes[0].textContent = combined;
+      if (/\s/.test(combined)) tNodes[0].setAttribute('xml:space', 'preserve');
+    }
+
+    // Remover runs intermediários do DOM
+    for (let k = i + 1; k < j && k < runs.length; k++) {
+      try { runs[k].parentNode && runs[k].parentNode.removeChild(runs[k]); } catch {}
+    }
+    runs.splice(i + 1, j - i - 1);
+    i++;
+  }
 }
 
 function gerarDocx(base64Modelo, dados) {

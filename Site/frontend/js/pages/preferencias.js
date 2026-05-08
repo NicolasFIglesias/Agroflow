@@ -18,19 +18,22 @@ if (!_isAdminPref) {
 
 // Itens configuráveis do menu
 const MENU_ITEMS = _isAdminPref ? [
-  { page: 'visao-geral',   label: 'Visão Geral',          icon: '🏠' },
+  { page: 'visao-geral',   label: 'Visão Geral',           icon: '🏠' },
   { page: 'calendario',    label: 'Calendário',             icon: '📅' },
-  { page: 'vendas',        label: 'Vendas',                icon: '💰' },
-  { page: 'contratos',     label: 'Contratos',             icon: '📄' },
-  { page: 'clientes',      label: 'Clientes',              icon: '👥' },
-  { page: 'imoveis',       label: 'Imóveis',               icon: '🌾' },
+  { page: 'vendas',        label: 'Vendas',                 icon: '💰' },
+  { page: 'contratos',     label: 'Contratos',              icon: '📄' },
+  { page: 'clientes',      label: 'Clientes',               icon: '👥' },
+  { page: 'imoveis',       label: 'Imóveis',                icon: '🌾' },
+  { page: 'servicos',      label: 'Serviços e Produtos',    icon: '🛒' },
+  { page: 'faturamento',   label: 'Faturamento',            icon: '📊' },
+  { page: 'colaboradores', label: 'Cadastrar colaborador',  icon: '👤' },
 ] : [
-  { page: 'visao-geral',   label: 'Início',    icon: '🏠' },
-  { page: 'calendario',    label: 'Calendário', icon: '📅' },
-  { page: 'vendas',        label: 'Vendas',     icon: '💰' },
-  { page: 'contratos',     label: 'Contratos',  icon: '📄' },
-  { page: 'clientes',      label: 'Clientes',   icon: '👥' },
-  { page: 'imoveis',       label: 'Imóveis',    icon: '🌾' },
+  { page: 'visao-geral',   label: 'Início',     icon: '🏠' },
+  { page: 'calendario',    label: 'Calendário',  icon: '📅' },
+  { page: 'vendas',        label: 'Vendas',      icon: '💰' },
+  { page: 'contratos',     label: 'Contratos',   icon: '📄' },
+  { page: 'clientes',      label: 'Clientes',    icon: '👥' },
+  { page: 'imoveis',       label: 'Imóveis',     icon: '🌾' },
 ];
 
 let _prefs = null;
