@@ -39,14 +39,6 @@ body.page-login {
   overflow: hidden;
 }
 
-/* Barra amarela topo */
-.login-aside::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 5px;
-  background: var(--nb-amarelo);
-}
 
 .login-aside-logo {
   display: flex;

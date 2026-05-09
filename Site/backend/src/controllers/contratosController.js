@@ -158,8 +158,8 @@ exports.download = async (req, res) => {
     if (isHtml) {
       const htmlTemplate = Buffer.from(modelo.arquivo_conteudo, 'base64').toString('utf8');
       const htmlGerado   = gerarHtml(htmlTemplate, tags);
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.setHeader('Content-Disposition', `attachment; filename="${ct.numero}.html"`);
+      res.setHeader('Content-Type', 'application/msword');
+      res.setHeader('Content-Disposition', `attachment; filename="${ct.numero}.doc"`);
       res.send(htmlGerado);
     } else {
       const docxBuf = gerarDocx(modelo.arquivo_conteudo, tags);
