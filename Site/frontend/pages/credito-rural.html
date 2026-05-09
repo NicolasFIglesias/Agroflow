@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crédito Rural — AgriFlow</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components/sidebar.css">
+  <style>
+    .cr-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:24px; }
+    .cr-stat {
+      background:var(--branco); border:1.5px solid var(--md-outline-variant);
+      border-radius:var(--radius-md); padding:16px 20px;
+      box-shadow:var(--shadow-sm);
+    }
+    .cr-stat-label { font-size:.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+    .cr-stat-val   { font-size:1.6rem; font-weight:900; color:var(--verde); }
+    .cr-stat-val.red { color:var(--vermelho); }
+    .cr-stat-val.blue { color:var(--azul); }
+
+    .cr-etapas { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:24px; }
+    .cr-etapa-chip {
+      padding:4px 12px; border-radius:var(--radius-full); font-size:.7rem; font-weight:700;
+      background:var(--md-surface-container); color:var(--text-muted); cursor:pointer;
+      border:1.5px solid transparent; transition:all .1s;
+    }
+    .cr-etapa-chip.active { background:var(--verde); color:#fff; border-color:var(--verde-esc); }
+    .cr-etapa-chip:hover:not(.active) { border-color:var(--verde); color:var(--verde); }
+
+    .cr-filtros { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:center; }
+    .cr-filtros .form-input, .cr-filtros .form-select { width:auto; min-width:140px; font-size:.8rem; padding:7px 10px; }
+
+    .cr-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    .cr-table th { text-align:left; padding:8px 12px; background:var(--md-surface-container); font-size:.65rem; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); border-bottom:1.5px solid var(--md-outline-variant); }
+    .cr-table td { padding:10px 12px; border-bottom:1px solid var(--md-surface-container-high); vertical-align:middle; }
+    .cr-table tr:hover td { background:var(--md-surface-container-low); }
+
+    .cr-badge { display:inline-block; padding:2px 8px; border-radius:var(--radius-full); font-size:.65rem; font-weight:700; }
+    .cr-badge-1  { background:#EEF2FF; color:#3730A3; }
+    .cr-badge-2  { background:#FFF7ED; color:#92400E; }
+    .cr-badge-3  { background:#ECFDF5; color:#065F46; }
+    .cr-badge-4  { background:#F0FDF4; color:#166534; }
+    .cr-badge-5  { background:#EFF6FF; color:#1E40AF; }
+    .cr-badge-6  { background:#FEF3C7; color:#92400E; }
+    .cr-badge-7  { background:#F0FDF4; color:#166534; }
+    .cr-badge-8  { background:#ECFDF5; color:#065F46; }
+    .cr-badge-9  { background:#D1FAE5; color:#064E3B; }
+
+    .badge-modal-custeio_agricola  { background:#DCFCE7; color:#166534; }
+    .badge-modal-custeio_pecuario  { background:#FEF9C3; color:#854D0E; }
+    .badge-modal-investimento      { background:#DBEAFE; color:#1E40AF; }
+    .badge-modal-microcredito      { background:#F3E8FF; color:#6B21A8; }
+    .badge-modal-credito_fundiario { background:#FFE4E6; color:#9F1239; }
+
+    .cr-empty { text-align:center; padding:60px; color:var(--text-muted); }
+  </style>
+</head>
+<body>
+<div id="sidebar-root"></div>
+<main class="app-main">
+  <div class="app-content">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 style="font-size:1.4rem;font-weight:900;margin-bottom:4px">Crédito Rural</h1>
+        <p style="color:var(--text-muted);font-size:.82rem">Acompanhe todos os projetos do escritório</p>
+      </div>
+      <a href="credito-rural-novo.html" class="btn btn-primary">+ Novo projeto</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="cr-stats" id="cr-stats">
+      <div class="cr-stat"><div class="cr-stat-label">Total de projetos</div><div class="cr-stat-val" id="stat-total">—</div></div>
+      <div class="cr-stat"><div class="cr-stat-label">Em andamento</div><div class="cr-stat-val" id="stat-ativos">—</div></div>
+      <div class="cr-stat"><div class="cr-stat-label">Concluídos</div><div class="cr-stat-val" id="stat-concluidos">—</div></div>
+      <div class="cr-stat"><div class="cr-stat-label">Comissões a receber</div><div class="cr-stat-val red" id="stat-comissoes">—</div></div>
+    </div>
+
+    <!-- Etapas chips -->
+    <div class="cr-etapas" id="cr-etapas-chips"></div>
+
+    <!-- Filtros -->
+    <div class="cr-filtros">
+      <input type="search" class="form-input" id="busca" placeholder="Buscar por cliente ou número...">
+      <select class="form-select" id="fil-modalidade">
+        <option value="">Modalidade</option>
+        <option value="custeio_agricola">Custeio Agrícola</option>
+        <option value="custeio_pecuario">Custeio Pecuário</option>
+        <option value="investimento">Investimento</option>
+        <option value="microcredito">Microcrédito Rural</option>
+        <option value="credito_fundiario">Crédito Fundiário</option>
+      </select>
+      <select class="form-select" id="fil-banco">
+        <option value="">Banco</option>
+        <option value="banco_brasil">Banco do Brasil</option>
+        <option value="sicredi">Sicredi</option>
+        <option value="sicoob">Sicoob</option>
+        <option value="caixa">Caixa Econômica</option>
+        <option value="bnb">BNB</option>
+      </select>
+      <select class="form-select" id="fil-status">
+        <option value="ativo">Em andamento</option>
+        <option value="">Todos</option>
+        <option value="concluido">Concluídos</option>
+        <option value="cancelado">Cancelados</option>
+      </select>
+    </div>
+
+    <!-- Table -->
+    <div style="background:var(--branco);border:1.5px solid var(--md-outline-variant);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);overflow:hidden">
+      <table class="cr-table">
+        <thead><tr>
+          <th>Nº Projeto</th><th>Cliente</th><th>Modalidade</th><th>Banco</th>
+          <th>Etapa</th><th>Valor</th><th>Técnico</th><th>Atualizado</th><th></th>
+        </tr></thead>
+        <tbody id="cr-tbody"></tbody>
+      </table>
+      <div id="cr-empty" class="cr-empty" style="display:none">Nenhum projeto encontrado.</div>
+      <div id="cr-loading" class="cr-empty">Carregando...</div>
+    </div>
+
+    <!-- Paginação -->
+    <div id="cr-paginacao" style="display:flex;justify-content:center;gap:8px;margin-top:16px"></div>
+
+  </div>
+</main>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/components/sidebar.js"></script>
+<script src="../js/pages/credito-rural.js"></script>
+</body>
+</html>

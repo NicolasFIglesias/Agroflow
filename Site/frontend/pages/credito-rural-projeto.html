@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projeto — AgriFlow</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components/sidebar.css">
+  <style>
+    .proj-header { background:var(--verde-esc); color:#fff; border-radius:var(--radius-md); padding:20px 24px; margin-bottom:20px; }
+    .proj-num    { font-size:.75rem; font-family:monospace; opacity:.7; margin-bottom:4px; }
+    .proj-nome   { font-size:1.3rem; font-weight:900; margin-bottom:4px; }
+    .proj-sub    { font-size:.82rem; opacity:.8; }
+
+    .etapas-bar { display:flex; gap:0; margin-bottom:24px; border-radius:var(--radius-md); overflow:hidden; border:1.5px solid var(--md-outline-variant); }
+    .etapa-step { flex:1; padding:10px 4px; text-align:center; font-size:.58rem; font-weight:700;
+      background:var(--md-surface-container); color:var(--text-muted); border-right:1px solid var(--md-outline-variant); cursor:default; }
+    .etapa-step:last-child { border-right:none; }
+    .etapa-step.concluida { background:var(--verde-cl); color:var(--verde-esc); }
+    .etapa-step.atual     { background:var(--verde); color:#fff; font-size:.65rem; }
+
+    .info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:20px; }
+    .info-card { background:var(--branco); border:1.5px solid var(--md-outline-variant); border-radius:var(--radius-md); padding:14px 18px; box-shadow:var(--shadow-sm); }
+    .info-card-label { font-size:.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+    .info-card-val   { font-size:1rem; font-weight:800; color:var(--preto); }
+
+    .avancar-btn { margin-top:20px; }
+  </style>
+</head>
+<body>
+<div id="sidebar-root"></div>
+<main class="app-main">
+  <div class="app-content">
+    <div style="margin-bottom:16px">
+      <a href="credito-rural.html" class="btn btn-secondary btn-sm">← Projetos</a>
+    </div>
+
+    <div id="proj-loading" style="text-align:center;padding:60px;color:var(--text-muted)">Carregando...</div>
+    <div id="proj-content" style="display:none">
+      <div class="proj-header" id="proj-header"></div>
+      <div class="etapas-bar" id="etapas-bar"></div>
+      <div class="info-grid" id="info-grid"></div>
+      <div id="etapa-atual-panel"></div>
+    </div>
+  </div>
+</main>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/components/sidebar.js"></script>
+<script src="../js/pages/credito-rural-projeto.js"></script>
+</body>
+</html>

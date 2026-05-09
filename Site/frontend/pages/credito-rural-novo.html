@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Projeto — AgriFlow</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/components/sidebar.css">
+  <style>
+    .cr-wizard { max-width: 700px; margin: 0 auto; }
+    .cr-steps { display:flex; gap:0; margin-bottom:32px; }
+    .cr-step { flex:1; text-align:center; padding:10px; font-size:.72rem; font-weight:700;
+      border-bottom:3px solid var(--md-outline-variant); color:var(--text-muted); }
+    .cr-step.active { border-color:var(--verde); color:var(--verde); }
+    .cr-step.done   { border-color:var(--verde); color:var(--verde); opacity:.6; }
+    .cr-panel { display:none; }
+    .cr-panel.active { display:block; }
+    .cr-nav { display:flex; justify-content:space-between; margin-top:24px; padding-top:16px; border-top:1px solid var(--md-outline-variant); }
+  </style>
+</head>
+<body>
+<div id="sidebar-root"></div>
+<main class="app-main">
+  <div class="app-content">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+      <a href="credito-rural.html" class="btn btn-secondary btn-sm">← Voltar</a>
+      <h1 style="font-size:1.4rem;font-weight:900">Novo Projeto de Crédito</h1>
+    </div>
+
+    <div class="cr-wizard">
+      <!-- Steps indicator -->
+      <div class="cr-steps">
+        <div class="cr-step active" id="step-ind-1">1. Identificação</div>
+        <div class="cr-step"        id="step-ind-2">2. Produtor e Imóvel</div>
+        <div class="cr-step"        id="step-ind-3">3. Dados Financeiros</div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="cr-panel active" id="panel-1">
+        <div class="card">
+          <div class="card-body" style="display:grid;gap:16px">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Modalidade *</label>
+                <select id="modalidade" class="form-select">
+                  <option value="">Selecione...</option>
+                  <option value="custeio_agricola">Custeio Agrícola</option>
+                  <option value="custeio_pecuario">Custeio Pecuário</option>
+                  <option value="investimento">Investimento</option>
+                  <option value="microcredito">Microcrédito Rural</option>
+                  <option value="credito_fundiario">Crédito Fundiário</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Banco / Cooperativa *</label>
+                <select id="banco" class="form-select">
+                  <option value="">Selecione...</option>
+                  <option value="banco_brasil">Banco do Brasil</option>
+                  <option value="sicredi">Sicredi</option>
+                  <option value="sicoob">Sicoob</option>
+                  <option value="caixa">Caixa Econômica</option>
+                  <option value="bnb">BNB</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Programa / Linha de crédito</label>
+              <input type="text" id="programa" class="form-input" placeholder="Ex: PRONAF Custeio, FCO Rural, PRONAF Mais Alimentos">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Agência bancária</label>
+                <input type="text" id="agencia" class="form-input" placeholder="Ex: 0001-1">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Gerente responsável (banco)</label>
+                <input type="text" id="gerente_banco" class="form-input" placeholder="Nome do gerente">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Técnico responsável *</label>
+                <select id="tecnico_id" class="form-select"><option value="">Carregando...</option></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Prazo estimado de conclusão</label>
+                <input type="date" id="prazo_estimado" class="form-input">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cr-nav">
+          <a href="credito-rural.html" class="btn btn-secondary">Cancelar</a>
+          <button class="btn btn-primary" onclick="irPasso(2)">Próximo →</button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="cr-panel" id="panel-2">
+        <div class="card">
+          <div class="card-body" style="display:grid;gap:16px">
+            <div class="form-group">
+              <label class="form-label">Cliente / Produtor *</label>
+              <input type="text" id="cliente-busca" class="form-input" placeholder="Digite para buscar...">
+              <div id="cliente-lista" style="display:none;background:var(--branco);border:1.5px solid var(--md-outline-variant);border-radius:var(--radius-md);max-height:200px;overflow-y:auto;margin-top:4px"></div>
+              <input type="hidden" id="cliente_id">
+              <div id="cliente-selecionado" style="display:none;margin-top:6px;padding:8px 12px;background:var(--md-primary-container);border-radius:var(--radius-sm);font-size:.82rem;font-weight:600;color:var(--md-on-primary-container)"></div>
+            </div>
+            <div class="form-group" id="imovel-group" style="display:none">
+              <label class="form-label">Imóvel vinculado *</label>
+              <select id="imovel_id" class="form-select"><option value="">Selecione o imóvel...</option></select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Área financiada (ha) *</label>
+                <input type="number" id="area_financiada" class="form-input" placeholder="150.00" step="0.01">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cultura / Atividade *</label>
+                <input type="text" id="cultura" class="form-input" placeholder="Ex: Soja safrinha, Confinamento bovino">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Safra / Ano</label>
+                <input type="text" id="safra" class="form-input" placeholder="Ex: Safra 2025/2026">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Produtividade esperada</label>
+                <input type="number" id="produtividade_esperada" class="form-input" placeholder="Sacas/ha ou arrobas">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cr-nav">
+          <button class="btn btn-secondary" onclick="irPasso(1)">← Anterior</button>
+          <button class="btn btn-primary" onclick="irPasso(3)">Próximo →</button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="cr-panel" id="panel-3">
+        <div class="card">
+          <div class="card-body" style="display:grid;gap:16px">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Valor solicitado (R$) *</label>
+                <input type="number" id="valor_solicitado" class="form-input" placeholder="250000.00" step="0.01">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Percentual de comissão (%)</label>
+                <input type="number" id="percentual_comissao" class="form-input" value="3" step="0.1" min="0" max="100">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Comissão estimada</label>
+              <div id="comissao-preview" style="padding:10px 12px;background:var(--md-surface-container);border-radius:var(--radius-sm);font-weight:700;color:var(--verde)">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="cr-nav">
+          <button class="btn btn-secondary" onclick="irPasso(2)">← Anterior</button>
+          <button class="btn btn-primary" id="btn-criar" onclick="criarProjeto()">Criar projeto →</button>
+        </div>
+      </div>
+
+      <div id="cr-error" style="display:none;margin-top:12px;padding:10px 14px;background:var(--md-error-container);border-radius:var(--radius-sm);color:var(--md-on-error-container);font-size:.82rem"></div>
+    </div>
+  </div>
+</main>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/components/sidebar.js"></script>
+<script src="../js/pages/credito-rural-novo.js"></script>
+</body>
+</html>
