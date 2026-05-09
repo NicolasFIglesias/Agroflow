@@ -54,9 +54,8 @@ exports.download = async (req, res) => {
     const isHtml = nome.toLowerCase().endsWith('.html') || nome.toLowerCase().endsWith('.htm');
     if (isHtml) {
       const html = Buffer.from(m.arquivo_conteudo, 'base64').toString('utf8');
-      const nomeDoc = nome.replace(/\.html?$/i, '.doc');
-      res.setHeader('Content-Type', 'application/msword');
-      res.setHeader('Content-Disposition', `attachment; filename="${nomeDoc}"`);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${nome}"`);
       res.send(html);
     } else {
       const buf = Buffer.from(m.arquivo_conteudo, 'base64');

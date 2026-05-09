@@ -137,7 +137,7 @@ exports.buscarPorId = async (req, res) => {
 
 exports.download = async (req, res) => {
   try {
-    const { gerarDocx, gerarHtml, buildTags } = require('../services/tagEngine');
+    const { gerarDocx, gerarDocxFromHtml, buildTags } = require('../services/tagEngine');
     const { rows: [ct] } = await db.query(`SELECT * FROM contratos WHERE id=$1 AND empresa_id=$2`, [req.params.id, req.usuario.empresa_id]);
     if (!ct) return res.status(404).json({ error: 'Contrato não encontrado' });
 
@@ -157,10 +157,10 @@ exports.download = async (req, res) => {
 
     if (isHtml) {
       const htmlTemplate = Buffer.from(modelo.arquivo_conteudo, 'base64').toString('utf8');
-      const htmlGerado   = gerarHtml(htmlTemplate, tags);
-      res.setHeader('Content-Type', 'application/msword');
-      res.setHeader('Content-Disposition', `attachment; filename="${ct.numero}.doc"`);
-      res.send(htmlGerado);
+      const docxBuf = await gerarDocxFromHtml(htmlTemplate, tags);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      res.setHeader('Content-Disposition', `attachment; filename="${ct.numero}.docx"`);
+      res.send(docxBuf);
     } else {
       const docxBuf = gerarDocx(modelo.arquivo_conteudo, tags);
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');

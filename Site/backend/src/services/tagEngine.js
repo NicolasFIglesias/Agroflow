@@ -269,4 +269,16 @@ function gerarHtml(htmlTemplate, dados) {
   return html;
 }
 
-module.exports = { detectarTags, detectarTagsHtml, gerarDocx, gerarHtml, buildTags };
+async function gerarDocxFromHtml(htmlTemplate, dados) {
+  const HTMLtoDOCX = require('html-to-docx');
+  const htmlPreenchido = gerarHtml(htmlTemplate, dados);
+  return HTMLtoDOCX(htmlPreenchido, null, {
+    margin: { top: 1700, right: 1418, bottom: 1700, left: 1418 },
+    font: 'Times New Roman',
+    fontSize: 24,
+    table: { row: { cantSplit: true } },
+    lineNumber: false,
+  });
+}
+
+module.exports = { detectarTags, detectarTagsHtml, gerarDocx, gerarHtml, gerarDocxFromHtml, buildTags };
