@@ -160,6 +160,10 @@ function _aplicarOrdemSidebar(prefs) {
       }
     });
   }
+
+  // "Cadastrar colaborador" sempre por último (após o divider)
+  const colaboradorEl = nav.querySelector('.sidebar-item[data-page="colaboradores"]');
+  if (colaboradorEl) nav.appendChild(colaboradorEl);
 }
 
 // Legacy — kept for compatibility
