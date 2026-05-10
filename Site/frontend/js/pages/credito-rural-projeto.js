@@ -294,7 +294,7 @@ window.registrarComissao = async () => {
     });
     // Criar lançamento de receita
     await API.post('/api/lancamentos', {
-      tipo:             'receita',
+      tipo:             'venda',
       cliente_id:       _proj.cliente_id || null,
       cliente_nome:     _proj.cliente_nome || null,
       produto:          `Comissão Crédito Rural — ${_proj.numero}`,
