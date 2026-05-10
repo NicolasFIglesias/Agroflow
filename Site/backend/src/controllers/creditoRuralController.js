@@ -36,11 +36,13 @@ exports.dashboard = async (req, res) => {
 
 exports.listar = async (req, res) => {
   try {
-    const { busca='', modalidade, banco, etapa, status, tecnico_id, pagina=1, por_pagina=20 } = req.query;
+    const { busca='', modalidade, banco, etapa, status, status_comissao, tecnico_id, pagina=1, por_pagina=20 } = req.query;
     const limit = Math.min(100, parseInt(por_pagina));
     const offset = (Math.max(1, parseInt(pagina))-1)*limit;
     let q = `SELECT p.id, p.numero, p.modalidade, p.banco, p.etapa_atual, p.status,
-               p.valor_solicitado, p.valor_liberado, p.status_comissao, p.data_abertura, p.updated_at,
+               p.valor_solicitado, p.valor_liberado, p.percentual_comissao, p.valor_comissao,
+               p.status_comissao, p.data_recebimento_comissao, p.data_abertura, p.updated_at,
+               p.cliente_id,
                c.nome_completo AS cliente_nome, i.denominacao AS imovel_nome,
                u.nome AS tecnico_nome
              FROM projetos_credito p
@@ -49,12 +51,13 @@ exports.listar = async (req, res) => {
              LEFT JOIN usuarios u ON u.id=p.tecnico_id
              WHERE p.empresa_id=$1`;
     const vals=[req.usuario.empresa_id]; let idx=2;
-    if (busca.trim()) { q+=` AND (c.nome_completo ILIKE $${idx} OR p.numero ILIKE $${idx})`; vals.push(`%${busca.trim()}%`); idx++; }
-    if (modalidade) { q+=` AND p.modalidade=$${idx++}`; vals.push(modalidade); }
-    if (banco)      { q+=` AND p.banco=$${idx++}`; vals.push(banco); }
-    if (etapa)      { q+=` AND p.etapa_atual=$${idx++}`; vals.push(parseInt(etapa)); }
-    if (status)     { q+=` AND p.status=$${idx++}`; vals.push(status); }
-    if (tecnico_id) { q+=` AND p.tecnico_id=$${idx++}`; vals.push(tecnico_id); }
+    if (busca.trim())    { q+=` AND (c.nome_completo ILIKE $${idx} OR p.numero ILIKE $${idx})`; vals.push(`%${busca.trim()}%`); idx++; }
+    if (modalidade)      { q+=` AND p.modalidade=$${idx++}`; vals.push(modalidade); }
+    if (banco)           { q+=` AND p.banco=$${idx++}`; vals.push(banco); }
+    if (etapa)           { q+=` AND p.etapa_atual=$${idx++}`; vals.push(parseInt(etapa)); }
+    if (status)          { q+=` AND p.status=$${idx++}`; vals.push(status); }
+    if (status_comissao) { q+=` AND p.status_comissao=$${idx++}`; vals.push(status_comissao); }
+    if (tecnico_id)      { q+=` AND p.tecnico_id=$${idx++}`; vals.push(tecnico_id); }
     const { rows:[{count}] } = await db.query(`SELECT COUNT(*) FROM (${q}) sub`, vals);
     q+=` ORDER BY p.updated_at DESC LIMIT $${idx++} OFFSET $${idx}`;
     vals.push(limit,offset);
