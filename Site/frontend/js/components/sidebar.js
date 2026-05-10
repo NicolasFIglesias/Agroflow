@@ -187,3 +187,12 @@ function invalidarCachePreferencias() {
 window.initSidebar = initSidebar;
 window.invalidarCachePreferencias = invalidarCachePreferencias;
 window.SIDEBAR_ITEMS_META = { NAV_ADMIN, NAV_COLAB };
+
+// Carregar sistema de ajuda dinamicamente (sem necessidade de alterar cada HTML)
+(function _loadHelp() {
+  const s = document.createElement('script');
+  // Caminho relativo ao root do servidor
+  s.src = '/js/help.js';
+  s.onload = () => { if (typeof initHelp === 'function') initHelp(); };
+  document.head.appendChild(s);
+})();
