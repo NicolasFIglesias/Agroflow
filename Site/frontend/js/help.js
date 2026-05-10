@@ -437,8 +437,148 @@
   // ── Verificar se é primeira visita ───────────────────────
   function _checkFirstVisit() {
     if (!localStorage.getItem('agriflow_tutorial_seen')) {
-      // Mostrar tutorial após 1.5s para a página carregar
       setTimeout(_startTutorial, 1500);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // SISTEMA DE NOVIDADES — exibe uma vez por versão
+  // ══════════════════════════════════════════════════════════
+
+  const CURRENT_VERSION = '1.0.0';
+
+  const CHANGELOG = {
+    '1.0.0': {
+      nome:    'AgriFlow 1.0',
+      emoji:   '🌱',
+      destaque:'Primeira versão oficial do AgriFlow!',
+      intro:   'Seja bem-vindo ao sistema de gestão rural feito para escritórios de crédito rural. Tudo que você precisa para atender seus clientes, num só lugar.',
+      itens: [
+        { icon: '🌾', titulo: 'Crédito Rural',      desc: 'Módulo completo com 9 etapas de controle, checklist de documentos, levantamento patrimonial, laudo de visita, planilha de custeio, TRT e controle de comissões.' },
+        { icon: '📄', titulo: 'Contratos',           desc: 'Geração automática de contratos em Word a partir de modelos HTML ou .docx com tags personalizadas ({{VENDEDOR_NOME}}, {{IMOVEL_AREA}} e muitas outras).' },
+        { icon: '👥', titulo: 'Clientes e Imóveis',  desc: 'Cadastro completo de produtores rurais com linha do tempo automática de todas as movimentações, imóveis vinculados e dados bancários.' },
+        { icon: '📅', titulo: 'Calendário',          desc: 'Agenda com tarefas recorrentes, visão da equipe e integração com a visão geral.' },
+        { icon: '💰', titulo: 'Faturamento',         desc: 'Controle financeiro do escritório com lançamentos de receitas e despesas. Comissões de crédito rural viram receita automaticamente.' },
+        { icon: '🎨', titulo: 'Personalização',      desc: 'Cor, logo e ordem do menu lateral configuráveis por empresa. Cada colaborador pode organizar o menu do seu jeito.' },
+        { icon: '❓', titulo: 'Ajuda contextual',    desc: 'Botão "?" disponível em todas as páginas com explicação sobre cada seção, mais tutorial interativo para novos usuários.' },
+      ],
+    },
+  };
+
+  function _injectChangelogStyles() {
+    if (document.getElementById('agriflow-changelog-styles')) return;
+    const s = document.createElement('style');
+    s.id = 'agriflow-changelog-styles';
+    s.textContent = `
+      #changelog-overlay {
+        display:none; position:fixed; inset:0; z-index:4000;
+        background:rgba(0,0,0,0.55); align-items:center; justify-content:center;
+      }
+      #changelog-overlay.open { display:flex; }
+      #changelog-modal {
+        background:#fff; border-radius:20px; max-width:560px; width:92%;
+        max-height:88vh; display:flex; flex-direction:column;
+        box-shadow:0 24px 64px rgba(0,0,0,0.22);
+        animation:clFadeIn .25s ease;
+      }
+      @keyframes clFadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+
+      #changelog-header {
+        background:linear-gradient(135deg, var(--verde-esc,#0D4225) 0%, var(--verde,#1A6B3C) 100%);
+        border-radius:20px 20px 0 0; padding:28px 28px 22px; color:#fff; flex-shrink:0;
+      }
+      #changelog-header .cl-badge {
+        display:inline-block; background:rgba(255,255,255,.2); border-radius:100px;
+        font-size:.68rem; font-weight:800; padding:3px 10px; letter-spacing:.06em;
+        text-transform:uppercase; margin-bottom:10px;
+      }
+      #changelog-header .cl-emoji { font-size:2rem; margin-bottom:6px; display:block; }
+      #changelog-header h2 { font-size:1.4rem; font-weight:900; margin-bottom:6px; }
+      #changelog-header p  { font-size:.85rem; opacity:.85; line-height:1.5; margin:0; }
+
+      #changelog-body {
+        padding:20px 24px; overflow-y:auto; flex:1;
+      }
+      #changelog-body .cl-intro {
+        font-size:.85rem; color:#555; line-height:1.6; margin-bottom:18px;
+        padding-bottom:16px; border-bottom:1px solid #F0F0E8;
+      }
+      .cl-item { display:flex; gap:14px; padding:10px 0; border-bottom:1px solid #F5F5F0; }
+      .cl-item:last-child { border-bottom:none; }
+      .cl-item-icon { font-size:1.3rem; flex-shrink:0; width:30px; text-align:center; padding-top:1px; }
+      .cl-item-body h4 { font-size:.85rem; font-weight:800; color:#111; margin-bottom:2px; }
+      .cl-item-body p  { font-size:.78rem; color:#666; line-height:1.5; margin:0; }
+
+      #changelog-footer {
+        padding:16px 24px; border-top:1px solid #F0F0E8; display:flex;
+        justify-content:space-between; align-items:center; flex-shrink:0;
+      }
+      #changelog-footer .cl-version { font-size:.72rem; color:#AAA; font-family:monospace; }
+      #changelog-close {
+        padding:10px 28px; background:var(--verde,#1A6B3C); color:#fff;
+        border:none; border-radius:10px; font-size:.85rem; font-weight:700;
+        cursor:pointer; font-family:inherit; transition:opacity .12s;
+      }
+      #changelog-close:hover { opacity:.88; }
+    `;
+    document.head.appendChild(s);
+  }
+
+  function _mostrarChangelog() {
+    const v    = CHANGELOG[CURRENT_VERSION];
+    if (!v) return;
+
+    _injectChangelogStyles();
+
+    let overlay = document.getElementById('changelog-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'changelog-overlay';
+      overlay.innerHTML = `
+        <div id="changelog-modal">
+          <div id="changelog-header">
+            <span class="cl-badge">Novidades</span>
+            <span class="cl-emoji" id="cl-emoji"></span>
+            <h2 id="cl-nome"></h2>
+            <p id="cl-destaque"></p>
+          </div>
+          <div id="changelog-body">
+            <p class="cl-intro" id="cl-intro"></p>
+            <div id="cl-itens"></div>
+          </div>
+          <div id="changelog-footer">
+            <span class="cl-version" id="cl-version-label"></span>
+            <button id="changelog-close">Começar a usar →</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      document.getElementById('changelog-close').addEventListener('click', _fecharChangelog);
+      overlay.addEventListener('click', e => { if (e.target === overlay) _fecharChangelog(); });
+    }
+
+    document.getElementById('cl-emoji').textContent    = v.emoji;
+    document.getElementById('cl-nome').textContent     = v.nome;
+    document.getElementById('cl-destaque').textContent  = v.destaque;
+    document.getElementById('cl-intro').textContent    = v.intro;
+    document.getElementById('cl-version-label').textContent = `v${CURRENT_VERSION}`;
+    document.getElementById('cl-itens').innerHTML = v.itens.map(it => `
+      <div class="cl-item">
+        <div class="cl-item-icon">${it.icon}</div>
+        <div class="cl-item-body"><h4>${it.titulo}</h4><p>${it.desc}</p></div>
+      </div>`).join('');
+
+    overlay.classList.add('open');
+  }
+
+  function _fecharChangelog() {
+    document.getElementById('changelog-overlay')?.classList.remove('open');
+    localStorage.setItem('agriflow_version_seen', CURRENT_VERSION);
+  }
+
+  function _checkNovidadesVersao() {
+    const vistoPor = localStorage.getItem('agriflow_version_seen');
+    if (vistoPor !== CURRENT_VERSION) {
+      setTimeout(_mostrarChangelog, 800);
     }
   }
 
@@ -447,11 +587,17 @@
     _injectStyles();
     _injectFab();
 
-    // Tutorial automático apenas na visão geral (página inicial)
     if (window.location.pathname.includes('visao-geral')) {
-      _checkFirstVisit();
+      // Novidades da versão têm prioridade sobre o tutorial
+      const vistoPor = localStorage.getItem('agriflow_version_seen');
+      if (vistoPor !== CURRENT_VERSION) {
+        _checkNovidadesVersao();
+      } else {
+        _checkFirstVisit();
+      }
     }
   };
 
-  window.startTutorial = _startTutorial;
+  window.startTutorial   = _startTutorial;
+  window.verNovidadesVersao = _mostrarChangelog;
 })();
