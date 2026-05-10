@@ -36,7 +36,8 @@ const NAV_COLAB = [
   { page: 'contratos',    label: 'Contratos',    href: '/pages/contratos.html' },
   { page: 'credito-rural', label: 'Crédito Rural', href: '/pages/credito-rural.html' },
   { page: 'clientes',    label: 'Clientes',   href: '/pages/clientes.html' },
-  { page: 'imoveis',     label: 'Imóveis',    href: '/pages/imoveis.html' },
+  { page: 'imoveis',       label: 'Imóveis',       href: '/pages/imoveis.html' },
+  { page: 'servicos',      label: 'Serviços',      href: '/pages/servicos.html' },
   { divider: true },
   { page: 'preferencias', label: 'Preferências', href: '/pages/preferencias.html' },
 ];

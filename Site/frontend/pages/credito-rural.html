@@ -57,7 +57,26 @@
   </style>
 </head>
 <body>
-<div id="sidebar-root"></div>
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Menu">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🌿</div>
+    <div><div class="sidebar-logo-text">AgriFlow</div><div class="sidebar-logo-sub">Crédito Rural</div></div>
+  </div>
+  <nav class="sidebar-nav"></nav>
+  <div class="sidebar-user">
+    <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name" id="sidebar-user-name">—</div>
+      <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+    </div>
+  </div>
+  <button class="sidebar-logout-btn" id="btn-logout">
+    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12V5a2 2 0 012-2h7" stroke-width="2" stroke-linecap="round"/></svg>
+    Sair da conta
+  </button>
+</aside>
 <main class="app-main">
   <div class="app-content">
 

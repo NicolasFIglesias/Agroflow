@@ -22,18 +22,21 @@ const MENU_ITEMS = _isAdminPref ? [
   { page: 'calendario',    label: 'Calendário',             icon: '📅' },
   { page: 'vendas',        label: 'Vendas',                 icon: '💰' },
   { page: 'contratos',     label: 'Contratos',              icon: '📄' },
+  { page: 'credito-rural', label: 'Crédito Rural',          icon: '🌱' },
   { page: 'clientes',      label: 'Clientes',               icon: '👥' },
   { page: 'imoveis',       label: 'Imóveis',                icon: '🌾' },
   { page: 'servicos',      label: 'Serviços e Produtos',    icon: '🛒' },
   { page: 'faturamento',   label: 'Faturamento',            icon: '📊' },
   { page: 'colaboradores', label: 'Cadastrar colaborador',  icon: '👤' },
 ] : [
-  { page: 'visao-geral',   label: 'Início',     icon: '🏠' },
-  { page: 'calendario',    label: 'Calendário',  icon: '📅' },
-  { page: 'vendas',        label: 'Vendas',      icon: '💰' },
-  { page: 'contratos',     label: 'Contratos',   icon: '📄' },
-  { page: 'clientes',      label: 'Clientes',    icon: '👥' },
-  { page: 'imoveis',       label: 'Imóveis',     icon: '🌾' },
+  { page: 'visao-geral',   label: 'Início',        icon: '🏠' },
+  { page: 'calendario',    label: 'Calendário',     icon: '📅' },
+  { page: 'vendas',        label: 'Vendas',         icon: '💰' },
+  { page: 'contratos',     label: 'Contratos',      icon: '📄' },
+  { page: 'credito-rural', label: 'Crédito Rural',  icon: '🌱' },
+  { page: 'clientes',      label: 'Clientes',       icon: '👥' },
+  { page: 'imoveis',       label: 'Imóveis',        icon: '🌾' },
+  { page: 'servicos',      label: 'Serviços',       icon: '🛒' },
 ];
 
 let _prefs = null;
