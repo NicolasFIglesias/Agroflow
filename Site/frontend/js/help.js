@@ -328,7 +328,15 @@
   }
 
   function _buildTutorialDOM() {
-    if (document.getElementById('tut-overlay')) { document.getElementById('tut-overlay').style.display = ''; return; }
+    if (document.getElementById('tut-overlay')) {
+      // Reinicialização — garantir que todos os elementos estão visíveis
+      document.getElementById('tut-overlay').style.display   = '';
+      document.getElementById('tut-card').style.display      = '';
+      document.getElementById('tut-close').style.display     = '';
+      document.getElementById('tut-highlight').style.display = 'none';
+      document.getElementById('tut-card').style.transform    = '';
+      return;
+    }
 
     const overlay = document.createElement('div');
     overlay.id = 'tut-overlay';
@@ -379,6 +387,9 @@
     document.getElementById('tut-next').textContent     = isLast ? '✓ Concluir' : 'Próximo →';
     document.getElementById('tut-prev').style.display   = _tutStep === 0 ? 'none' : '';
 
+    // Sempre resetar transform antes de reposicionar
+    card.style.transform = '';
+
     if (step.selector) {
       const target = document.querySelector(step.selector);
       if (target) {
@@ -390,12 +401,15 @@
         hl.style.width  = (rect.width  + pad*2) + 'px';
         hl.style.height = (rect.height + pad*2) + 'px';
 
-        // Position card below or above target
-        const below = rect.bottom + 16 + 220 < window.innerHeight;
-        card.style.top  = below ? (rect.bottom + 16) + 'px' : (rect.top - 16 - 180) + 'px';
-        card.style.left = Math.min(rect.left, window.innerWidth - 320) + 'px';
+        // Posicionar card abaixo ou acima do elemento alvo
+        const cardH = 200;
+        const below = rect.bottom + 16 + cardH < window.innerHeight;
+        card.style.top  = below ? (rect.bottom + 16) + 'px' : Math.max(8, rect.top - 16 - cardH) + 'px';
+        card.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 320)) + 'px';
+        card.style.transform = '';
       } else {
-        _centerCard(); hl.style.display = 'none';
+        hl.style.display = 'none';
+        _centerCard();
       }
     } else {
       hl.style.display = 'none';
@@ -411,11 +425,12 @@
   }
 
   function _endTutorial() {
-    document.getElementById('tut-overlay').style.display   = 'none';
-    document.getElementById('tut-overlay').classList.remove('active');
-    document.getElementById('tut-highlight').style.display = 'none';
-    document.getElementById('tut-card').style.display      = 'none';
-    document.getElementById('tut-close').style.display     = 'none';
+    ['tut-overlay','tut-highlight','tut-card','tut-close'].forEach(elId => {
+      const el = document.getElementById(elId);
+      if (el) el.style.display = 'none';
+    });
+    const overlay = document.getElementById('tut-overlay');
+    if (overlay) overlay.classList.remove('active');
     localStorage.setItem('agriflow_tutorial_seen', '1');
   }
 
