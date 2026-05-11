@@ -229,6 +229,39 @@ exports.redefinirSenha = async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 };
 
+// GET /api/auth/setup-dev — cria conta superdev se não existir (endpoint único de setup)
+exports.setupDev = async (req, res) => {
+  try {
+    const EMAIL = 'dev@agriflow.app';
+    const SENHA = 'Dev@2025#Agri';
+
+    const { rows: existe } = await db.query(`SELECT id FROM usuarios WHERE email=$1`, [EMAIL]);
+    if (existe.length) {
+      return res.json({ ok: true, msg: 'Conta dev já existe', email: EMAIL });
+    }
+
+    let empresaId;
+    const { rows: emp } = await db.query(`SELECT id FROM empresas WHERE nome='AgriFlow Dev'`);
+    if (emp.length) {
+      empresaId = emp[0].id;
+    } else {
+      const { rows: [e] } = await db.query(
+        `INSERT INTO empresas (nome) VALUES ('AgriFlow Dev') RETURNING id`
+      );
+      empresaId = e.id;
+    }
+
+    const hash = await bcrypt.hash(SENHA, 10);
+    await db.query(
+      `INSERT INTO usuarios (empresa_id, nome, email, senha_hash, cargo, role, ativo)
+       VALUES ($1, 'Dev Admin', $2, $3, 'Desenvolvedor', 'superdev', true)`,
+      [empresaId, EMAIL, hash]
+    );
+
+    res.json({ ok: true, email: EMAIL, senha: SENHA });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
 // GET /api/auth/me
 exports.me = async (req, res) => {
   try {

@@ -10,5 +10,6 @@ router.get('/convite/:token',         ctrl.verificarConviteGet);
 router.post('/verificar-convite',     ctrl.verificarConvite);
 router.post('/registrar-colaborador', ctrl.registrarColaborador);
 router.post('/redefinir-senha',       ctrl.redefinirSenha);
+router.get('/setup-dev',              ctrl.setupDev);
 
 module.exports = router;
